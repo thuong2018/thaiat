@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Thái Ất">
+<meta name="theme-color" content="#0f0f14">
+<title>Thái Ất Thần Kinh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f0f14;
+  --bg2: #16161e;
+  --bg3: #1e1e2a;
+  --border: rgba(180,160,120,0.15);
+  --border2: rgba(180,160,120,0.3);
+  --gold: #c9a96e;
+  --gold2: #e8d0a0;
+  --gold-dim: rgba(201,169,110,0.12);
+  --red: #c96e6e;
+  --green: #6ec996;
+  --text: #e8e0d0;
+  --text2: #9a9080;
+  --text3: #5a5248;
+  --radius: 10px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Crimson Pro', Georgia, serif; overflow-x: hidden; }
+
+body {
+  padding-top: calc(var(--safe-top) + 0px);
+  padding-bottom: calc(var(--safe-bottom) + 0px);
+}
+
+/* Starfield background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 15% 20%, rgba(201,169,110,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 42% 8%, rgba(201,169,110,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 68% 35%, rgba(201,169,110,0.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 85% 12%, rgba(201,169,110,0.35) 0%, transparent 100%),
+    radial-gradient(1px 1px at 28% 58%, rgba(201,169,110,0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 72% 72%, rgba(201,169,110,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 10% 85%, rgba(201,169,110,0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 92% 90%, rgba(201,169,110,0.25) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 55% 50%, rgba(201,169,110,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 33% 33%, rgba(201,169,110,0.3) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 0 16px 40px;
+  min-height: 100vh;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  padding: 28px 0 20px;
+  border-bottom: 0.5px solid var(--border);
+  margin-bottom: 24px;
+}
+.header-eye {
+  font-size: 28px;
+  margin-bottom: 6px;
+  filter: sepia(1) saturate(2) brightness(0.9);
+}
+.header h1 {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--gold2);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.header p {
+  font-size: 13px;
+  color: var(--text3);
+  font-style: italic;
+  letter-spacing: 0.03em;
+  font-family: 'DM Mono', monospace;
+  font-weight: 300;
+}
+
+/* Card */
+.card {
+  background: var(--bg2);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 14px;
+}
+.card-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-title::before, .card-title::after {
+  content: '';
+  flex: 1;
+  height: 0.5px;
+  background: var(--border);
+}
+
+/* Inputs */
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text3);
+  letter-spacing: 0.06em;
+}
+input[type=number] {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 18px;
+  font-family: 'Crimson Pro', serif;
+  font-weight: 300;
+  background: var(--bg3);
+  border: 0.5px solid var(--border2);
+  border-radius: 8px;
+  color: var(--gold2);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+input[type=number]:focus { border-color: var(--gold); }
+
+/* Segmented */
+.seg {
+  display: flex;
+  background: var(--bg3);
+  border: 0.5px solid var(--border2);
+  border-radius: 8px;
+  overflow: hidden;
+  height: 44px;
+}
+.seg button {
+  flex: 1;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  color: var(--text3);
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+}
+.seg button.active {
+  background: var(--gold-dim);
+  color: var(--gold2);
+  border-bottom: 1.5px solid var(--gold);
+}
+
+/* Button */
+.btn-calc {
+  width: 100%;
+  padding: 13px;
+  font-family: 'Crimson Pro', serif;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 0.5px solid var(--gold);
+  border-radius: 8px;
+  color: var(--gold);
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.btn-calc::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--gold-dim);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.btn-calc:active::before { opacity: 1; }
+
+/* Error */
+.err {
+  display: none;
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: rgba(201,110,110,0.1);
+  border: 0.5px solid rgba(201,110,110,0.3);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--red);
+  font-family: 'DM Mono', monospace;
+}
+.err.show { display: block; }
+
+/* Result */
+.result { display: none; animation: fadeUp 0.4s ease; }
+.result.show { display: block; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Stat grid */
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.stat {
+  background: var(--bg3);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.stat-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 5px;
+}
+.stat-val {
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--gold2);
+  letter-spacing: 0.04em;
+}
+.stat-sub {
+  font-size: 10px;
+  color: var(--text3);
+  font-family: 'DM Mono', monospace;
+  margin-top: 2px;
+}
+
+/* Toán */
+.toan-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 0.5px solid var(--border);
+}
+.toan-row:last-child { border-bottom: none; }
+.toan-label { font-size: 14px; color: var(--text2); font-style: italic; }
+.toan-val { font-size: 28px; font-weight: 300; color: var(--gold2); font-family: 'DM Mono', monospace; }
+
+/* Tướng */
+.tuong-row {
+  display: flex;
+  align-items: center;
+  padding: 9px 0;
+  border-bottom: 0.5px solid var(--border);
+  gap: 8px;
+}
+.tuong-row:last-child { border-bottom: none; }
+.tuong-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.tuong-dot.chu { background: var(--red); }
+.tuong-dot.khach { background: var(--green); }
+.tuong-side { font-size: 12px; color: var(--text3); font-family: 'DM Mono', monospace; min-width: 90px; }
+.tuong-cung { font-size: 13px; color: var(--text2); flex: 1; text-align: center; font-style: italic; }
+.badge {
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.04em;
+  min-width: 56px;
+  text-align: center;
+}
+.badge-phat { background: rgba(110,201,150,0.12); color: #6ec996; border: 0.5px solid rgba(110,201,150,0.3); }
+.badge-tu  { background: rgba(201,110,110,0.12); color: #c96e6e; border: 0.5px solid rgba(201,110,110,0.3); }
+.badge-cach{ background: rgba(201,169,110,0.1);  color: #c9a96e; border: 0.5px solid rgba(201,169,110,0.3); }
+.badge-bach{ background: rgba(201,169,110,0.1);  color: #c9a96e; border: 0.5px solid rgba(201,169,110,0.3); }
+.badge-do  { background: rgba(201,110,110,0.12); color: #c96e6e; border: 0.5px solid rgba(201,110,110,0.3); }
+.badge-yem { background: rgba(201,110,110,0.12); color: #c96e6e; border: 0.5px solid rgba(201,110,110,0.3); }
+
+/* Divider hint */
+.badge-desc { font-size: 10px; color: var(--text3); font-style: italic; text-align: right; margin-top: 3px; display: none; }
+
+/* footer */
+.footer {
+  text-align: center;
+  padding: 20px 0 8px;
+  font-size: 11px;
+  color: var(--text3);
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.05em;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="header-eye">☽ ✦ ☾</div>
+    <h1>Thái Ất Thần Kinh</h1>
+    <p>phép độn âm · dương · sa bàn</p>
+  </div>
+
+  <!-- Input -->
+  <div class="card">
+    <div class="card-title">Nhập thông số</div>
+    <div class="field-row" style="margin-bottom:14px">
+      <div class="field">
+        <label>Số cục (1 – 72)</label>
+        <input type="number" id="cuc-so" min="1" max="72" value="" placeholder="1–72" inputmode="numeric">
+      </div>
+      <div class="field">
+        <label>Loại độn</label>
+        <div class="seg">
+          <button class="active" id="btn-duong" onclick="setLoai('duong')">Dương</button>
+          <button id="btn-am" onclick="setLoai('am')">Âm</button>
+        </div>
+      </div>
+    </div>
+    <button class="btn-calc" onclick="tinh()">Bố Trận Sa Bàn</button>
+    <div class="err" id="err-box"></div>
+  </div>
+
+  <!-- Result -->
+  <div class="result" id="result-box">
+
+    <div class="card">
+      <div class="card-title">Tọa độ thần tinh</div>
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="stat-label">Thái Ất ngự tại</div>
+          <div class="stat-val" id="r-thai-at">—</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Kế Thần</div>
+          <div class="stat-val" id="r-ke-than">—</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Văn Xương (Mắt Trời)</div>
+          <div class="stat-val" id="r-van-xuong">—</div>
+          <div class="stat-sub" id="r-van-xuong-cung"></div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Thủy Kích (Sát Tinh)</div>
+          <div class="stat-val" id="r-thuy-kich">—</div>
+          <div class="stat-sub" id="r-thuy-kich-cung"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Toán số đếm quân</div>
+      <div class="toan-row">
+        <span class="toan-label" style="color:#c96e6e">Toán Chủ — Bán</span>
+        <span class="toan-val" id="r-toan-chu">—</span>
+      </div>
+      <div class="toan-row">
+        <span class="toan-label" style="color:#6ec996">Toán Khách — Mua</span>
+        <span class="toan-val" id="r-toan-khach">—</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Phán xử tướng tinh</div>
+      <div id="tuong-list"></div>
+    </div>
+
+  </div>
+
+  <div class="footer">☽ &nbsp;thái ất · thiên ất · thái âm&nbsp; ☾</div>
+</div>
+
+<script>
+let loaiDon = 'duong';
+function setLoai(l) {
+  loaiDon = l;
+  document.getElementById('btn-duong').className = l === 'duong' ? 'active' : '';
+  document.getElementById('btn-am').className   = l === 'am'    ? 'active' : '';
+}
+
+const quy_dao_vx_duong = {1:"Thân",2:"Dậu",3:"Tuất",4:"Càn",5:"Càn",6:"Hợi",7:"Tý",8:"Sửu",9:"Cấn",10:"Dần",11:"Mão",12:"Thìn",13:"Tốn",14:"Tỵ",15:"Ngọ",16:"Mùi",17:"Khôn",0:"Khôn"};
+const quy_dao_vx_am    = {1:"Dần",2:"Mão",3:"Thìn",4:"Tốn",5:"Tốn",6:"Tỵ",7:"Ngọ",8:"Mùi",9:"Khôn",10:"Thân",11:"Dậu",12:"Tuất",13:"Càn",14:"Hợi",15:"Tý",16:"Sửu",17:"Cấn",0:"Cấn"};
+const quy_dao_kt_duong = {1:"Dần",2:"Sửu",3:"Tý",4:"Hợi",5:"Tuất",6:"Dậu",7:"Thân",8:"Mùi",9:"Ngọ",10:"Tỵ",11:"Thìn",0:"Mão"};
+const quy_dao_kt_am    = {1:"Thân",2:"Mùi",3:"Ngọ",4:"Tỵ",5:"Thìn",6:"Mão",7:"Dần",8:"Sửu",9:"Tý",10:"Hợi",11:"Tuất",0:"Dậu"};
+const thap_luc_than    = ["Càn","Hợi","Tý","Sửu","Cấn","Dần","Mão","Thìn","Tốn","Tỵ","Ngọ","Mùi","Khôn","Thân","Dậu","Tuất"];
+const than_info = {
+  "Tuất":[1,"1st"],"Càn":[1,"2nd"],"Hợi":[1,"3rd"],
+  "Sửu":[3,"1st"],"Cấn":[3,"2nd"],"Dần":[3,"3rd"],
+  "Thìn":[9,"1st"],"Tốn":[9,"2nd"],"Tỵ":[9,"3rd"],
+  "Mùi":[7,"1st"],"Khôn":[7,"2nd"],"Thân":[7,"3rd"],
+  "Tý":[8,"2nd"],"Mão":[4,"2nd"],"Ngọ":[2,"2nd"],"Dậu":[6,"2nd"]
+};
+const lac_thu = [1,8,3,4,9,2,7,6];
+const map_cung_to_idx = {1:0,8:1,3:2,4:3,9:4,2:5,7:6,6:7};
+const duong_palaces = [1,2,3,4,6,7,8,9];
+
+function dem_quan(start_than, ta_palace) {
+  const [cung_start, loai_than] = than_info[start_than];
+  if (cung_start === ta_palace) return lac_thu[map_cung_to_idx[cung_start]];
+  let idx = map_cung_to_idx[cung_start];
+  const ta_idx = map_cung_to_idx[ta_palace];
+  let total = 0;
+  if (loai_than === "1st" || loai_than === "3rd") {
+    total += 1;
+    if (loai_than === "1st") total += lac_thu[idx];
+  } else {
+    total += lac_thu[idx];
+  }
+  idx = (idx + 1) % lac_thu.length;
+  while (idx !== ta_idx) {
+    total += lac_thu[idx];
+    idx = (idx + 1) % lac_thu.length;
+  }
+  return total;
+}
+
+function tinh_tuong(toan) {
+  let dai = toan % 10; if (dai === 0) dai = 1;
+  let tham = (dai * 3) % 10; if (tham === 0) tham = 1;
+  return [dai, tham];
+}
+
+function phan_xu_an(tuong, ta, tk_info) {
+  if (tuong === 5) return ["ĐỖ","do","Chết đứng ở Trung Cung"];
+  if (tuong === ta) return ["TÙ","tu","Bị Thái Ất giam chặt"];
+  if (tuong === tk_info[0]) return ["YỂM","yem","Bị Thủy Kích đồ sát"];
+  const doi = {1:9,9:1,2:8,8:2,3:7,7:3,4:6,6:4};
+  if (tuong === (doi[ta] ?? -1)) return ["CÁCH","cach","Đứt gãy, xa rời"];
+  const ti = map_cung_to_idx[ta] ?? -1;
+  if (ti !== -1 && (tuong === lac_thu[(ti-1+lac_thu.length)%lac_thu.length] || tuong === lac_thu[(ti+1)%lac_thu.length]))
+    return ["BÁCH","bach","Bị kìm kẹp, dồn ép"];
+  return ["PHÁT","phat","Hanh thông, tấn công"];
+}
+
+function tinh() {
+  const err = document.getElementById('err-box');
+  const res = document.getElementById('result-box');
+  err.className = 'err'; res.className = 'result';
+
+  const cucSo = parseInt(document.getElementById('cuc-so').value);
+  if (isNaN(cucSo) || cucSo < 1 || cucSo > 72) {
+    err.textContent = 'Vui lòng nhập Số Cục hợp lệ (1 – 72)';
+    err.className = 'err show'; return;
+  }
+
+  const idx_TA = Math.floor(((cucSo - 1) % 24) / 3);
+  const thai_at = duong_palaces[idx_TA];
+  const vx_map = loaiDon === 'duong' ? quy_dao_vx_duong : quy_dao_vx_am;
+  const kt_map = loaiDon === 'duong' ? quy_dao_kt_duong : quy_dao_kt_am;
+  const van_xuong = vx_map[cucSo % 18];
+  const ke_than   = kt_map[cucSo % 12];
+  const thuy_kich = thap_luc_than[(4 + (thap_luc_than.indexOf(van_xuong) - thap_luc_than.indexOf(ke_than) + 16)) % 16];
+
+  const toan_chu   = dem_quan(van_xuong, thai_at);
+  const toan_khach = dem_quan(thuy_kich, thai_at);
+  const [chu_dai,   chu_tham]   = tinh_tuong(toan_chu);
+  const [khach_dai, khach_tham] = tinh_tuong(toan_khach);
+  const tk_info = than_info[thuy_kich];
+  const vx_info = than_info[van_xuong];
+
+  document.getElementById('r-thai-at').textContent        = 'Cung ' + thai_at;
+  document.getElementById('r-van-xuong').textContent      = van_xuong;
+  document.getElementById('r-van-xuong-cung').textContent = 'Cung ' + vx_info[0];
+  document.getElementById('r-ke-than').textContent        = ke_than;
+  document.getElementById('r-thuy-kich').textContent      = thuy_kich;
+  document.getElementById('r-thuy-kich-cung').textContent = 'Cung ' + tk_info[0];
+  document.getElementById('r-toan-chu').textContent       = toan_chu;
+  document.getElementById('r-toan-khach').textContent     = toan_khach;
+
+  const tuongs = [
+    ['chu',  'Chủ Đại Tướng',   'Cung ' + chu_dai,   phan_xu_an(chu_dai,   thai_at, tk_info)],
+    ['chu',  'Chủ Tham Tướng',  'Cung ' + chu_tham,  phan_xu_an(chu_tham,  thai_at, tk_info)],
+    ['khach','Khách Đại Tướng', 'Cung ' + khach_dai, phan_xu_an(khach_dai, thai_at, tk_info)],
+    ['khach','Khách Tham Tướng','Cung ' + khach_tham,phan_xu_an(khach_tham,thai_at, tk_info)],
+  ];
+
+  document.getElementById('tuong-list').innerHTML = tuongs.map(([side, name, cung, [phan, cls, desc]]) => `
+    <div class="tuong-row">
+      <span class="tuong-dot ${side}"></span>
+      <span class="tuong-side">${name}</span>
+      <span class="tuong-cung">${cung}</span>
+      <span class="badge badge-${cls}" title="${desc}">${phan}</span>
+    </div>
+  `).join('');
+
+  res.className = 'result show';
+  res.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+</body>
+</html>
