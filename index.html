@@ -1,235 +1,1057 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sa Bàn Thái Ất Thực Chiến - Tuế Cục</title>
-    <style>
-        /* CSS GIAO DIỆN SA BÀN THỰC CHIẾN (DARK MODE) */
-        :root {
-            --bg-dark: #121212;
-            --panel-bg: #1e1e1e;
-            --text-main: #e0e0e0;
-            --gold: #ffd700;
-            --red-alert: #ff4d4d;
-            --green-safe: #00e676;
-            --blue-crypto: #00bfff;
-            --border-color: #333;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>☯ Thái Ất Thần Kinh</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Cinzel+Decorative:wght@400;700&family=Noto+Sans+SC:wght@300;400;500&display=swap');
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            padding: 20px;
-        }
+  :root {
+    --bg:         #050a14;
+    --bg2:        #081020;
+    --surface:    #0d1a2e;
+    --border:     #1a3050;
+    --gold:       #c8993a;
+    --gold-light: #f0c060;
+    --cyan:       #00d4ff;
+    --teal:       #00e5c0;
+    --red:        #ff4444;
+    --orange:     #ff8c00;
+    --green:      #22dd88;
+    --yellow:     #ffd700;
+    --text:       #d0e4f8;
+    --text-dim:   #6a8aaa;
+    --safe-top:   env(safe-area-inset-top, 44px);
+    --safe-bot:   env(safe-area-inset-bottom, 34px);
+  }
 
-        .thai-at-dashboard {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-        .dashboard-header {
-            text-align: center;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
 
-        .dashboard-header h1 {
-            color: var(--gold);
-            margin: 0 0 10px 0;
-            text-transform: uppercase;
-        }
+  /* ── Starfield background ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,180,255,.07) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(200,153,58,.05) 0%, transparent 60%);
+    pointer-events: none;
+  }
 
-        /* Lưới chia 2 cột: Vi mô (Tướng) và Vĩ mô (Thần sát/Cửa) */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
+  #starfield {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 25% 40%, rgba(255,255,255,.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 45% 8%, rgba(255,255,255,.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 70% 22%, rgba(200,210,255,.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 85% 55%, rgba(255,255,255,.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 10%, rgba(255,255,255,.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 55% 70%, rgba(255,255,255,.25) 0%, transparent 100%),
+      radial-gradient(1px 1px at 30% 85%, rgba(255,255,255,.3) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 15% 65%, rgba(0,212,255,.4) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 60% 45%, rgba(200,153,58,.35) 0%, transparent 100%);
+  }
 
-        .panel {
-            background: #252525;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #444;
-        }
+  #app { position: relative; z-index: 1; max-width: 430px; margin: 0 auto; min-height: 100dvh; }
 
-        .panel h3 {
-            color: var(--blue-crypto);
-            margin-top: 0;
-            border-bottom: 1px dashed #555;
-            padding-bottom: 5px;
-        }
+  /* ── HEADER ── */
+  header {
+    padding: calc(var(--safe-top) + 12px) 20px 16px;
+    text-align: center;
+    background: linear-gradient(180deg, rgba(5,10,20,.98) 0%, transparent 100%);
+    position: sticky; top: 0; z-index: 100;
+    border-bottom: 1px solid rgba(0,212,255,.15);
+  }
 
-        /* Style cho Toán số & Tướng Tinh */
-        .team-box {
-            margin-bottom: 15px;
-            padding: 10px;
-            background: #1a1a1a;
-            border-left: 4px solid;
-            border-radius: 4px;
-        }
-        .team-chu { border-color: var(--red-alert); }
-        .team-khach { border-color: var(--green-safe); }
-        
-        .tag {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-right: 5px;
-        }
-        .tag-phat { background: rgba(0, 230, 118, 0.2); color: var(--green-safe); border: 1px solid var(--green-safe); }
-        .tag-tu { background: rgba(255, 77, 77, 0.2); color: var(--red-alert); border: 1px solid var(--red-alert); }
-        .tag-element { background: #333; color: var(--gold); border: 1px solid #666; }
+  .header-symbol { font-size: 28px; line-height: 1; margin-bottom: 2px; }
 
-        /* Style cho Bát Môn */
-        .bat-mon-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        .bat-mon-table th, .bat-mon-table td {
-            border: 1px solid #444;
-            padding: 8px;
-            text-align: center;
-            font-size: 14px;
-        }
-        .bat-mon-table th { background: #333; color: var(--gold); }
-        
-        .status-cat { color: var(--green-safe); font-weight: bold; }
-        .status-hung { color: var(--red-alert); font-weight: bold; }
-        .row-highlight { background: rgba(255, 215, 0, 0.1); } /* Dành cho Trực Sử */
+  header h1 {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 50%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 
-        ul.indicator-list { padding-left: 20px; font-size: 15px; line-height: 1.6; }
-        .note { color: #888; font-style: italic; font-size: 13px; display: block; margin-top: 2px;}
+  header p {
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: .06em;
+    margin-top: 2px;
+  }
 
-    </style>
+  /* ── INPUT CARD ── */
+  .card {
+    margin: 16px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(0,212,255,.04) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .card-title {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--cyan);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .card-title::before {
+    content: '';
+    display: block;
+    width: 3px; height: 14px;
+    background: linear-gradient(180deg, var(--cyan), var(--teal));
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ── DATE GRID ── */
+  .date-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field.wide { grid-column: 1 / -1; }
+
+  label {
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  input[type="number"], input[type="date"] {
+    background: rgba(255,255,255,.04);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 13px;
+    color: var(--text);
+    font-size: 16px; /* prevents iOS zoom */
+    font-family: inherit;
+    width: 100%;
+    outline: none;
+    transition: border-color .2s, background .2s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  input[type="number"]:focus, input[type="date"]:focus {
+    border-color: var(--cyan);
+    background: rgba(0,212,255,.06);
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  /* ── TODAY SHORTCUT ── */
+  .today-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: rgba(0,212,255,.08);
+    border: 1px solid rgba(0,212,255,.25);
+    border-radius: 10px;
+    padding: 9px;
+    color: var(--cyan);
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background .2s, border-color .2s;
+    width: 100%;
+    margin-top: 2px;
+  }
+
+  .today-btn:active { background: rgba(0,212,255,.18); }
+
+  /* ── CALCULATE BUTTON ── */
+  .calc-btn {
+    width: 100%;
+    margin: 4px 0 0;
+    padding: 15px;
+    background: linear-gradient(135deg, #1a3a6e 0%, #0d2448 100%);
+    border: 1px solid rgba(200,153,58,.4);
+    border-radius: 14px;
+    color: var(--gold-light);
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform .1s, box-shadow .2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .calc-btn::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(200,153,58,.15) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity .2s;
+  }
+
+  .calc-btn:active { transform: scale(.98); }
+  .calc-btn:active::before { opacity: 1; }
+
+  .calc-btn.loading { opacity: .7; pointer-events: none; }
+
+  /* ── DISCLAIMER BANNER ── */
+  .disclaimer {
+    margin: 0 14px 16px;
+    background: rgba(255,68,68,.06);
+    border: 1px solid rgba(255,68,68,.25);
+    border-radius: 14px;
+    padding: 14px 15px;
+    font-size: 12px;
+    line-height: 1.7;
+  }
+
+  .disclaimer-title {
+    color: var(--red);
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: .06em;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .disclaimer ol {
+    padding-left: 18px;
+    color: var(--text);
+  }
+
+  .disclaimer ol li { margin-bottom: 8px; }
+  .disclaimer ol li strong { color: var(--gold-light); }
+
+  .disclaimer .tip {
+    margin-top: 10px;
+    padding: 9px 12px;
+    background: rgba(200,153,58,.08);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+    color: var(--gold-light);
+    font-size: 11.5px;
+    line-height: 1.6;
+  }
+
+  /* ── RESULTS ── */
+  #results { padding: 0 14px calc(var(--safe-bot) + 20px); }
+
+  .result-header {
+    text-align: center;
+    padding: 20px 0 14px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+
+  .result-header h2 {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: .06em;
+  }
+
+  .result-header p {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 3px;
+  }
+
+  /* ── CUC BLOCK ── */
+  .cuc-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    animation: fadeSlide .4s ease both;
+  }
+
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .cuc-block:nth-child(1) { animation-delay: .05s; }
+  .cuc-block:nth-child(2) { animation-delay: .1s; }
+  .cuc-block:nth-child(3) { animation-delay: .15s; }
+  .cuc-block:nth-child(4) { animation-delay: .2s; }
+
+  .cuc-header {
+    padding: 12px 14px;
+    background: rgba(0,212,255,.05);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .cuc-header .icon { font-size: 18px; }
+
+  .cuc-header .info { flex: 1; }
+  .cuc-header .info h3 {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gold-light);
+    letter-spacing: .04em;
+  }
+  .cuc-header .info p {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 1px;
+  }
+
+  .cuc-header .chevron {
+    color: var(--text-dim);
+    font-size: 12px;
+    transition: transform .25s;
+  }
+  .cuc-block.open .chevron { transform: rotate(180deg); }
+
+  .cuc-body {
+    display: none;
+    padding: 14px;
+  }
+  .cuc-block.open .cuc-body { display: block; }
+
+  /* ── SECTION INSIDE CUC ── */
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin: 14px 0 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid rgba(0,212,255,.15);
+  }
+
+  .section-label:first-child { margin-top: 0; }
+
+  /* ── SHEN ROWS ── */
+  .shen-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+    font-size: 12px;
+  }
+  .shen-row:last-child { border-bottom: none; }
+
+  .shen-row .icon-col { font-size: 14px; flex-shrink: 0; }
+  .shen-row .key { color: var(--text-dim); min-width: 110px; flex-shrink: 0; }
+  .shen-row .val { color: var(--text); font-weight: 500; }
+
+  /* ── VOLUME PILLS ── */
+  .vol-row {
+    margin: 4px 0;
+    padding: 8px 10px;
+    border-radius: 9px;
+    font-size: 11.5px;
+    line-height: 1.5;
+    border-left: 3px solid;
+  }
+
+  .vol-row.cat    { background: rgba(34,221,136,.07); border-color: var(--green);  color: var(--green); }
+  .vol-row.hung   { background: rgba(255,68,68,.07);  border-color: var(--red);    color: var(--red); }
+  .vol-row.warn   { background: rgba(255,214,0,.07);  border-color: var(--yellow); color: var(--yellow); }
+  .vol-row.normal { background: rgba(255,255,255,.04);border-color: var(--text-dim); color: var(--text); }
+
+  .vol-label { font-size: 10px; color: var(--text-dim); margin-bottom: 3px; font-weight: 500; letter-spacing:.04em; }
+
+  /* ── TUONG CARDS ── */
+  .tuong-side {
+    margin-top: 8px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid;
+  }
+
+  .tuong-side.ban  { border-color: rgba(255,68,68,.3);   background: rgba(255,68,68,.04); }
+  .tuong-side.mua  { border-color: rgba(34,221,136,.3);  background: rgba(34,221,136,.04); }
+
+  .tuong-side-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    margin-bottom: 8px;
+  }
+  .ban .tuong-side-title  { color: var(--red); }
+  .mua .tuong-side-title  { color: var(--green); }
+
+  .tuong-item {
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+    font-size: 11.5px;
+  }
+  .tuong-item:last-child { border-bottom: none; padding-bottom: 0; }
+
+  .tuong-name { color: var(--text-dim); font-size: 10px; margin-bottom: 2px; }
+
+  .status-dai-cat  { color: var(--green); font-weight: 600; }
+  .status-binh     { color: var(--yellow); }
+  .status-hung     { color: var(--red); font-weight: 600; }
+
+  .mo-ta { font-size: 11px; color: var(--text-dim); margin: 2px 0 3px; }
+
+  .an-list { list-style: none; padding: 0; }
+  .an-list li {
+    font-size: 11px;
+    padding: 2px 0;
+    color: var(--text);
+    opacity: .8;
+  }
+
+  /* ── BAT MON ── */
+  .bat-mon-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+  }
+
+  .bat-mon-cell {
+    background: rgba(255,255,255,.03);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 8px 10px;
+    font-size: 11.5px;
+  }
+
+  .bat-mon-cell.truc-su {
+    border-color: rgba(200,153,58,.4);
+    background: rgba(200,153,58,.07);
+    grid-column: 1 / -1;
+  }
+
+  .bat-mon-cell .huong { font-size: 10px; color: var(--text-dim); margin-bottom: 2px; }
+  .bat-mon-cell .cua { color: var(--gold-light); font-weight: 600; font-size: 12px; }
+  .bat-mon-cell .cua-desc { font-size: 10px; color: var(--text-dim); margin-top: 1px; }
+
+  /* ── EMPTY STATE ── */
+  .empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-dim);
+  }
+  .empty .big { font-size: 36px; margin-bottom: 10px; }
+  .empty p { font-size: 12px; line-height: 1.7; }
+
+  /* ── SPINNER ── */
+  .spinner {
+    display: inline-block;
+    width: 16px; height: 16px;
+    border: 2px solid rgba(200,153,58,.3);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── SCROLL ── */
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
 </head>
 <body>
+<div id="starfield"></div>
+<div id="app">
 
-<div class="thai-at-dashboard">
-    
-    <!-- HEADER BÁO CÁO -->
-    <div class="dashboard-header">
-        <h1>Sa Bàn Tuế Kế Thực Chiến</h1>
-        <p><strong>Năm Hiển Thị:</strong> 2026 (Bính Ngọ) | <strong>Tuế Cục:</strong> Dương Độn Cục 55 | <strong>Thái Ất:</strong> Cung 3 (Đông Bắc)</p>
+  <!-- HEADER -->
+  <header>
+    <div class="header-symbol">☯</div>
+    <h1>Thái Ất Thần Kinh</h1>
+    <p>Tọa độ Không · Thời gian · Vũ trụ</p>
+  </header>
+
+  <!-- INPUT CARD -->
+  <div class="card">
+    <div class="card-title">Nhập Thời Điểm Soi Chiếu</div>
+    <div class="date-grid">
+      <div class="field">
+        <label>Năm</label>
+        <input type="number" id="inp-nam" placeholder="2026" min="1000" max="9999" inputmode="numeric">
+      </div>
+      <div class="field">
+        <label>Tháng</label>
+        <input type="number" id="inp-thang" placeholder="5" min="1" max="12" inputmode="numeric">
+      </div>
+      <div class="field">
+        <label>Ngày</label>
+        <input type="number" id="inp-ngay" placeholder="16" min="1" max="31" inputmode="numeric">
+      </div>
+      <div class="field">
+        <label>Giờ (0–23)</label>
+        <input type="number" id="inp-gio" placeholder="12" min="0" max="23" inputmode="numeric">
+      </div>
     </div>
+    <button class="today-btn" onclick="fillToday()">📅 &nbsp;Điền Hôm Nay</button>
+  </div>
 
-    <div class="dashboard-grid">
-        
-        <!-- CỘT TRÁI: DÒNG TIỀN & TƯỚNG TINH (CODE CŨ) -->
-        <div class="panel">
-            <h3>1. Động Lực Dòng Tiền & Tướng Tinh</h3>
-            
-            <!-- Phe Chủ (Tiền to / Nhà cái) -->
-            <div class="team-box team-chu">
-                <h4>Phe Chủ (Nhà Cái / Phòng Ngự)</h4>
-                <p><strong>Toán Số:</strong> 16 Quân (Hạ hòa, đủ) - <em>Thanh khoản dồi dào</em></p>
-                <p><strong>Đại Tướng (Đại diện BTC):</strong> Cung 6 <span class="tag tag-element">Hành Thủy -> Kim Sinh</span> <span class="tag tag-phat">Lệnh: PHÁT</span></p>
-                <p><strong>Tham Tướng:</strong> Cung 8 <span class="tag tag-tu">Án: BÁCH</span></p>
-            </div>
+  <div style="margin: 0 14px 14px">
+    <button class="calc-btn" id="calc-btn" onclick="calculate()">
+      <span id="btn-text">⚡ Quét Tọa Độ Vũ Trụ</span>
+    </button>
+  </div>
 
-            <!-- Phe Khách (Nhỏ lẻ / Đu đỉnh) -->
-            <div class="team-box team-khach">
-                <h4>Phe Khách (Nhỏ Lẻ / Tấn Công)</h4>
-                <p><strong>Toán Số:</strong> 3 Quân (Đơn Dương, vô địa) - <em>Mất nền tảng</em></p>
-                <p><strong>Đại Tướng (Đại diện Vàng):</strong> Cung 3 <span class="tag tag-element">Hành Kim -> Thổ Sinh</span> <span class="tag tag-tu">Án: TÙ (Chôn vốn)</span></p>
-                <p><strong>Tham Tướng (Altcoin):</strong> Cung 9 <span class="tag tag-element">Hành Thủy</span> <span class="tag tag-phat">Lệnh: PHÁT</span></p>
-            </div>
-        </div>
-
-        <!-- CỘT PHẢI: VĨ MÔ THẦN SÁT & BÁT MÔN (CODE MỚI) -->
-        <div>
-            <!-- Thần Sát Vĩ Mô -->
-            <div class="panel" style="margin-bottom: 20px;">
-                <h3>2. Thần Sát Vĩ Mô (Kế Thần, Dân Cơ)</h3>
-                <ul class="indicator-list">
-                    <li>
-                        <strong>Kế Thần:</strong> Đóng tại <strong>Cung Thân</strong> <span class="tag tag-element">Hành Kim</span>
-                        <span class="note">=> Điểm nóng biến cố thiên nga đen xuất phát từ phương Tây Nam.</span>
-                    </li>
-                    <li>
-                        <strong>Thần Cơ:</strong> Đóng tại <strong>Cung Tý</strong> (Hướng Bắc)
-                        <span class="note">=> Phương vị tẩu tán tài sản của giới tinh hoa, quỹ lớn.</span>
-                    </li>
-                    <li>
-                        <strong>Dân Cơ:</strong> Đóng tại <strong>Cung Mùi</strong> (Hướng Tây Nam)
-                        <span class="note">=> Điểm tập trung tâm lý hoảng loạn của bầy đàn nhỏ lẻ.</span>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Bát Môn (8 Cửa) -->
-            <div class="panel">
-                <h3>3. Bát Môn (Bản Đồ Phương Hướng Năm)</h3>
-                <table class="bat-mon-table">
-                    <thead>
-                        <tr>
-                            <th>Phương Hướng</th>
-                            <th>Tên Cửa (Môn)</th>
-                            <th>Đánh Giá</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="row-highlight">
-                            <td>Đông Bắc (Cung 3)</td>
-                            <td><strong>Cửa Thương</strong> (Trực Sử)</td>
-                            <td class="status-hung">Đại Hung</td>
-                        </tr>
-                        <tr>
-                            <td>Đông (Cung 4)</td>
-                            <td>Cửa Đỗ</td>
-                            <td class="status-hung">Đại Hung</td>
-                        </tr>
-                        <tr>
-                            <td>Đông Nam (Cung 9)</td>
-                            <td>Cửa Cảnh</td>
-                            <td style="color: orange; font-weight: bold;">Tiểu Cát</td>
-                        </tr>
-                        <tr>
-                            <td>Nam (Cung 2)</td>
-                            <td>Cửa Tử</td>
-                            <td class="status-hung">Đại Hung</td>
-                        </tr>
-                        <tr>
-                            <td>Tây Nam (Cung 7)</td>
-                            <td>Cửa Kinh</td>
-                            <td style="color: orange; font-weight: bold;">Tiểu Hung</td>
-                        </tr>
-                        <tr>
-                            <td>Tây (Cung 6)</td>
-                            <td><strong>Cửa Khai</strong></td>
-                            <td class="status-cat">Đại Cát</td>
-                        </tr>
-                        <tr>
-                            <td>Tây Bắc (Cung 1)</td>
-                            <td><strong>Cửa Hưu</strong></td>
-                            <td class="status-cat">Đại Cát</td>
-                        </tr>
-                        <tr>
-                            <td>Bắc (Cung 8)</td>
-                            <td><strong>Cửa Sinh</strong></td>
-                            <td class="status-cat">Đại Cát</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <span class="note" style="margin-top: 10px; display: block; text-align: center;">
-                    <em>Lưu ý: Xuất hành, mở rộng kinh doanh nhắm thẳng hướng Tây (Cửa Khai) hoặc Bắc (Cửa Sinh).</em>
-                </span>
-            </div>
-        </div>
-
+  <!-- DISCLAIMER -->
+  <div class="disclaimer">
+    <div class="disclaimer-title">⚠️ LỜI CẢNH BÁO THỰC CHIẾN (DISCLAIMER)</div>
+    <p style="color:var(--text-dim);font-size:11.5px;margin-bottom:10px;">
+      Hệ thống này đo lường <strong style="color:var(--text)">Tâm lý đám đông</strong> và định vị <strong style="color:var(--text)">Tọa độ Không–Thời gian</strong> dựa trên cơ học vũ trụ cổ đại.
+    </p>
+    <p style="color:var(--red);font-weight:700;font-size:11.5px;margin-bottom:8px;">
+      🚫 TUYỆT ĐỐI KHÔNG SỬ DỤNG NHƯ MỘT CHÉN THÁNH ĐỘC LẬP!
+    </p>
+    <ol>
+      <li><strong>Phân Tích Kỹ Thuật:</strong> Cấu trúc nến, Hỗ trợ/Kháng cự, Price Action để tìm Entry & Stoploss.</li>
+      <li><strong>Phân Tích Vĩ Mô:</strong> Dòng tiền FED, lạm phát, tin tức kinh tế trọng yếu.</li>
+      <li><strong>Tọa Độ Thái Ất:</strong> Xác nhận Timing — vùng rủi ro (Tù, Đỗ, Cách, Bách) hay bứt phá (Phát).</li>
+    </ol>
+    <div class="tip">
+      💡 Thái Ất trao "Thiên Thời – Địa Lợi". Quản trị rủi ro & bấm lệnh là <strong>Nhân Hòa</strong> của chính bạn!
     </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results">
+    <div class="empty">
+      <div class="big">🌌</div>
+      <p>Nhập thời điểm và nhấn<br><strong style="color:var(--gold)">Quét Tọa Độ Vũ Trụ</strong><br>để bắt đầu soi chiếu.</p>
+    </div>
+  </div>
+
 </div>
 
+<script>
+// ================================================================
+//  THAI AT THAN KINH — full JS port of thai_at_updatedv3.py
+// ================================================================
+
+const THAN_INFO = {
+  "Tuất": [1, "1st"], "Càn":  [1, "2nd"], "Hợi":  [1, "3rd"],
+  "Sửu":  [3, "1st"], "Cấn":  [3, "2nd"], "Dần":  [3, "3rd"],
+  "Thìn": [9, "1st"], "Tốn":  [9, "2nd"], "Tỵ":   [9, "3rd"],
+  "Mùi":  [7, "1st"], "Khôn": [7, "2nd"], "Thân": [7, "3rd"],
+  "Tý":   [8, "2nd"],
+  "Mão":  [4, "2nd"],
+  "Ngọ":  [2, "2nd"],
+  "Dậu":  [6, "2nd"],
+};
+
+const LAC_THU      = [1, 8, 3, 4, 9, 2, 7, 6];
+const MAP_CUNG_IDX = {1:0, 8:1, 3:2, 4:3, 9:4, 2:5, 7:6, 6:7};
+const VONG_BAT_QUAI= [1, 8, 3, 4, 9, 2, 7, 6];
+const CUNG_NAME    = {1:"Càn",2:"Ly",3:"Cấn",4:"Chấn",6:"Đoài",7:"Khôn",8:"Khảm",9:"Tốn"};
+const DUONG_PALACES= [1, 2, 3, 4, 6, 7, 8, 9];
+const DIA_BAN      = ["Càn","Hợi","Tý","Sửu","Cấn","Dần","Mão","Thìn","Tốn","Tỵ","Ngọ","Mùi","Khôn","Thân","Dậu","Tuất"];
+const DIA_CHI      = ["Tý","Sửu","Dần","Mão","Thìn","Tỵ","Ngọ","Mùi","Thân","Dậu","Tuất","Hợi"];
+const DOORS        = ["Khai","Hưu","Sinh","Thương","Đỗ","Cảnh","Tử","Kinh"];
+const CUNG_NGUOC   = [8,1,6,7,2,9,4,3];
+const CUNG_DICT    = {8:"Bắc",3:"Đông Bắc",4:"Đông",9:"Đông Nam",2:"Nam",7:"Tây Nam",6:"Tây",1:"Tây Bắc"};
+
+const DOOR_DESC = {
+  "Khai":"Khai môn — khởi sự, xuất hành, giao dịch TUYỆT VỜI",
+  "Hưu":"Hưu môn — nghỉ ngơi, tích lũy, an toàn giữ vị thế",
+  "Sinh":"Sinh môn — sinh tài, đầu tư, vào lệnh Long CỰC TỐT",
+  "Thương":"Thương môn — xung đột, biến động mạnh, cẩn thận",
+  "Đỗ":"Đỗ môn — bế tắc, tắc nghẽn thanh khoản, KHÔNG VÀO LỆNH",
+  "Cảnh":"Cảnh môn — cảnh báo, dễ bẫy giá, hạn chế giao dịch",
+  "Tử":"Tử môn — nguy hiểm, dễ thua lỗ, TRÁNH HOÀN TOÀN",
+  "Kinh":"Kinh môn — bất ngờ, biến động đột ngột, rủi ro cao",
+};
+
+function modPositive(a, b) { return ((a % b) + b) % b; }
+
+// ── dem_quan ──
+function demQuan(startThan, taPalace) {
+  const [cungStart, loaiThan] = THAN_INFO[startThan];
+  if (cungStart === taPalace) return cungStart;
+
+  let idx    = MAP_CUNG_IDX[cungStart];
+  const taIdx= MAP_CUNG_IDX[taPalace];
+
+  let total = 0;
+  if (loaiThan === "1st" || loaiThan === "3rd") {
+    total += 1;
+    if (loaiThan === "1st") total += LAC_THU[idx];
+  } else {
+    total += LAC_THU[idx];
+  }
+
+  idx = (idx + 1) % 8;
+  while (idx !== taIdx) {
+    total += LAC_THU[idx];
+    idx = (idx + 1) % 8;
+  }
+  return total;
+}
+
+// ── getNguHanh ──
+function getNguHanh(s) {
+  const n = s.toUpperCase()
+    .replace(/Á/g,"A").replace(/Ấ/g,"A").replace(/Ả/g,"A").replace(/Ã/g,"A").replace(/Ạ/g,"A")
+    .replace(/Ă/g,"A").replace(/Ắ/g,"A").replace(/Ặ/g,"A")
+    .replace(/Â/g,"A").replace(/Ầ/g,"A").replace(/Ấ/g,"A")
+    .replace(/É/g,"E").replace(/Ê/g,"E").replace(/Ế/g,"E").replace(/Ề/g,"E")
+    .replace(/Ị/g,"I").replace(/Í/g,"I").replace(/Ỉ/g,"I")
+    .replace(/Ó/g,"O").replace(/Ô/g,"O").replace(/Ố/g,"O").replace(/Ợ/g,"O").replace(/Ọ/g,"O")
+    .replace(/Ú/g,"U").replace(/Ủ/g,"U").replace(/Ụ/g,"U").replace(/Ư/g,"U").replace(/Ứ/g,"U").replace(/Ừ/g,"U")
+    .replace(/Ỳ/g,"Y");
+
+  // simpler direct match
+  const orig = String(s);
+  if (/Thân|Dậu|Càn|Đoài|Đại Tướng|Thiên Ất|Đại Du|Tiểu Du/.test(orig)) return "Kim";
+  if (/Hợi|Tý|Khảm|Tứ Thần/.test(orig)) return "Thủy";
+  if (/Dần|Mão|Chấn|Tốn|Tham Tướng/.test(orig)) return "Mộc";
+  if (/Tỵ|Ngọ|Ly|Thủy Kích|Trực Phù|Kế Thần/.test(orig)) return "Hỏa";
+  if (/Thìn|Tuất|Sửu|Mùi|Cấn|Khôn|Trung|Địa Ất|Ngũ Phúc/.test(orig)) return "Thổ";
+  if (["1","6"].includes(orig)) return "Kim";
+  if (["8"].includes(orig)) return "Thủy";
+  if (["3","4","9"].includes(orig)) return "Mộc";
+  if (["2"].includes(orig)) return "Hỏa";
+  if (["5","7"].includes(orig)) return "Thổ";
+  return "Không rõ";
+}
+
+// ── danhGiaVolume ──
+function danhGiaVolume(toanSo) {
+  let val = toanSo % 40;
+  if (val === 0) val = 40;
+
+  if ([33,39].includes(val)) return "⚠️ THUẦN DƯƠNG [ĐẠI HUNG] — FOMO cực đoan, thị trường sắp VỠ TRẬN";
+  if ([22,26].includes(val)) return "⚠️ THUẦN ÂM [ĐẠI HUNG] — Khủng hoảng tột độ, bán tháo hỗn loạn";
+  if ([10,30].includes(val)) return "🚫 CÔ DƯƠNG [HUNG] — Tắt thanh khoản, sideway hẹp, nguy cơ chôn vốn";
+  if ([20,40].includes(val)) return "🚫 CÔ ÂM [HUNG] — Tắt thanh khoản, sideway hẹp, nguy cơ chôn vốn";
+
+  const nhan = [];
+  if ([1,3,5,7,9].includes(val)) nhan.push("⚡ ĐƠN DƯƠNG [HUNG] — Lực mỏng, dễ bị quét stoploss");
+  if ([2,4,6,8].includes(val))   nhan.push("⚡ ĐƠN ÂM [HUNG] — Mất nền tảng, dễ bị quét stoploss");
+
+  const HOA_EXEMPT = [14,18,23];
+  const last = val % 10;
+  if ([1,2,3,4].includes(last) && ![1,2,3,4,10,20,30,40].includes(val) && !HOA_EXEMPT.includes(val))
+    nhan.push("🕳️ VÔ ĐỊA [HUNG] — Mất vùng hỗ trợ, đà tăng có thể sập gãy");
+
+  if ([13,19,31,37].includes(val)) nhan.push("🌵 TẠP TRÙNG DƯƠNG [HUNG] — FOMO thiếu đà, tăng rướn rồi gãy");
+  if ([24,28].includes(val))       nhan.push("🌧️ TẠP TRÙNG ÂM [HUNG] — Cung dư thừa, chôn vùi đà tăng");
+  if ([11,17].includes(val))       nhan.push("🎭 DƯƠNG TRONG ÂM [CẢNH BÁO] — Nhà cái đang âm thầm phân phối/gom hàng");
+
+  if ([14,18,23].includes(val)) nhan.push("✅ THƯỢNG HÒA [ĐẠI CÁT] — Thanh khoản dồi dào, lực đẩy cực vững");
+  if ([29,36].includes(val))    nhan.push("✅ THỨ HÒA [CÁT] — Xu hướng duy trì đều đặn");
+  if ([12,16,27,34,38].includes(val)) nhan.push("✅ HẠ HÒA [CÁT] — Lực đẩy vừa đủ, an toàn chốt lời");
+  if ([16,17,18,19,26,27,28,29,36,37,38,39].includes(val))
+    nhan.push("⭐ TAM TÀI ĐỀU ĐỦ — Hội tụ Thiên-Địa-Nhân");
+
+  if (nhan.length) return nhan.join(" | ");
+  return `⬜ BÌNH THƯỜNG (${val} quân) — Không có tín hiệu đặc biệt`;
+}
+
+// ── tinhTuong ──
+function tinhTuong(toan) {
+  let dai = toan % 10;
+  if (dai === 0) dai = 1;
+  let tham = (dai * 3) % 10;
+  if (tham === 0) tham = 1;
+  return [dai, tham];
+}
+
+// ── layTinhChatToanSo ──
+function layTinhChatToanSo(toanSo) {
+  const val = (toanSo % 40) || 40;
+  if ([33,39].includes(val)) return "THUAN_DUONG";
+  if ([22,26].includes(val)) return "THUAN_AM";
+  if ([10,30].includes(val)) return "CO_DUONG";
+  if ([20,40].includes(val)) return "CO_AM";
+  if ([1,3,5,7,9].includes(val))  return "DON_DUONG";
+  if ([2,4,6,8].includes(val))    return "DON_AM";
+  if ([14,18,23].includes(val))   return "THUONG_HOA";
+  if ([29,36].includes(val))      return "THU_HOA";
+  if ([12,16,27,34,38].includes(val)) return "HA_HOA";
+  if ([16,17,18,19,26,27,28,29,36,37,38,39].includes(val)) return "TAM_TAI";
+  if ([13,19,31,37].includes(val)) return "TAP_TRUNG_DUONG";
+  if ([24,28].includes(val))      return "TAP_TRUNG_AM";
+  if ([11,17].includes(val))      return "DUONG_TRONG_AM";
+  const last = val % 10;
+  if ([1,2,3,4].includes(last))   return "VO_DIA";
+  return "BINH_THUONG";
+}
+
+// ── khoangCachKhongGian ──
+function khoangCachKhongGian(c1, c2) {
+  const i1 = VONG_BAT_QUAI.indexOf(c1);
+  const i2 = VONG_BAT_QUAI.indexOf(c2);
+  if (i1 === -1 || i2 === -1) return 99;
+  const d = Math.abs(i1 - i2);
+  return Math.min(d, 8 - d);
+}
+
+// ── giaiPhauAnTuong ──
+function giaiPhauAnTuong(cungTuong, thaiAt, vanXuong, thuyKich, dichDai, dichTham, toanSo) {
+  const cungVX = THAN_INFO[vanXuong][0];
+  const cungTK = THAN_INFO[thuyKich][0];
+  const tinhChat = layTinhChatToanSo(toanSo);
+  const anHung = [];
+
+  if (cungTuong === 5) anHung.push("⛓️ ĐỖ — Lọt hố Lỗ Đen Trung Cung, kẹt cứng thanh khoản");
+  if (cungTuong === thaiAt) anHung.push("⛓️ TÙ — Bị Thái Ất trói buộc, giam lỏng");
+  if (cungTuong === cungVX) anHung.push("⚖️ QUAN — Bị Văn Xương kìm kẹp");
+  if (cungTuong === cungTK) anHung.push("🩸 YỂM — Bị Thủy Kích ám sát, thị trường flash dump đột ngột");
+
+  const kcTA = khoangCachKhongGian(cungTuong, thaiAt);
+  if (kcTA === 4) anHung.push("↔️ CÁCH — Cực đối diện Thái Ất, đứt gãy xu hướng");
+  else if (kcTA === 1) anHung.push("🗜️ BÁCH — Sát vách Thái Ất, dồn ép hoảng loạn, quét stoploss");
+
+  const kcDichDai  = khoangCachKhongGian(cungTuong, dichDai);
+  const kcDichTham = khoangCachKhongGian(cungTuong, dichTham);
+  if (kcDichDai === 1 && kcDichTham === 1 && khoangCachKhongGian(dichDai, dichTham) === 2)
+    anHung.push("⚔️ HIỆP — Lọt ổ phục kích, bị 2 tướng địch kẹp úp sọt");
+  if (kcDichDai === 1 && kcTA === 1 && khoangCachKhongGian(dichDai, thaiAt) === 2)
+    anHung.push("⚔️ ĐỀ — Bị địch mượn sức Thái Ất ép chết ở giữa");
+
+  if (anHung.length) return { status: "hung", label: "🔴 ĐẠI HUNG (XẤU)", mota: "Tướng đã dính bẫy không gian. Cấu trúc bị phá vỡ.", anList: anHung };
+
+  const YEU_KEM  = ["DON","CO","VO_DIA"];
+  const CUC_DOAN = ["THUAN_DUONG","THUAN_AM"];
+  if (YEU_KEM.some(k => tinhChat.includes(k)))
+    return { status: "binh", label: "🟡 BÌNH HÒA / HƯU PHẾ", mota: "Tướng an toàn nhưng Lính yếu/hết xăng. Sideway khó chịu.", anList: ["⏳ HƯU / PHẾ — Thiếu lực đẩy, dòng tiền ru ngủ"] };
+  if (CUC_DOAN.some(k => tinhChat.includes(k)))
+    return { status: "binh", label: "🟡 CẢNH BÁO BONG BÓNG", mota: "Tướng an toàn nhưng FOMO mù quáng. Tăng ảo, dễ đảo chiều.", anList: ["⚠️ BÌNH HÒA ẢO — Kéo rướn nhờ hưng phấn"] };
+
+  return { status: "cat", label: "🟢 ĐẠI CÁT (TỐT)", mota: "Thiên thời địa lợi hội tụ. Đường cao tốc thênh thang.", anList: ["🔥 PHÁT — Quân mạnh tướng khỏe, bứt phá mọi kháng cự","🌟 VƯỢNG TƯỚNG — Đắc lệnh Không-Thời gian, sinh khí cuồn cuộn"] };
+}
+
+// ── tinhCuc ──
+function tinhCuc(tichSo, cucSo, donHe, tichSoNam) {
+  const idxTA = Math.floor(((cucSo - 1) % 24) / 3);
+  const thaiAt = DUONG_PALACES[idxTA];
+
+  let mapVX, mapKT, tenDonHe;
+  if (donHe === "duong") {
+    mapVX = {1:"Thân",2:"Dậu",3:"Tuất",4:"Càn",5:"Càn",6:"Hợi",7:"Tý",8:"Sửu",9:"Cấn",10:"Dần",11:"Mão",12:"Thìn",13:"Tốn",14:"Tỵ",15:"Ngọ",16:"Mùi",17:"Khôn",0:"Khôn"};
+    mapKT = {1:"Dần",2:"Sửu",3:"Tý",4:"Hợi",5:"Tuất",6:"Dậu",7:"Thân",8:"Mùi",9:"Ngọ",10:"Tỵ",11:"Thìn",0:"Mão"};
+    tenDonHe = "Dương Độn";
+  } else {
+    mapVX = {1:"Dần",2:"Mão",3:"Thìn",4:"Tốn",5:"Tốn",6:"Tỵ",7:"Ngọ",8:"Mùi",9:"Khôn",10:"Thân",11:"Dậu",12:"Tuất",13:"Càn",14:"Hợi",15:"Tý",16:"Sửu",17:"Cấn",0:"Cấn"};
+    mapKT = {1:"Thân",2:"Mùi",3:"Ngọ",4:"Tỵ",5:"Thìn",6:"Mão",7:"Dần",8:"Sửu",9:"Tý",10:"Hợi",11:"Tuất",0:"Dậu"};
+    tenDonHe = "Âm Độn";
+  }
+
+  const vanXuong = mapVX[tichSo % 18];
+  const keThan   = mapKT[tichSo % 12];
+  const thuyKich = DIA_BAN[(4 + modPositive(DIA_BAN.indexOf(vanXuong) - DIA_BAN.indexOf(keThan), 16)) % 16];
+
+  const toanChu   = demQuan(vanXuong, thaiAt);
+  const toanKhach = demQuan(thuyKich, thaiAt);
+  const [chuDai, chuTham]     = tinhTuong(toanChu);
+  const [khachDai, khachTham] = tinhTuong(toanKhach);
+
+  const doToanTapChu   = (chuDai === 5 && chuTham === 5);
+  const doToanTapKhach = (khachDai === 5 && khachTham === 5);
+
+  const labelToanChu   = doToanTapChu   ? "☠️ ĐỖ TOÀN TẬP — Cả Đại lẫn Tham đều lọt Lỗ Đen" : danhGiaVolume(toanChu);
+  const labelToanKhach = doToanTapKhach ? "☠️ ĐỖ TOÀN TẬP — Cả Đại lẫn Tham đều lọt Lỗ Đen" : danhGiaVolume(toanKhach);
+
+  const anChuDai    = giaiPhauAnTuong(chuDai,   thaiAt, vanXuong, thuyKich, khachDai, khachTham, toanChu);
+  const anChuTham   = giaiPhauAnTuong(chuTham,  thaiAt, vanXuong, thuyKich, khachDai, khachTham, toanChu);
+  const anKhachDai  = giaiPhauAnTuong(khachDai, thaiAt, vanXuong, thuyKich, chuDai,   chuTham,   toanKhach);
+  const anKhachTham = giaiPhauAnTuong(khachTham,thaiAt, vanXuong, thuyKich, chuDai,   chuTham,   toanKhach);
+
+  // Thần Cơ / Dân Cơ
+  let thanCo = null, danCo = null;
+  if (tichSoNam != null) {
+    const duThanCo = ((tichSoNam + 250) % 360 % 36) % 30;
+    thanCo = DIA_CHI[(DIA_CHI.indexOf("Ngọ") + duThanCo - 1 + 120) % 12];
+    const duDanCo = ((tichSoNam + 250) % 360 % 36) % 12;
+    danCo  = DIA_CHI[(DIA_CHI.indexOf("Tuất") + duDanCo - 1 + 120) % 12];
+  }
+
+  return {
+    tenDonHe, thaiAt, keThan, vanXuong, thuyKich,
+    toanChu, toanKhach, labelToanChu, labelToanKhach,
+    chuDai, chuTham, khachDai, khachTham,
+    doToanTapChu, doToanTapKhach,
+    anChuDai, anChuTham, anKhachDai, anKhachTham,
+    thanCo, danCo,
+  };
+}
+
+// ── JDN ──
+function toJDN(y, m, d) {
+  const a = Math.floor((14 - m) / 12);
+  const yy = y + 4800 - a;
+  const mm = m + 12 * a - 3;
+  return d + Math.floor((153 * mm + 2) / 5) + 365 * yy + Math.floor(yy/4) - Math.floor(yy/100) + Math.floor(yy/400) - 32045;
+}
+
+// ── dayOfYear ──
+function dayOfYear(y, m, d) {
+  const start = new Date(y, 0, 0);
+  const date  = new Date(y, m - 1, d);
+  return Math.floor((date - start) / 86400000);
+}
+
+// ── main computation ──
+function compute(nam, thang, ngay, gio) {
+  const tichSoNam = 10155509 + (nam - 1592);
+  const tueCuc    = (tichSoNam % 3600) % 72 || 72;
+
+  const tichSoThang = (tichSoNam - 1) * 12 + (thang + 2);
+  const nguyetCuc   = (tichSoThang % 3600) % 72 || 72;
+
+  const jdn      = toJDN(nam, thang, ngay);
+  const tichSoNgay = jdn + 50;
+  const nhatCuc  = tichSoNgay % 72 || 72;
+
+  const ngayGiapTy = toJDN(2024, 3, 1);
+  const chiSoNgay  = (jdn - ngayGiapTy) % 60;
+  const N = (modPositive(chiSoNgay, 60) % 30) + 1;
+  const K = (((gio + 1) % 24) >> 1) + 1;
+  const tichSoGio  = (N - 1) * 12 + K;
+  const thoiCuc    = tichSoGio % 72 || 72;
+
+  const doy = dayOfYear(nam, thang, ngay);
+  const donHe = (172 <= doy && doy <= 355) ? "am" : "duong";
+
+  const tueCucData    = tinhCuc(tichSoNam,   tueCuc,    "duong", tichSoNam);
+  const nguyetCucData = tinhCuc(tichSoThang, nguyetCuc, "duong", null);
+  const nhatCucData   = tinhCuc(tichSoNgay,  nhatCuc,   donHe,   null);
+  const thoiCucData   = tinhCuc(tichSoGio,   thoiCuc,   donHe,   null);
+
+  // Bát Môn
+  const idxTANam    = Math.floor(((tueCuc - 1) % 24) / 3);
+  const thaiAtNam   = DUONG_PALACES[idxTANam];
+  const trucSuIdx   = Math.floor((tichSoNam % 2400 % 240) / 30);
+  const startCungIdx= CUNG_NGUOC.indexOf(thaiAtNam) === -1 ? 0 : CUNG_NGUOC.indexOf(thaiAtNam);
+
+  const batMon = [];
+  for (let i = 0; i < 8; i++) {
+    const cung = CUNG_NGUOC[(startCungIdx + i) % 8];
+    const door = DOORS[(trucSuIdx + i) % 8];
+    batMon.push({ cung, huong: CUNG_DICT[cung], door, isTrucSu: i === 0 });
+  }
+
+  return {
+    meta: { nam, thang, ngay, gio, doy, donHe },
+    cucs: [
+      { ten: "Tuế Cục", phụ: "Vĩ mô Năm", icon: "🌍", data: tueCucData },
+      { ten: "Nguyệt Cục", phụ: "Trung hạn Tháng", icon: "🌙", data: nguyetCucData },
+      { ten: "Nhật Cục", phụ: "Biến động Ngày", icon: "☀️", data: nhatCucData },
+      { ten: "Thời Cục", phụ: "Điểm nổ H1", icon: "⚡", data: thoiCucData },
+    ],
+    batMon,
+  };
+}
+
+// ── RENDER HELPERS ──
+
+function volClass(label) {
+  if (label.includes("ĐẠI CÁT") || label.includes("HÒA") || label.includes("TAM TÀI")) return "cat";
+  if (label.includes("HUNG") || label.includes("ĐỖ TOÀN TẬP")) return "hung";
+  if (label.includes("CẢNH BÁO") || label.includes("DƯƠNG TRONG ÂM")) return "warn";
+  return "normal";
+}
+
+function statusClass(s) {
+  if (s === "cat") return "status-dai-cat";
+  if (s === "hung") return "status-hung";
+  return "status-binh";
+}
+
+function renderTuong(name, data) {
+  const sc = statusClass(data.status);
+  return `
+    <div class="tuong-item">
+      <div class="tuong-name">${name}</div>
+      <div class="${sc}">${data.label}</div>
+      <div class="mo-ta">${data.mota}</div>
+      <ul class="an-list">${data.anList.map(a=>`<li>${a}</li>`).join("")}</ul>
+    </div>`;
+}
+
+function renderCuc(c, idx) {
+  const d = c.data;
+  const openClass = idx === 3 ? " open" : ""; // open Thoi Cuc by default
+  return `
+  <div class="cuc-block${openClass}" id="cuc-${idx}">
+    <div class="cuc-header" onclick="toggleCuc(${idx})">
+      <span class="icon">${c.icon}</span>
+      <div class="info">
+        <h3>${c.ten} <span style="font-size:10px;color:var(--text-dim);font-weight:400">${c.phụ}</span></h3>
+        <p>${d.tenDonHe} · Thái Ất: Cung ${d.thaiAt} (${CUNG_NAME[d.thaiAt]||d.thaiAt})</p>
+      </div>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="cuc-body">
+
+      <div class="section-label">🌟 Thần Sát Tọa Độ</div>
+      <div class="shen-row"><span class="icon-col">🌟</span><span class="key">Thái Ất (Vua)</span><span class="val">Cung ${d.thaiAt} · ${CUNG_NAME[d.thaiAt]||""} · ${getNguHanh(String(d.thaiAt))}</span></div>
+      <div class="shen-row"><span class="icon-col">🔑</span><span class="key">Kế Thần (Gián)</span><span class="val">${d.keThan} · ${getNguHanh(d.keThan)}</span></div>
+      <div class="shen-row"><span class="icon-col">👁</span><span class="key">Văn Xương (Mưu)</span><span class="val">${d.vanXuong} · Cung ${THAN_INFO[d.vanXuong][0]} · ${getNguHanh(d.vanXuong)}</span></div>
+      <div class="shen-row"><span class="icon-col">⚔️</span><span class="key">Thủy Kích (Ám)</span><span class="val">${d.thuyKich} · Cung ${THAN_INFO[d.thuyKich][0]} · ${getNguHanh(d.thuyKich)}</span></div>
+      ${d.thanCo ? `<div class="shen-row"><span class="icon-col">👑</span><span class="key">Thần Cơ (Tiền to)</span><span class="val">${d.thanCo} · ${getNguHanh(d.thanCo)}</span></div>` : ""}
+      ${d.danCo  ? `<div class="shen-row"><span class="icon-col">🐑</span><span class="key">Dân Cơ (Đám đông)</span><span class="val">${d.danCo} · ${getNguHanh(d.danCo)}</span></div>` : ""}
+
+      <div class="section-label">📊 Phân Tích Thanh Khoản (Volume)</div>
+      <div class="vol-label" style="margin-top:4px">📉 Lực Bán · Toán Chủ: <strong>${d.toanChu} quân</strong></div>
+      <div class="vol-row ${volClass(d.labelToanChu)}">${d.labelToanChu}</div>
+      <div class="vol-label" style="margin-top:8px">📈 Lực Mua · Toán Khách: <strong>${d.toanKhach} quân</strong></div>
+      <div class="vol-row ${volClass(d.labelToanKhach)}">${d.labelToanKhach}</div>
+
+      <div class="section-label">🎯 Tướng Tinh & Án Phạt</div>
+      ${d.doToanTapChu ? `<div style="color:var(--red);font-size:12px;padding:6px 0;">☠️ PHE BÁN ĐỖ TOÀN TẬP — Phe Bán hoàn toàn tê liệt!</div>` : ""}
+      <div class="tuong-side ban">
+        <div class="tuong-side-title">🩸 PHE BÁN (SHORT / NHÀ CÁI)</div>
+        ${renderTuong("Đại Tướng", d.anChuDai)}
+        ${renderTuong("Tham Tướng", d.anChuTham)}
+      </div>
+      ${d.doToanTapKhach ? `<div style="color:var(--red);font-size:12px;padding:6px 0;">☠️ PHE MUA ĐỖ TOÀN TẬP — Phe Mua hoàn toàn tê liệt!</div>` : ""}
+      <div class="tuong-side mua" style="margin-top:10px">
+        <div class="tuong-side-title">🚀 PHE MUA (LONG / ĐÁM ĐÔNG)</div>
+        ${renderTuong("Đại Tướng", d.anKhachDai)}
+        ${renderTuong("Tham Tướng", d.anKhachTham)}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderBatMon(batMon) {
+  const cells = batMon.map(b => `
+    <div class="bat-mon-cell ${b.isTrucSu ? "truc-su" : ""}">
+      <div class="huong">${b.huong} · Cung ${b.cung} ${b.isTrucSu ? "⭐ TRỰC SỬ" : ""}</div>
+      <div class="cua">Cửa ${b.door}</div>
+      <div class="cua-desc">${DOOR_DESC[b.door] || ""}</div>
+    </div>`).join("");
+
+  return `
+  <div class="cuc-block" id="cuc-batmon">
+    <div class="cuc-header" onclick="toggleBatMon()">
+      <span class="icon">🧭</span>
+      <div class="info">
+        <h3>Bát Môn <span style="font-size:10px;color:var(--text-dim);font-weight:400">Bản đồ Dòng tiền Năm</span></h3>
+        <p>8 hướng xuất hành & giao dịch</p>
+      </div>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="cuc-body">
+      <div class="bat-mon-grid">${cells}</div>
+    </div>
+  </div>`;
+}
+
+// ── UI FUNCTIONS ──
+function toggleCuc(idx) {
+  const el = document.getElementById(`cuc-${idx}`);
+  el.classList.toggle("open");
+}
+
+function toggleBatMon() {
+  const el = document.getElementById("cuc-batmon");
+  el.classList.toggle("open");
+}
+
+function fillToday() {
+  const now = new Date();
+  document.getElementById("inp-nam").value   = now.getFullYear();
+  document.getElementById("inp-thang").value = now.getMonth() + 1;
+  document.getElementById("inp-ngay").value  = now.getDate();
+  document.getElementById("inp-gio").value   = now.getHours();
+}
+
+function calculate() {
+  const nam   = parseInt(document.getElementById("inp-nam").value);
+  const thang = parseInt(document.getElementById("inp-thang").value);
+  const ngay  = parseInt(document.getElementById("inp-ngay").value);
+  const gio   = parseInt(document.getElementById("inp-gio").value);
+
+  if (!nam || !thang || !ngay || isNaN(gio)) {
+    alert("⚠️ Vui lòng nhập đầy đủ: Năm, Tháng, Ngày, Giờ");
+    return;
+  }
+  if (thang < 1 || thang > 12) { alert("Tháng phải từ 1–12"); return; }
+  if (ngay  < 1 || ngay  > 31) { alert("Ngày phải từ 1–31");  return; }
+  if (gio   < 0 || gio   > 23) { alert("Giờ phải từ 0–23");   return; }
+
+  const btn = document.getElementById("calc-btn");
+  btn.classList.add("loading");
+  document.getElementById("btn-text").innerHTML = '<span class="spinner"></span> Đang tính...';
+
+  setTimeout(() => {
+    try {
+      const result = compute(nam, thang, ngay, gio);
+      renderResults(result);
+    } catch(e) {
+      alert("Lỗi tính toán: " + e.message);
+      console.error(e);
+    }
+    btn.classList.remove("loading");
+    document.getElementById("btn-text").textContent = "⚡ Quét Tọa Độ Vũ Trụ";
+  }, 60);
+}
+
+function renderResults(r) {
+  const {meta, cucs, batMon} = r;
+  const donHeLabel = meta.donHe === "am" ? "🌙 Âm Độn" : "☀️ Dương Độn";
+
+  let html = `
+    <div class="result-header">
+      <h2>☯ Tọa Độ Vũ Trụ</h2>
+      <p>${meta.gio}H · Ngày ${String(meta.ngay).padStart(2,"0")}/${String(meta.thang).padStart(2,"0")}/${meta.nam} · ${donHeLabel}</p>
+    </div>
+  `;
+
+  cucs.forEach((c, i) => { html += renderCuc(c, i); });
+  html += renderBatMon(batMon);
+
+  const el = document.getElementById("results");
+  el.innerHTML = html;
+  el.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+// Auto-fill today on load
+fillToday();
+</script>
 </body>
 </html>
