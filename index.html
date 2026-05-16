@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>☯ Thái Ất Thần Kinh</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg:         #030810;
@@ -216,6 +216,101 @@ input[type="number"]:focus {
 
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+/* ── VX BDS ROW ── */
+.vx-bds-row {
+  background: rgba(200,153,58,.06);
+  border-left: 2px solid rgba(200,153,58,.4);
+  border-radius: 0 8px 8px 0;
+  margin: 0 0 6px 20px;
+  padding: 9px 10px 9px 12px;
+  font-size: 11px;
+  line-height: 1.65;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.vx-bds-row .val {
+  flex: 1;
+  line-height: 1.65;
+}
+
+/* ── FOOTER ── */
+.site-footer {
+  margin: 20px 14px calc(var(--safe-bot) + 16px);
+  padding: 22px 16px 16px;
+  background: linear-gradient(160deg, rgba(10,22,52,0.92) 0%, rgba(5,12,30,0.96) 100%);
+  border: 1px solid rgba(200,153,58,.3);
+  border-radius: 20px;
+  text-align: center;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 40px rgba(200,153,58,.06), 0 8px 32px rgba(0,0,0,.5);
+}
+.site-footer::before {
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent 0%,rgba(200,153,58,.8) 40%,rgba(240,192,96,1) 50%,rgba(200,153,58,.8) 60%,transparent 100%);
+}
+.site-footer::after {
+  content:'';
+  position:absolute;
+  bottom:0;left:20%;right:20%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(200,153,58,.3),transparent);
+}
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+.footer-symbol { font-size: 22px; filter: drop-shadow(0 0 6px rgba(200,153,58,.5)); }
+.footer-text { display: flex; flex-direction: column; gap: 4px; }
+.footer-name {
+  font-family: 'Cormorant Garamond', 'Noto Serif SC', serif;
+  font-size: 22px;
+  font-weight: 700;
+  font-style: italic;
+  background: linear-gradient(135deg, #c8993a 0%, #f5d680 35%, #fff0a0 50%, #f5d680 65%, #c8993a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: .08em;
+  line-height: 1.1;
+  text-shadow: none;
+  filter: drop-shadow(0 0 12px rgba(200,153,58,.4));
+}
+.footer-name strong {
+  font-weight: 700;
+  font-style: normal;
+  letter-spacing: .14em;
+}
+.footer-by {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(200,153,58,.55);
+  letter-spacing: .22em;
+  text-transform: uppercase;
+}
+.footer-sub {
+  font-size: 9px;
+  color: var(--text-dim);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+.footer-note {
+  font-size: 9px;
+  color: rgba(90,122,154,.6);
+  letter-spacing: .1em;
+  margin-top: 4px;
+  font-style: italic;
+}
 
 /* ── TODAY BTN ── */
 .today-btn {
@@ -538,6 +633,35 @@ input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
 .an-list { list-style: none; padding: 0; }
 .an-list li { font-size: 11px; padding: 2px 0; color: var(--text); opacity: .82; }
 
+/* ── VÀNG BADGE ── */
+.vang-badge {
+  margin-top: 14px;
+  padding: 14px 14px 12px;
+  background: linear-gradient(135deg, rgba(200,153,58,.10) 0%, rgba(200,153,58,.04) 100%);
+  border: 1px solid rgba(200,153,58,.35);
+  border-left: 3px solid var(--gold);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.vang-badge::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(240,192,96,.5), transparent);
+}
+.vang-badge-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 /* ── BÁT MÔN GRID ── */
 .bat-mon-grid {
   display: grid;
@@ -768,6 +892,20 @@ input[type=range]::-webkit-slider-thumb {
     </div>
   </div>
 
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span class="footer-symbol">✦</span>
+      <div class="footer-text">
+        <span class="footer-by">Duy trì bởi</span>
+        <span class="footer-name"><strong>Thầy Vũ Thương</strong></span>
+        <span class="footer-sub">Huyền Học &amp; Đầu Tư</span>
+      </div>
+      <span class="footer-symbol">✦</span>
+    </div>
+    <p class="footer-note">Thái Ất · Bát Môn · Tọa Độ Vũ Trụ — Thiên Thời • Địa Lợi • Nhân Hòa</p>
+  </footer>
+
 </div><!-- /#app -->
 
 <script>
@@ -971,8 +1109,12 @@ function drawGearEllipse(cx,cy,rx,ry,teeth,color){
   }
 }
 
+const AXIAL_TILT = 23.44 * Math.PI / 180; // Góc nghiêng trục Trái Đất thực tế
+
 function drawBg(){
   ctx.clearRect(0,0,C.width,C.height);
+
+  // ── Nền gradient & sao: vẽ TRƯỚC khi xoay (cố định với viewport) ──
   const bgGrad=ctx.createRadialGradient(CX,CY-50,0,CX,CY,Math.max(CX,CY)*1.4);
   bgGrad.addColorStop(0,`rgba(8,20,50,${BRIGHT})`);
   bgGrad.addColorStop(.5,`rgba(4,12,30,${BRIGHT})`);
@@ -984,6 +1126,12 @@ function drawBg(){
     ctx.beginPath(); ctx.arc(CX-500+s.x,CY-350+s.y,s.r,0,Math.PI*2);
     ctx.fillStyle=`rgba(255,255,255,${pulse*.7*BRIGHT})`; ctx.fill();
   });
+
+  // ── Toàn bộ hệ thống vòng quay nghiêng đúng 23.44° theo trục Trái Đất ──
+  ctx.save();
+  ctx.translate(CX, CY);
+  ctx.rotate(AXIAL_TILT);
+  ctx.translate(-CX, -CY);
 
   const P=TILT;
   const R_OUTER=Math.min(CX,CY)*.90;
@@ -1079,6 +1227,8 @@ function drawBg(){
     ctx.beginPath(); ctx.arc(px,py,ps,0,Math.PI*2);
     ctx.fillStyle=`rgba(255,255,200,${.6*BRIGHT})`; ctx.fill();
   }
+
+  ctx.restore(); // ── kết thúc vùng nghiêng 23.44° ──
 }
 
 let last=0;
@@ -1122,7 +1272,7 @@ const DUONG_PALACES= [1,2,3,4,6,7,8,9];
 const DIA_BAN      = ["Càn","Hợi","Tý","Sửu","Cấn","Dần","Mão","Thìn","Tốn","Tỵ","Ngọ","Mùi","Khôn","Thân","Dậu","Tuất"];
 const DIA_CHI      = ["Tý","Sửu","Dần","Mão","Thìn","Tỵ","Ngọ","Mùi","Thân","Dậu","Tuất","Hợi"];
 const DOORS        = ["Khai","Hưu","Sinh","Thương","Đỗ","Cảnh","Tử","Kinh"];
-const CUNG_NGUOC   = [8,1,6,7,2,9,4,3];
+const CUNG_THUAN   = [8,3,4,9,2,7,6,1]; // Thuận chiều kim đồng hồ: Bắc→ĐôngBắc→Đông→ĐôngNam→Nam→TâyNam→Tây→TâyBắc
 const CUNG_DICT    = {8:"Bắc",3:"Đông Bắc",4:"Đông",9:"Đông Nam",2:"Nam",7:"Tây Nam",6:"Tây",1:"Tây Bắc"};
 
 const DOOR_DESC = {
@@ -1155,6 +1305,127 @@ function demQuan(startThan, taPalace){
   return total;
 }
 
+// ── VĂN XƯƠNG BĐS — Ngũ Hành Tương Sinh/Khắc với THỔ (Bất Động Sản) ──
+// Hậu Thiên Bát Quái → Ngũ Hành từng cung:
+//   Cung 1 (Càn · Tây Bắc)  = Kim   → Thổ SINH Kim  = Thổ bị hao tổn
+//   Cung 2 (Ly  · Nam)       = Hỏa   → Hỏa SINH Thổ  = Thổ được nạp sinh khí  ✅ ĐẠI CÁT
+//   Cung 3 (Cấn · Đông Bắc)  = Thổ   → Thổ TỶ HÒA    = Thổ gặp Thổ, vượng    ✅ BỀN VỮNG
+//   Cung 4 (Chấn · Đông)     = Mộc   → Mộc KHẮC Thổ  = Thổ bị phá           ⛔ ĐẠI HUNG
+//   Cung 6 (Đoài · Tây)      = Kim   → Thổ SINH Kim  = Thổ bị hao tổn        🏗️ HAO TỔN
+//   Cung 7 (Khôn · Tây Nam)  = Thổ   → Thổ TỶ HÒA    = Thổ gặp Thổ, vượng   ✅ BỀN VỮNG
+//   Cung 8 (Khảm · Bắc)      = Thủy  → Thổ KHẮC Thủy = Thổ tốn lực ngăn Thủy 🌊 TRÌ TRỆ
+//   Cung 9 (Tốn · Đông Nam)  = Mộc   → Mộc KHẮC Thổ  = Thổ bị phá           ⛔ ĐẠI HUNG
+const VX_BDS_MAP = {
+  2:{
+    badge:"🟢 [HỎA SINH THỔ — ĐẠI CÁT 🚀]",
+    color:"var(--green)",
+    nhan:"Cung 2 (Ly · Nam)",
+    mo_ta:"Hỏa sinh Thổ. Đất được nạp sinh khí cuồn cuộn. Thanh khoản chớp nhoáng, mua bán lướt sóng, dự án thương mại trung tâm mang lại lợi nhuận đột biến."
+  },
+  3:{
+    badge:"🟢 [THỔ VƯỢNG — BỀN VỮNG ✅]",
+    color:"#00e5c0",
+    nhan:"Cung 3 (Cấn · Đ.Bắc)",
+    mo_ta:"Thổ gặp Thổ (Tỷ hòa). Đất nền, nhà phố, bất động sản để ở hoặc tích sản dài hạn. Xu hướng tăng trưởng vững chắc, an toàn tuyệt đối."
+  },
+  7:{
+    badge:"🟢 [THỔ VƯỢNG — BỀN VỮNG ✅]",
+    color:"#00e5c0",
+    nhan:"Cung 7 (Khôn · T.Nam)",
+    mo_ta:"Thổ gặp Thổ (Tỷ hòa). Đất nền, nhà phố, bất động sản để ở hoặc tích sản dài hạn. Xu hướng tăng trưởng vững chắc, an toàn tuyệt đối."
+  },
+  4:{
+    badge:"🔴 [MỘC KHẮC THỔ — ĐẠI HUNG ⚠️]",
+    color:"var(--red)",
+    nhan:"Cung 4 (Chấn · Đông)",
+    mo_ta:"Mộc đâm rễ phá Thổ. Môi trường khắc phạt dự án. Cảnh báo nguy cơ dính pháp lý, quy hoạch treo, tranh chấp hoặc đọng vốn cạn kiệt thanh khoản. Chỉ hợp làm nông/lâm nghiệp."
+  },
+  9:{
+    badge:"🔴 [MỘC KHẮC THỔ — ĐẠI HUNG ⚠️]",
+    color:"var(--red)",
+    nhan:"Cung 9 (Tốn · Đ.Nam)",
+    mo_ta:"Mộc đâm rễ phá Thổ. Môi trường khắc phạt dự án. Cảnh báo nguy cơ dính pháp lý, quy hoạch treo, tranh chấp hoặc đọng vốn cạn kiệt thanh khoản. Chỉ hợp làm nông/lâm nghiệp."
+  },
+  1:{
+    badge:"🔵 [THỔ SINH KIM — HAO TỔN 🏗️]",
+    color:"#a0c8ff",
+    nhan:"Cung 1 (Càn · T.Bắc)",
+    mo_ta:"Thổ bị vắt kiệt để sinh Kim. Đất không tự tăng giá mà phải đổ tiền vào xây dựng mới sinh lời. Phù hợp BĐS dòng tiền, xây chung cư mini, nhà xưởng cho thuê (tạo ra Kim/Tiền)."
+  },
+  6:{
+    badge:"🔵 [THỔ SINH KIM — HAO TỔN 🏗️]",
+    color:"#a0c8ff",
+    nhan:"Cung 6 (Đoài · Tây)",
+    mo_ta:"Thổ bị vắt kiệt để sinh Kim. Đất không tự tăng giá mà phải đổ tiền vào xây dựng mới sinh lời. Phù hợp BĐS dòng tiền, xây chung cư mini, nhà xưởng cho thuê (tạo ra Kim/Tiền)."
+  },
+  8:{
+    badge:"🟡 [THỔ KHẮC THỦY — TRÌ TRỆ 🌊]",
+    color:"var(--yellow)",
+    nhan:"Cung 8 (Khảm · Bắc)",
+    mo_ta:"Thổ phải tốn lực đắp đê ngăn Thủy. Mua bán vất vả, chôn vốn lâu. Phù hợp cho tầm nhìn dài hạn, logistics, cảng biển hoặc BĐS nghỉ dưỡng ven hồ."
+  },
+};
+
+function getVanXuongBDS(vanXuong, cungVX){
+  const entry = VX_BDS_MAP[cungVX];
+  if(!entry) return `<span style="color:var(--text-dim)">Cung ${cungVX} — Chưa có dữ liệu phân tích</span>`;
+  return `<span style="color:${entry.color};font-weight:700">${entry.badge}</span><br>
+    <span style="color:var(--text-dim);font-size:10px;">${entry.nhan}</span><br>
+    <span style="color:var(--text);font-size:11px;line-height:1.6;">${entry.mo_ta}</span>`;
+}
+
+// ── VÀNG (Kim) — Phân tích tương quan ngũ hành cung Khách Đại Tướng với Kim ──
+// Ngũ Hành tương sinh/khắc với KIM:
+//   Thổ SINH Kim  → cung 3(Cấn·Thổ), 5(Trung·Thổ), 7(Khôn·Thổ)  → ĐẠI CÁT 🟢
+//   Kim TỶ HÒA Kim → cung 1(Càn·Kim), 6(Đoài·Kim)                 → THUẦN VỰC ⚪
+//   Thủy TIẾT Kim  → cung 8(Khảm·Thủy)                            → HÚT KHÍ 🔵
+//   Mộc TIẾT Thổ(nhưng Kim khắc Mộc) → cung 4(Chấn·Mộc), 9(Tốn·Mộc) → KIM KHẮC MỘC 🟡
+//   Hỏa KHẮC Kim  → cung 2(Ly·Hỏa)                               → ĐẠI HUNG 🔴
+const VANG_CUNG_MAP = {
+  3:{badge:"🟢 [THỔ SINH KIM — ĐẠI CÁT 🚀]", color:"var(--green)",    mo_ta:"Cung 3 · Cấn · Thổ. Đất nuôi dưỡng Kim. Vàng được nạp đầy sinh khí, cấu trúc tăng giá cực kỳ vững chắc."},
+  7:{badge:"🟢 [THỔ SINH KIM — ĐẠI CÁT 🚀]", color:"var(--green)",    mo_ta:"Cung 7 · Khôn · Thổ. Đất mẹ sinh dưỡng Kim. Vàng được vùng đất tương sinh bơm sức mạnh."},
+  8:{badge:"🟢 [KIM SINH THỦY — TIẾT KHÍ 💧]",color:"#00e5c0",         mo_ta:"Cung 8 · Khảm · Thủy. Kim sinh Thủy, vàng tiết khí nhưng không bị phá. Tăng chậm bền, phù hợp tích lũy dài hạn."},
+  1:{badge:"⚪ [KIM TỶ HÒA — THUẦN VỰC ⚖️]",  color:"#aabbcc",         mo_ta:"Cung 1 · Càn · Kim. Kim gặp Kim, đồng chất tỷ hòa. Vàng sideway tích lũy, chờ xác nhận breakout mới vào lệnh."},
+  6:{badge:"⚪ [KIM TỶ HÒA — THUẦN VỰC ⚖️]",  color:"#aabbcc",         mo_ta:"Cung 6 · Đoài · Kim. Kim gặp Kim, đồng chất tỷ hòa. Vàng sideway tích lũy, chờ xác nhận breakout mới vào lệnh."},
+  4:{badge:"🟡 [KIM KHẮC MỘC — TIÊU HAO 🪓]", color:"var(--yellow)",   mo_ta:"Cung 4 · Chấn · Mộc. Kim khắc Mộc, vàng phải tốn lực chặt phá. Tăng nhưng hao tổn nội lực, cẩn thận đảo chiều."},
+  9:{badge:"🟡 [KIM KHẮC MỘC — TIÊU HAO 🪓]", color:"var(--yellow)",   mo_ta:"Cung 9 · Tốn · Mộc. Kim khắc Mộc, vàng phải tốn lực chặt phá. Tăng nhưng hao tổn nội lực, cẩn thận đảo chiều."},
+  2:{badge:"🔴 [HỎA KHẮC KIM — CHÁY TÀI KHOẢN 🔥]", color:"var(--red)", mo_ta:"Cung 2 · Ly · Hỏa. Vàng bị nung chảy, lực mua cạn kiệt. Nguy cơ sập hầm flash dump. Đứng ngoài hoặc canh Short."},
+};
+
+function getVangBadge(khachDai, anKhachDai){
+  // Khách Đại Tướng = cung số (1-9 trừ 5)
+  const cungVang = khachDai;
+  const entry = VANG_CUNG_MAP[cungVang];
+  const nguHanhCung = getNguHanh(String(cungVang));
+  const cungTen = CUNG_NAME[cungVang] || ("Cung " + cungVang);
+
+  // Header tọa độ
+  const header = `<span style="color:var(--gold-light);font-weight:700">Cung ${cungVang} · ${cungTen} · ${nguHanhCung}</span><span style="color:var(--text-dim);font-size:10px;"> | Bản thể: Kim</span>`;
+
+  // Badge ngũ hành
+  const nhanh = entry
+    ? `<div style="margin:5px 0 4px;"><span style="color:${entry.color};font-weight:700;font-size:11.5px;">${entry.badge}</span></div>
+       <div style="color:var(--text);font-size:11px;line-height:1.6;">${entry.mo_ta}</div>`
+    : `<div style="color:var(--text-dim);font-size:11px;">Cung ${cungVang} — Chưa có dữ liệu phân tích</div>`;
+
+  // Án lệnh từ giaiPhauAnTuong
+  let anLenh = "";
+  if(anKhachDai.status === "cat"){
+    anLenh = `<div style="margin-top:6px;color:var(--green);font-weight:700;font-size:11.5px;">⚔️ Án lệnh: PHÁT 🟢</div>
+              <div style="color:var(--text);font-size:11px;">Bứt phá mọi kháng cự.</div>`;
+  } else if(anKhachDai.status === "hung"){
+    const anhung = anKhachDai.anList.map(a=>`<li style="margin-bottom:3px">${a}</li>`).join("");
+    anLenh = `<div style="margin-top:6px;color:var(--red);font-weight:700;font-size:11.5px;">⛓️ Án lệnh: ${anKhachDai.anList.map(a=>a.match(/^[^(]+/)[0].trim()).join(" · ")} 🔴</div>
+              <ul style="color:var(--text);font-size:11px;padding-left:16px;margin-top:3px;line-height:1.7">${anhung}</ul>
+              <div style="color:var(--red);font-size:13px;font-weight:700;margin-top:6px;letter-spacing:.03em;">⚠️ Vàng kẹt thanh khoản hoặc hoảng loạn — Đứng ngoài / canh Short.</div>`;
+  } else {
+    anLenh = `<div style="margin-top:6px;color:var(--yellow);font-weight:700;font-size:11.5px;">⏳ Án lệnh: HƯU PHẾ / SIDEWAY 🟡</div>
+              <div style="color:var(--text);font-size:11px;">Vàng đi ngang lình xình. Chờ tín hiệu rõ hơn, không vào lệnh vội.</div>`;
+  }
+
+  return `${header}${nhanh}${anLenh}`;
+}
+
 function getNguHanh(s){
   const orig=String(s);
   if(/Thân|Dậu|Càn|Đoài|Đại Tướng|Thiên Ất|Đại Du|Tiểu Du/.test(orig)) return "Kim";
@@ -1164,9 +1435,11 @@ function getNguHanh(s){
   if(/Thìn|Tuất|Sửu|Mùi|Cấn|Khôn|Trung|Địa Ất|Ngũ Phúc/.test(orig)) return "Thổ";
   if(["1","6"].includes(orig)) return "Kim";
   if(["8"].includes(orig)) return "Thủy";
-  if(["3","4","9"].includes(orig)) return "Mộc";
+  // Hậu Thiên Bát Quái: 3=Cấn=Thổ, 7=Khôn=Thổ, 4=Chấn=Mộc, 9=Tốn=Mộc
+  if(["4","9"].includes(orig)) return "Mộc";
+  // 3=Cấn, 5=Trung, 7=Khôn đều Thổ
   if(["2"].includes(orig)) return "Hỏa";
-  if(["5","7"].includes(orig)) return "Thổ";
+  if(["3","5","7"].includes(orig)) return "Thổ";
   return "";
 }
 
@@ -1336,11 +1609,11 @@ function compute(nam,thang,ngay,gio){
   const idxTANam=Math.floor(((tueCuc-1)%24)/3);
   const thaiAtNam=DUONG_PALACES[idxTANam];
   const trucSuIdx=Math.floor((tichSoNam%2400%240)/30);
-  let startCungIdx=CUNG_NGUOC.indexOf(thaiAtNam);
+  let startCungIdx=CUNG_THUAN.indexOf(thaiAtNam);
   if(startCungIdx===-1) startCungIdx=0;
   const batMon=[];
   for(let i=0;i<8;i++){
-    const cung=CUNG_NGUOC[(startCungIdx+i)%8];
+    const cung=CUNG_THUAN[(startCungIdx+i)%8];
     const door=DOORS[(trucSuIdx+i)%8];
     batMon.push({cung,huong:CUNG_DICT[cung],door,isTrucSu:i===0});
   }
@@ -1416,6 +1689,12 @@ function renderCuc(c,idx){
         <span class="key">Văn Xương (Mưu)</span>
         <span class="val">${d.vanXuong} · Cung ${THAN_INFO[d.vanXuong][0]} · ${getNguHanh(d.vanXuong)}</span>
       </div>
+      ${idx===0?`<div class="shen-row vx-bds-row">
+        <span class="icon-col">🏠</span>
+        <span class="key" style="color:var(--gold);font-size:10.5px;">└ BĐS / Thổ Địa</span>
+        <span class="val" style="font-size:11px;">${getVanXuongBDS(d.vanXuong, THAN_INFO[d.vanXuong][0])}</span>
+      </div>`:""}
+
       <div class="shen-row">
         <span class="icon-col">⚔️</span>
         <span class="key">Thủy Kích (Ám)</span>
@@ -1443,6 +1722,10 @@ function renderCuc(c,idx){
         ${renderTuong("Đại Tướng",d.anKhachDai)}
         ${renderTuong("Tham Tướng",d.anKhachTham)}
       </div>
+      ${idx===0?`<div class="vang-badge">
+        <div class="vang-badge-title">🟡 VÀNG (Khách Đại Tướng · Phe Mua)</div>
+        ${getVangBadge(d.khachDai, d.anKhachDai)}
+      </div>`:""}
     </div>
   </div>`;
 }
