@@ -1707,18 +1707,20 @@ function tinhHungTinh(tichSoNam){
  *  (w1=2, w2=1, w3=1, w4=2, ngưỡng kích hoạt ≥ 2 điểm)
  *
  *  Lưới 1 · Án Yểm            → 2 điểm  (hiếm, precision ~80%)
- *  Lưới 2 · Toán Số Cực Đoan  → 1 điểm  (chỉ Thuần/Cô — đã siết từ Vô Địa rộng)
+ *  Lưới 2 · Toán Số Cực Đoan  → 1 điểm  (Thuần/Cô/Vô Địa)
  *  Lưới 3 · Thời Tiết         → 1 điểm  (siết thêm: chỉ khi khoảng cách cung ≤ 2)
  *  Lưới 4 · Dân Cơ Đại Hung   → 2 điểm  (tucThan/daiDu/thienAt — ưu tiên)
  *           Dân Cơ Tiểu Hung  → 1 điểm  (diaAt/trucPhu)
  *  Lưới 5 · Đại Du Xung Thái  → 2 điểm  (mới — Đại Du đối diện hoặc kề Thái Ất)
+ *  Lưới 6 · Vô Thiên          → 1 điểm  (toán đơn 1-9 = thiên văn dị biến)
+ *           Thiên Thể Sai Lệch → 1 điểm  (tướng hung + Âm Dương bất hòa)
  *
  *  Kích hoạt cảnh báo khi tổng điểm ≥ NGUONG_DIEM (= 2)
  * ═══════════════════════════════════════════════════════════════════
  */
 const NGUONG_DIEM = 2; // ngưỡng tổng điểm để phát cảnh báo
 
-function quetThamHoaDanCo(tichSoNam){
+function quetThamHoaDanCo(tichSoNam, extraAnChu, extraAnKhach){
   const {
     tucThan, thienAt, diaAt, trucPhu, daiDu,
     danCo, diaChiDanCo,
@@ -1737,11 +1739,22 @@ function quetThamHoaDanCo(tichSoNam){
     return Math.min(d, 8 - d);
   }
 
-  // Phân loại mức độ Toán Số (chỉ lấy cực đoan — Thuần / Cô)
+  // Phân loại mức độ Toán Số (Thuần / Cô / Vô Địa)
   function isToanCucDoan(toan){
     const v = toan % 40 || 40;
     // Thuần Dương/Âm: 33,39,22,26 — Cô Dương/Âm: 10,20,30,40
-    return [10,20,22,26,30,33,39,40].includes(v);
+    // Vô Địa: hàng đơn vị 1-4 (trừ các số đã là Thuần/Cô ở trên)
+    if([10,20,22,26,30,33,39,40].includes(v)) return true;
+    const donVi = v % 10;
+    return donVi >= 1 && donVi <= 4; // Vô Địa
+  }
+
+  // Kiểm tra riêng Vô Địa (hàng đơn vị 1-4, không phải Thuần/Cô)
+  function isVoDia(toan){
+    const v = toan % 40 || 40;
+    if([10,20,22,26,30,33,39,40].includes(v)) return false; // đã thuộc loại khác
+    const donVi = v % 10;
+    return donVi >= 1 && donVi <= 4;
   }
 
   const ung = []; // mảng ứng viên { diem, icon, layer, ten, mo_ta }
@@ -1761,8 +1774,11 @@ function quetThamHoaDanCo(tichSoNam){
   }
 
   // ══════════════════════════════════════════════════════
-  // ☠️ LƯỚI 2 · TOÁN SỐ CỰC ĐOAN — chỉ Thuần/Cô (1 điểm mỗi)
-  //    Đã siết: bỏ Vô Địa rộng, chỉ giữ các mức thực sự khủng hoảng
+  // ☠️ LƯỚI 2 · TOÁN SỐ CỰC ĐOAN — Thuần / Cô / Vô Địa (1 điểm mỗi)
+  //    Vô Địa: hàng đơn vị 1-4 (vd: 11,12,13,14,21,22*,23,24,31...)
+  //    Cô (Vô Nhân): chẵn chục (10,20,30,40)
+  //    Thuần Dương: 33,39 — Thuần Âm: 22,26
+  //    * 22 và 33 thuộc Thuần, không tính thêm Vô Địa
   // ══════════════════════════════════════════════════════
   [
     { toan: toanChuNam,   label: "Toán Chủ" },
@@ -1773,6 +1789,7 @@ function quetThamHoaDanCo(tichSoNam){
     const isThuanDuong = [33,39].includes(v);
     const isThuanAm    = [22,26].includes(v);
     const isCo         = [10,20,30,40].includes(v);
+    const voDia        = isVoDia(toan);
     const d = 1;
     tongDiem += d;
     if(isThuanDuong){
@@ -1785,8 +1802,12 @@ function quetThamHoaDanCo(tichSoNam){
         mo_ta:`Toán ${label} đạt mức Thuần Âm (${v} quân) — khủng hoảng tột độ, bán tháo hỗn loạn. Dịch bệnh lan diện rộng, lũ lụt tàn phá, cộng đồng kiệt sức.` });
     } else if(isCo){
       ung.push({ diem:d, icon:"☠️", layer:"LƯỚI 2 ★",
-        ten:`[CÔ DƯƠNG/ÂM] ${label}: ${toan} quân`,
-        mo_ta:`Toán ${label} rơi vào Cô Dương/Cô Âm (${v} quân) — Vô Nhân, thanh khoản tắt, sideway chôn vốn. Nông nghiệp thất thu, chuỗi cung ứng đứt gãy.` });
+        ten:`[CÔ DƯƠNG/ÂM · VÔ NHÂN] ${label}: ${toan} quân`,
+        mo_ta:`Toán ${label} rơi vào Cô Dương/Cô Âm (${v} quân) — Vô Nhân, thanh khoản tắt, sideway chôn vốn. Trái luân thường đạo lý, nông nghiệp thất thu, chuỗi cung ứng đứt gãy.` });
+    } else if(voDia){
+      ung.push({ diem:d, icon:"🌋", layer:"LƯỚI 2 ★",
+        ten:`[VÔ ĐỊA] NỀN TẢNG LUNG LAY — ${label}: ${toan} quân`,
+        mo_ta:`Toán ${label} dính án Vô Địa (${v} quân — đơn vị ${v%10}). Đất đai biến đổi dị thường: núi lở, đất rung, sông cạn. Nguy cơ mất mùa, sâu bọ bùng phát, chuỗi cung ứng nông nghiệp đổ vỡ, an ninh lương thực bị đe dọa nghiêm trọng.` });
     }
   });
 
@@ -1872,6 +1893,53 @@ function quetThamHoaDanCo(tichSoNam){
   }
 
   // ══════════════════════════════════════════════════════
+  // ☄️ LƯỚI 6 · VÔ THIÊN — Thiên văn dị biến (2 điểm)
+  //
+  //  Điều kiện 1 · TOÁN SỐ ĐƠN (1–9):
+  //    Lượng quân teo tóp còn 1–9 → Vô Thiên, mất thiên thời.
+  //    Tín hiệu: Nhật/Nguyệt thực, Sao Tuệ (sao chổi) xuất hiện,
+  //    sương buông mưa đá, trời có biến dị bất thường.
+  //
+  //  Điều kiện 2 · TƯỚNG HUNG + ÂM DƯƠNG BẤT HÒA:
+  //    Tướng dính án tử hình (TÙ/YỂM/CÁCH/BÁCH/QUAN) kết hợp
+  //    toán số Âm Dương cực đoan (Thuần/Tạp Trùng) → 5 sao sai quỹ
+  //    đạo, sao Bột (Nova) mang điềm gở đe dọa toàn vũ trụ.
+  //
+  //  Hai điều kiện độc lập — mỗi cái 1 điểm; nếu cùng xảy ra = 2đ
+  // ══════════════════════════════════════════════════════
+  const BAT_HOA_TINH_CHAT = ["THUAN_DUONG","THUAN_AM","TAP_TRUNG_DUONG","TAP_TRUNG_AM"];
+
+  [
+    { toan: toanChuNam,   label: "Toán Chủ",   anObj: extraAnChu   },
+    { toan: toanKhachNam, label: "Toán Khách",  anObj: extraAnKhach },
+  ].forEach(({ toan, label, anObj }) => {
+    const tinhChatL6 = layTinhChatToanSo(toan);
+    const v6 = toan % 40 || 40;
+
+    // ─ Điều kiện 1: Toán Đơn (1–9) = Vô Thiên
+    if([1,2,3,4,5,6,7,8,9].includes(v6)){
+      const d = 1;
+      tongDiem += d;
+      const loaiDon = (v6 % 2 !== 0) ? "Đơn Dương" : "Đơn Âm";
+      ung.push({ diem:d, icon:"☄️", layer:"LƯỚI 6 ★",
+        ten:`[VÔ THIÊN · ${loaiDon}] THIÊN VĂN DỊ BIẾN — ${label}: ${toan} quân`,
+        mo_ta:`Lượng quân ${label} chỉ còn ${toan} (${v6}) — rơi vào Vô Thiên. Thiên thời mất mối, các quy luật thông thường bị bẻ gãy. Cảnh báo: Nhật/Nguyệt thực, sao Tuệ (sao chổi) xuất hiện, sương mưa đá bất thường. Ưu tiên rút lui bảo toàn vốn, không mở vị thế mới.` });
+    }
+
+    // ─ Điều kiện 2: Tướng dính án hung + Âm Dương bất hòa = Thiên Thể Sai Lệch
+    const tuongHung  = anObj && anObj.status === "hung";
+    const batHoa     = BAT_HOA_TINH_CHAT.includes(tinhChatL6);
+    if(tuongHung && batHoa){
+      const d = 1;
+      tongDiem += d;
+      const dsTuHinh = (anObj.anList||[])
+        .map(a => a.match(/^[^(]+/)?.[0]?.trim()).filter(Boolean).join(" · ");
+      ung.push({ diem:d, icon:"🌌", layer:"LƯỚI 6 ★",
+        ten:`[THIÊN THỂ SAI LỆCH] 5 SAO LẠC QUỸ ĐẠO — ${label}`,
+        mo_ta:`Tướng ${label} dính án tử hình (${dsTuHinh}) trong khi toán số rơi vào Âm Dương bất hòa (${tinhChatL6}). Báo động thiên văn: năm vì sao đi sai quỹ đạo, sao Bột (Nova/va chạm thiên thể) mang điềm gở. Cấu trúc thị trường có thể vỡ hoàn toàn ngoài mọi dự báo kỹ thuật.` });
+    }
+  });
+
   // TỔNG HỢP — chỉ trả cảnh báo khi tổng điểm ≥ ngưỡng
   // ══════════════════════════════════════════════════════
   if(tongDiem < NGUONG_DIEM) return [];
@@ -2290,7 +2358,7 @@ function compute(nam,thang,ngay,gio){
     ],
     batMon,
     hungTinh: tinhHungTinh(tichSoNam),
-    canhBaoThamHoa: quetThamHoaDanCo(tichSoNam),
+    canhBaoThamHoa: quetThamHoaDanCo(tichSoNam, tueCucData.anChuDai, tueCucData.anKhachDai),
   };
 }
 
