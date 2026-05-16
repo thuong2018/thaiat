@@ -78,49 +78,191 @@ html, body {
 }
 
 /* ═══════════════════════════════
-   HEADER
+   DESKTOP LAYOUT — 2 cột
+   ═══════════════════════════════ */
+@media (max-width: 899px) {
+  #desktop-body {
+    display: flex;
+    flex-direction: column;
+  }
+  #left-panel .calc-btn { width: calc(100% - 28px); margin: 12px 14px 0; }
+  #right-panel #results { padding: 14px 14px calc(var(--safe-bot) + 20px); }
+}
+
+@media (min-width: 900px) {
+  #app {
+    max-width: 1200px;
+  }
+  #desktop-body {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 24px;
+    padding: 0 20px 40px;
+    align-items: start;
+  }
+  #left-panel {
+    position: sticky;
+    top: 90px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  #left-panel .card { margin-left: 0; margin-right: 0; }
+  #left-panel .calc-btn { width: 100%; margin-left: 0; margin-right: 0; }
+  #left-panel .disclaimer { margin-left: 0; margin-right: 0; }
+  #left-panel input[type="number"] { font-size: 18px; padding: 13px 15px; }
+  #left-panel .date-grid { grid-template-columns: 1fr 1fr 1fr 1fr; }
+  #right-panel #results { padding: 0 0 40px; }
+  .bat-mon-grid { grid-template-columns: 1fr 1fr 1fr 1fr; }
+  .bat-mon-cell.truc-su { grid-column: 1 / -1; }
+  .hung-tinh-grid { grid-template-columns: 1fr 1fr 1fr 1fr; }
+  .hung-tinh-cell.dan-co { grid-column: 1 / -1; }
+  .tham-hoa-canh-bao { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+}
+
+/* ═══════════════════════════════
+   HEADER — Premium Redesign
    ═══════════════════════════════ */
 header {
-  padding: calc(var(--safe-top) + 14px) 20px 16px;
+  padding: calc(var(--safe-top) + 20px) 24px 20px;
   text-align: center;
   position: sticky;
   top: 0;
   z-index: 100;
-  background: linear-gradient(180deg, rgba(3,8,16,.95) 0%, rgba(3,8,16,0) 100%);
-  border-bottom: 1px solid rgba(0,212,255,.1);
+  background: linear-gradient(180deg,
+    rgba(3,8,16,.98) 0%,
+    rgba(5,12,28,.92) 70%,
+    rgba(3,8,16,0) 100%);
+  border-bottom: 1px solid rgba(200,153,58,.15);
+}
+
+/* Đường kẻ vàng mỏng phía trên header */
+header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(200,153,58,.6) 30%,
+    rgba(240,192,96,1) 50%,
+    rgba(200,153,58,.6) 70%,
+    transparent 100%);
+}
+
+/* Layout 2 dòng: symbol + title-block */
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 10px;
 }
 
 .header-symbol {
-  font-size: 32px;
+  font-size: 38px;
   line-height: 1;
-  margin-bottom: 4px;
-  display: block;
+  flex-shrink: 0;
   animation: pulse-glow 3s ease-in-out infinite;
 }
 
 @keyframes pulse-glow {
-  0%,100% { filter: drop-shadow(0 0 8px rgba(0,212,255,.4)); }
-  50%      { filter: drop-shadow(0 0 20px rgba(0,212,255,.9)) drop-shadow(0 0 40px rgba(0,212,255,.3)); }
+  0%,100% { filter: drop-shadow(0 0 8px rgba(200,153,58,.5)); }
+  50%      { filter: drop-shadow(0 0 22px rgba(200,153,58,.95)) drop-shadow(0 0 44px rgba(200,153,58,.25)); }
+}
+
+.header-title-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
 }
 
 header h1 {
   font-family: 'Cinzel Decorative', serif;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
-  letter-spacing: .1em;
-  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 50%, var(--gold) 100%);
+  letter-spacing: .12em;
+  background: linear-gradient(135deg,
+    #a8722a 0%, #c8993a 20%,
+    #f5d680 45%, #fff0a0 50%,
+    #f5d680 55%, #c8993a 80%,
+    #a8722a 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  line-height: 1.1;
   text-shadow: none;
 }
 
-header p {
-  font-size: 9.5px;
-  color: var(--text-dim);
+/* Dòng tác giả & slogan dưới h1 */
+.header-author {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 11px;
+  font-style: italic;
+  font-weight: 600;
+  color: rgba(200,153,58,.7);
+  letter-spacing: .08em;
+  line-height: 1.3;
+}
+
+/* Divider & tagline phía dưới */
+.header-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.header-divider {
+  width: 32px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(200,153,58,.4));
+}
+.header-divider.right {
+  background: linear-gradient(90deg, rgba(200,153,58,.4), transparent);
+}
+
+.header-tagline {
+  font-size: 8.5px;
+  color: rgba(90,122,154,.75);
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+
+/* Badge "Tiên phong số hóa" */
+.header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+  padding: 4px 12px;
+  background: linear-gradient(135deg, rgba(200,153,58,.08), rgba(200,153,58,.03));
+  border: 1px solid rgba(200,153,58,.22);
+  border-radius: 50px;
+  font-size: 9px;
+  font-weight: 600;
   letter-spacing: .14em;
   text-transform: uppercase;
-  margin-top: 3px;
+  color: rgba(200,153,58,.65);
+}
+
+.header-badge::before {
+  content: '✦';
+  font-size: 7px;
+  color: var(--gold);
+}
+.header-badge::after {
+  content: '✦';
+  font-size: 7px;
+  color: var(--gold);
+}
+
+@media (min-width: 900px) {
+  header h1 { font-size: 22px; }
+  .header-symbol { font-size: 46px; }
+  .header-author { font-size: 13px; }
+  .header-tagline { font-size: 9.5px; }
 }
 
 /* ═══════════════════════════════
@@ -847,6 +989,117 @@ input[type=range]::-webkit-slider-thumb {
 .vx-an-item.level-hung { background: rgba(255,68,85,.05);  border-left: 2px solid rgba(255,68,85,.45); }
 .vx-an-item.level-warn { background: rgba(255,215,0,.04);  border-left: 2px solid rgba(255,215,0,.35); }
 
+/* ── HUNG TINH THẢM HỌA PANEL ── */
+.tham-hoa-block {
+  background: var(--surface2);
+  border: 1px solid rgba(255,68,85,.35);
+  border-radius: 16px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 4px 24px rgba(0,0,0,.4), 0 0 30px rgba(255,68,85,.06) inset;
+  animation: fadeSlide .4s ease both;
+}
+.tham-hoa-header {
+  padding: 13px 16px;
+  background: rgba(255,68,85,.06);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  transition: background .2s;
+  position: relative;
+}
+.tham-hoa-header::before {
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,68,85,.6),transparent);
+}
+.tham-hoa-header:active { background: rgba(255,68,85,.14); }
+.tham-hoa-header .icon { font-size: 20px; flex-shrink: 0; }
+.tham-hoa-header .info { flex: 1; }
+.tham-hoa-header .info h3 {
+  font-size: 12.5px; font-weight: 700;
+  color: #ff6677; letter-spacing: .04em;
+}
+.tham-hoa-header .info p {
+  font-size: 10px; color: var(--text-dim);
+  margin-top: 2px; letter-spacing: .03em;
+}
+.tham-hoa-header .chevron {
+  color: var(--text-dim); font-size: 12px;
+  transition: transform .25s; flex-shrink: 0;
+}
+.tham-hoa-block.open .chevron { transform: rotate(180deg); }
+.tham-hoa-body { display: none; padding: 14px 16px 16px; }
+.tham-hoa-block.open .tham-hoa-body { display: block; }
+
+/* Tọa độ row */
+.hung-tinh-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.hung-tinh-cell {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 10px;
+  padding: 8px 11px;
+  font-size: 11px;
+  line-height: 1.55;
+}
+.hung-tinh-cell .ht-name {
+  font-size: 9.5px; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.hung-tinh-cell .ht-val { color: var(--gold-light); font-weight: 700; font-size: 12px; }
+.hung-tinh-cell .ht-sub { color: var(--text-dim); font-size: 10px; }
+.hung-tinh-cell.dan-co {
+  grid-column: 1 / -1;
+  border-color: rgba(0,212,255,.22);
+  background: rgba(0,212,255,.04);
+}
+.hung-tinh-cell.dan-co .ht-name { color: var(--cyan); }
+
+/* Cảnh báo items */
+.tham-hoa-canh-bao {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.tham-hoa-item {
+  display: flex; align-items: flex-start; gap: 11px;
+  padding: 11px 13px;
+  background: rgba(255,40,60,.07);
+  border: 1px solid rgba(255,68,85,.3);
+  border-left: 3px solid var(--red);
+  border-radius: 10px;
+  animation: pulse-red 2.4s ease-in-out infinite;
+}
+@keyframes pulse-red {
+  0%,100% { box-shadow: 0 0 0 rgba(255,68,85,0); }
+  50%      { box-shadow: 0 0 14px rgba(255,68,85,.2); }
+}
+.tham-hoa-icon { font-size: 20px; flex-shrink: 0; line-height: 1.4; }
+.tham-hoa-body-inner { flex: 1; }
+.tham-hoa-ten {
+  font-weight: 700; font-size: 12px;
+  color: #ff5566; letter-spacing: .06em; margin-bottom: 3px;
+}
+.tham-hoa-mota { color: var(--text-dim); font-size: 10.5px; line-height: 1.6; }
+
+.tham-hoa-binh-yen {
+  text-align: center; padding: 14px;
+  color: var(--green); font-size: 12px; font-weight: 600;
+  background: rgba(34,221,136,.05);
+  border: 1px solid rgba(34,221,136,.2);
+  border-radius: 10px;
+  letter-spacing: .04em;
+}
+
 ::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
@@ -881,68 +1134,92 @@ input[type=range]::-webkit-slider-thumb {
 <div id="app">
 
   <header>
-    <span class="header-symbol">☯</span>
-    <h1>Thái Ất Thần Kinh</h1>
-    <p>Tọa độ Không · Thời gian · Vũ trụ</p>
+    <div class="header-inner">
+      <span class="header-symbol">☯</span>
+      <div class="header-title-block">
+        <h1>Thái Ất Thần Kinh</h1>
+        <span class="header-author">bởi Thầy Vũ Thương</span>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="header-divider"></div>
+      <span class="header-tagline">Tọa Độ Không · Thời Gian · Vũ Trụ</span>
+      <div class="header-divider right"></div>
+    </div>
+    <div>
+      <span class="header-badge">Hệ thống số hóa Thái Ất đầu tiên tại Việt Nam</span>
+    </div>
   </header>
 
-  <!-- INPUT CARD -->
-  <div class="card">
-    <div class="card-title">Nhập Thời Điểm Soi Chiếu</div>
-    <div class="date-grid">
-      <div class="field">
-        <label>Năm</label>
-        <input type="number" id="inp-nam" placeholder="2026" min="1000" max="9999" inputmode="numeric">
-      </div>
-      <div class="field">
-        <label>Tháng</label>
-        <input type="number" id="inp-thang" placeholder="5" min="1" max="12" inputmode="numeric">
-      </div>
-      <div class="field">
-        <label>Ngày</label>
-        <input type="number" id="inp-ngay" placeholder="16" min="1" max="31" inputmode="numeric">
-      </div>
-      <div class="field">
-        <label>Giờ (0–23)</label>
-        <input type="number" id="inp-gio" placeholder="12" min="0" max="23" inputmode="numeric">
-      </div>
-    </div>
-    <button class="today-btn" onclick="fillToday()">📅 &nbsp;Điền Hôm Nay</button>
-  </div>
+  <!-- DESKTOP 2-COLUMN BODY -->
+  <div id="desktop-body">
 
-  <button class="calc-btn" id="calc-btn" onclick="calculate()">
-    <span id="btn-text">⚡ Quét Tọa Độ Vũ Trụ</span>
-  </button>
+    <!-- CỘT TRÁI: Input + Disclaimer -->
+    <div id="left-panel">
 
-  <!-- DISCLAIMER -->
-  <div class="disclaimer">
-    <div class="disclaimer-title">⚠️ Lời Cảnh Báo Thực Chiến</div>
-    <p style="color:var(--text-dim);font-size:11px;margin-bottom:10px;">
-      Hệ thống đo lường <strong style="color:var(--text)">Tâm lý đám đông</strong> và định vị
-      <strong style="color:var(--text)">Tọa độ Không–Thời gian</strong> theo cơ học vũ trụ cổ đại.
-    </p>
-    <p style="color:var(--red);font-weight:700;font-size:11px;margin-bottom:8px;">
-      🚫 TUYỆT ĐỐI KHÔNG dùng như chén thánh độc lập!
-    </p>
-    <ol>
-      <li><strong>Phân Tích Kỹ Thuật:</strong> Nến, hỗ trợ/kháng cự, Price Action → Entry & Stoploss.</li>
-      <li><strong>Phân Tích Vĩ Mô:</strong> Dòng tiền FED, lạm phát, tin tức kinh tế.</li>
-      <li><strong>Tọa Độ Thái Ất:</strong> Xác nhận Timing — vùng rủi ro hay bứt phá.</li>
-    </ol>
-    <div class="tip">
-      💡 Thái Ất trao "Thiên Thời – Địa Lợi". Quản trị rủi ro là <strong>Nhân Hòa</strong> của bạn!
-    </div>
-  </div>
+      <!-- INPUT CARD -->
+      <div class="card">
+        <div class="card-title">Nhập Thời Điểm Soi Chiếu</div>
+        <div class="date-grid">
+          <div class="field">
+            <label>Năm</label>
+            <input type="number" id="inp-nam" placeholder="2026" min="1000" max="9999" inputmode="numeric">
+          </div>
+          <div class="field">
+            <label>Tháng</label>
+            <input type="number" id="inp-thang" placeholder="5" min="1" max="12" inputmode="numeric">
+          </div>
+          <div class="field">
+            <label>Ngày</label>
+            <input type="number" id="inp-ngay" placeholder="16" min="1" max="31" inputmode="numeric">
+          </div>
+          <div class="field">
+            <label>Giờ (0–23)</label>
+            <input type="number" id="inp-gio" placeholder="12" min="0" max="23" inputmode="numeric">
+          </div>
+        </div>
+        <button class="today-btn" onclick="fillToday()">📅 &nbsp;Điền Hôm Nay</button>
+      </div>
 
-  <!-- RESULTS -->
-  <div id="results">
-    <div class="empty">
-      <div class="big">🌌</div>
-      <p>Nhập thời điểm và nhấn<br>
-        <strong style="color:var(--gold)">Quét Tọa Độ Vũ Trụ</strong><br>
-        để bắt đầu soi chiếu.</p>
-    </div>
-  </div>
+      <button class="calc-btn" id="calc-btn" onclick="calculate()">
+        <span id="btn-text">⚡ Quét Tọa Độ Vũ Trụ</span>
+      </button>
+
+      <!-- DISCLAIMER -->
+      <div class="disclaimer">
+        <div class="disclaimer-title">⚠️ Lời Cảnh Báo Thực Chiến</div>
+        <p style="color:var(--text-dim);font-size:11px;margin-bottom:10px;">
+          Hệ thống đo lường <strong style="color:var(--text)">Tâm lý đám đông</strong> và định vị
+          <strong style="color:var(--text)">Tọa độ Không–Thời gian</strong> theo cơ học vũ trụ cổ đại.
+        </p>
+        <p style="color:var(--red);font-weight:700;font-size:11px;margin-bottom:8px;">
+          🚫 TUYỆT ĐỐI KHÔNG dùng như chén thánh độc lập!
+        </p>
+        <ol>
+          <li><strong>Phân Tích Kỹ Thuật:</strong> Nến, hỗ trợ/kháng cự, Price Action → Entry & Stoploss.</li>
+          <li><strong>Phân Tích Vĩ Mô:</strong> Dòng tiền FED, lạm phát, tin tức kinh tế.</li>
+          <li><strong>Tọa Độ Thái Ất:</strong> Xác nhận Timing — vùng rủi ro hay bứt phá.</li>
+        </ol>
+        <div class="tip">
+          💡 Thái Ất trao "Thiên Thời – Địa Lợi". Quản trị rủi ro là <strong>Nhân Hòa</strong> của bạn!
+        </div>
+      </div>
+
+    </div><!-- /#left-panel -->
+
+    <!-- CỘT PHẢI: Results -->
+    <div id="right-panel">
+      <div id="results">
+        <div class="empty">
+          <div class="big">🌌</div>
+          <p>Nhập thời điểm và nhấn<br>
+            <strong style="color:var(--gold)">Quét Tọa Độ Vũ Trụ</strong><br>
+            để bắt đầu soi chiếu.</p>
+        </div>
+      </div>
+    </div><!-- /#right-panel -->
+
+  </div><!-- /#desktop-body -->
 
   <!-- FOOTER -->
   <footer class="site-footer">
@@ -1340,6 +1617,192 @@ const DOOR_DESC = {
 
 function modPositive(a,b){ return ((a%b)+b)%b; }
 
+// ═══════════════════════════════════════════════════════
+//  HUNG TINH THẢM HỌA & DÂN CƠ ENGINE
+// ═══════════════════════════════════════════════════════
+
+// Vòng 9 cung thuận (gồm cung 5 — Trung Cung)
+const VONG_9_CUNG = [1,2,3,4,5,6,7,8,9];
+
+// Vòng 8 cung thuận bỏ cung 5 — dành cho Đại Du Thái Ất
+const VONG_8_CUNG = [1,2,3,4,6,7,8,9];
+
+// Vòng 12 Địa Chi (Dân Cơ đi theo địa chi, map về cung Bát Quái)
+// Địa Chi → Cung Bát Quái Hậu Thiên:
+//   Tý=8(Khảm), Sửu=3(Cấn), Dần=3(Cấn), Mão=4(Chấn), Thìn=9(Tốn), Tỵ=9(Tốn)
+//   Ngọ=2(Ly),  Mùi=7(Khôn), Thân=7(Khôn), Dậu=6(Đoài), Tuất=1(Càn), Hợi=8(Khảm)
+// ── Nhưng Dân Cơ được lưu dưới dạng Địa Chi (như thanCo/danCo hiện tại)
+// ── nên ta so sánh trực tiếp trên cung số, cần map Địa Chi → cung số
+const DIA_CHI_CUNG = {
+  "Tý":8,"Sửu":3,"Dần":3,"Mão":4,"Thìn":9,"Tỵ":9,
+  "Ngọ":2,"Mùi":7,"Thân":7,"Dậu":6,"Tuất":1,"Hợi":8
+};
+
+/**
+ * tinhHungTinh(tichSoNam)
+ * Trả về object { tucThan, thienAt, diaAt, trucPhu, daiDu, danCo }
+ * tất cả đều là cung số (1–9, có thể bao gồm cung 5 cho nhóm 9 cung)
+ */
+function tinhHungTinh(tichSoNam){
+  // ── 1. Chu kỳ 360 năm → số bước cho Tứ Thần / Thiên Ất / Địa Ất
+  const chu360 = tichSoNam % 360;
+  const buoc360 = Math.floor(chu360 / 3);
+
+  // Tứ Thần: khởi cung 1, đi thuận 9 cung
+  const tucThan  = VONG_9_CUNG[(VONG_9_CUNG.indexOf(1)  + buoc360) % 9];
+  // Thiên Ất: khởi cung 6, đi thuận 9 cung
+  const thienAt  = VONG_9_CUNG[(VONG_9_CUNG.indexOf(6)  + buoc360) % 9];
+  // Địa Ất:  khởi cung 9, đi thuận 9 cung
+  const diaAt    = VONG_9_CUNG[(VONG_9_CUNG.indexOf(9)  + buoc360) % 9];
+
+  // ── 2. Trực Phù: đồng hành cùng Thái Ất năm (tueCuc → thaiAt)
+  //    Tính luôn trong compute(), ở đây nhận tichSoNam để suy ra thaiAt năm
+  const tueCuc   = (tichSoNam % 3600) % 72 || 72;
+  const idxTA    = Math.floor(((tueCuc - 1) % 24) / 3);
+  const thaiAtNam = DUONG_PALACES[idxTA]; // Thái Ất năm (cung số 1-9 bỏ 5)
+  const trucPhu  = thaiAtNam; // Trực Phù đứng cùng cung Thái Ất năm
+
+  // ── 3. Đại Du Thái Ất: chu kỳ 2880 năm, chia 36, đi thuận 8 cung (bỏ cung 5)
+  const chu2880  = tichSoNam % 2880;
+  const buoc2880 = Math.floor(chu2880 / 36);
+  const daiDu    = VONG_8_CUNG[(VONG_8_CUNG.indexOf(8)  + buoc2880) % 8];
+
+  // ── 4. Dân Cơ: công thức (tichSoNam + 250) % 360 % 36 % 12 → số bước từ Tuất
+  const buocDanCo = ((tichSoNam + 250) % 360) % 36 % 12;
+  const startIdx  = DIA_CHI.indexOf("Tuất");
+  const diaChiDanCo = DIA_CHI[(startIdx + buocDanCo) % 12];
+  const danCoCung   = DIA_CHI_CUNG[diaChiDanCo];
+
+  // ── 5. Toán số năm (Tuế Cục) — dùng cho Lưới Lọc 2 & 3
+  //    Lấy toanChu, toanKhach từ Tuế Cục
+  const idxVX = Math.floor(((tueCuc - 1) % 24) / 3);
+  // Dương Độn map VX cho năm
+  const mapVXNam = {1:"Thân",2:"Dậu",3:"Tuất",4:"Càn",5:"Càn",6:"Hợi",7:"Tý",8:"Sửu",9:"Cấn",10:"Dần",11:"Mão",12:"Thìn",13:"Tốn",14:"Tỵ",15:"Ngọ",16:"Mùi",17:"Khôn",0:"Khôn"};
+  const mapKTNam = {1:"Dần",2:"Sửu",3:"Tý",4:"Hợi",5:"Tuất",6:"Dậu",7:"Thân",8:"Mùi",9:"Ngọ",10:"Tỵ",11:"Thìn",0:"Mão"};
+  const vanXuongNam = mapVXNam[tichSoNam % 18];
+  const keThanNam   = mapKTNam[tichSoNam % 12];
+  const thuyKichNam = DIA_BAN[(4 + modPositive(DIA_BAN.indexOf(vanXuongNam) - DIA_BAN.indexOf(keThanNam), 16)) % 16];
+  const toanChuNam   = demQuan(vanXuongNam, thaiAtNam);
+  const toanKhachNam = demQuan(thuyKichNam, thaiAtNam);
+
+  // Cung Thủy Kích (dùng cho Lưới Lọc 1 — Án Yểm)
+  const cungThuyKich = THAN_INFO[thuyKichNam] ? THAN_INFO[thuyKichNam][0] : null;
+
+  return {
+    tucThan, thienAt, diaAt, trucPhu, daiDu,
+    danCo: danCoCung, diaChiDanCo,
+    thaiAtNam,       // Lưới Lọc 1 & 3
+    cungThuyKich,    // Lưới Lọc 1 (Án Yểm)
+    toanChuNam,      // Lưới Lọc 2
+    toanKhachNam,    // Lưới Lọc 2
+  };
+}
+
+/**
+ * quetThamHoaDanCo(tichSoNam)
+ * Trả về mảng cảnh báo { icon, ten, mo_ta, layer } — rỗng nếu bình yên.
+ * Gồm 4 lưới lọc:
+ *   Lưới 1: Án Yểm (Thủy Kích == Thái Ất)
+ *   Lưới 2: Toán Số Báo Tử (Vô Nhân / Vô Địa)
+ *   Lưới 3: Thời Tiết Cực Đoan (Trùng Dương / Trùng Âm)
+ *   Lưới 4: Bẫy Đám Đông (Dân Cơ đụng Ác Thần)
+ */
+function quetThamHoaDanCo(tichSoNam){
+  const {
+    tucThan, thienAt, diaAt, trucPhu, daiDu,
+    danCo, diaChiDanCo,
+    thaiAtNam, cungThuyKich,
+    toanChuNam, toanKhachNam,
+  } = tinhHungTinh(tichSoNam);
+
+  const canhBao = [];
+  const CUNG_DUONG = [1,3,7,9]; // Dương cung (Càn·Kim, Cấn·Thổ, Khôn·Thổ, Tốn·Mộc) — lẻ, trừ 5
+  const CUNG_AM    = [2,4,6,8]; // Âm cung  (Ly·Hỏa, Chấn·Mộc, Đoài·Kim, Khảm·Thủy)
+
+  // ══════════════════════════════════════════════════════
+  // 🩸 LƯỚI LỌC 1: ÁN YỂM — Thủy Kích trùng Thái Ất
+  // ══════════════════════════════════════════════════════
+  if(cungThuyKich !== null && cungThuyKich === thaiAtNam){
+    canhBao.push({
+      icon:"🩸",
+      layer:"LƯỚI 1",
+      ten:"[BÁO ĐỘNG YỂM] KHỦNG HOẢNG VĨ MÔ TOÀN DIỆN",
+      mo_ta:"Thủy Kích hội tụ Thái Ất — Cấu trúc vĩ mô có nguy cơ sụp đổ đồng loạt. Tín hiệu cực kỳ nguy hiểm: bất ổn an ninh, thiên tai kép (lũ lụt + hạn hán), bùng phát dịch bệnh, hệ thống quản trị mất kiểm soát. Thanh khoản toàn thị trường có thể đóng băng.",
+    });
+  }
+
+  // ══════════════════════════════════════════════════════
+  // ☠️ LƯỚI LỌC 2: TOÁN SỐ BÁO TỬ — Vô Nhân & Vô Địa
+  // ══════════════════════════════════════════════════════
+  [
+    { toan: toanChuNam,   label: "Toán Chủ (Lực Bán)" },
+    { toan: toanKhachNam, label: "Toán Khách (Lực Mua)" },
+  ].forEach(({ toan, label }) => {
+    const t40 = toan % 40 || 40;
+
+    // Án Vô Nhân: hàng đơn vị = 0 (10, 20, 30, 40)
+    if(t40 % 10 === 0){
+      canhBao.push({
+        icon:"☠️",
+        layer:"LƯỚI 2",
+        ten:`[ÁN VÔ NHÂN] ${label}: ${toan} quân`,
+        mo_ta:"Lượng quân chẵn chục — Năng suất nông nghiệp sụt giảm nghiêm trọng, chuỗi cung ứng đứt gãy, gia tăng tội phạm và tệ nạn xã hội, nguy cơ bùng phát dịch bệnh, dòng người di cư mất việc tăng cao.",
+      });
+    }
+
+    // Án Vô Địa: hàng đơn vị là 1–4 và tổng > 10
+    const dvt = t40 % 10;
+    if(toan > 10 && dvt >= 1 && dvt <= 4){
+      canhBao.push({
+        icon:"☠️",
+        layer:"LƯỚI 2",
+        ten:`[ÁN VÔ ĐỊA] ${label}: ${toan} quân`,
+        mo_ta:"Nền tảng vật chất mất ổn định — Nguy cơ thiên tai địa chất (động đất, sạt lở, sụt đất), nguồn nước suy kiệt, dịch hại bùng phát, đời sống người dân đảo lộn nghiêm trọng.",
+      });
+    }
+  });
+
+  // ══════════════════════════════════════════════════════
+  // 🌪️ LƯỚI LỌC 3: THỜI TIẾT CỰC ĐOAN — Trùng Dương / Trùng Âm
+  // ══════════════════════════════════════════════════════
+  const toanNam = toanChuNam;
+  const leToanNam = toanNam % 2 !== 0;
+
+  if(CUNG_DUONG.includes(thaiAtNam) && leToanNam){
+    canhBao.push({
+      icon:"🌪️",
+      layer:"LƯỚI 3",
+      ten:"[TRÙNG DƯƠNG] HẠN HÁN & NGUY CƠ CHÁY NỔ",
+      mo_ta:`Thái Ất tọa Cung Dương (${thaiAtNam}·${CUNG_NAME[thaiAtNam]||thaiAtNam}) + Lượng quân lẻ (${toanNam}). Khí dương tích tụ cực đoan — nắng gắt kéo dài, hạn hán diện rộng, nguy cơ cháy rừng và hỏa hoạn đô thị cao hơn bình thường.`,
+    });
+  }
+
+  if(CUNG_AM.includes(thaiAtNam) && !leToanNam){
+    canhBao.push({
+      icon:"🌊",
+      layer:"LƯỚI 3",
+      ten:"[TRÙNG ÂM] LỤT LỘI & MƯA CỰC ĐOAN",
+      mo_ta:`Thái Ất tọa Cung Âm (${thaiAtNam}·${CUNG_NAME[thaiAtNam]||thaiAtNam}) + Lượng quân chẵn (${toanNam}). Khí âm hàn tụ cực độ — mưa lớn kéo dài, lũ lụt diện rộng, ngập úng đô thị và nông nghiệp, cơ sở hạ tầng bị tàn phá.`,
+    });
+  }
+
+  // ══════════════════════════════════════════════════════
+  // ⚔️ LƯỚI LỌC 4: BẪY ĐÁM ĐÔNG — Dân Cơ vs Hung Tinh
+  // ══════════════════════════════════════════════════════
+  if(danCo === tucThan)
+    canhBao.push({ icon:"🌊", layer:"LƯỚI 4", ten:"[TỨ THẦN TÀN PHÁ] THIÊN TAI & MẤT MÙA",   mo_ta:"Dân Cơ hội tụ Tứ Thần — Nguy cơ thiên tai quy mô lớn (lũ lụt, hạn hán), mất mùa diện rộng, an ninh lương thực bị đe dọa, đời sống cộng đồng bị ảnh hưởng nặng." });
+  if(danCo === daiDu)
+    canhBao.push({ icon:"⚔️", layer:"LƯỚI 4", ten:"[ĐẠI DU LƯU VONG] BẤT ỔN & DI DÂN",       mo_ta:"Dân Cơ hội tụ Đại Du Thái Ất — Xung đột vũ trang, thiên tai kép hoặc khủng hoảng kinh tế đẩy làn sóng di dân, mất việc làm hàng loạt, cộng đồng ly tán." });
+  if(danCo === thienAt)
+    canhBao.push({ icon:"🩸", layer:"LƯỚI 4", ten:"[THIÊN ẤT DIỆT CHỦ] XU HƯỚNG BẠO LỰC",    mo_ta:"Dân Cơ hội tụ Thiên Ất — Gia tăng bất ổn an ninh, tội phạm leo thang, thiên tai đột ngột (giá rét, băng giá, mưa đá), đời sống người dân bị xáo trộn nghiêm trọng." });
+  if(danCo === diaAt)
+    canhBao.push({ icon:"🤒", layer:"LƯỚI 4", ten:"[ĐỊA ẤT ÔN DỊCH] DỊCH BỆNH & THẤT THU",   mo_ta:"Dân Cơ hội tụ Địa Ất — Ngành nông nghiệp và xây dựng có nguy cơ thất thu, sức đề kháng cộng đồng suy yếu, dịch bệnh (người, vật nuôi, cây trồng) có xu hướng bùng phát." });
+  if(danCo === trucPhu)
+    canhBao.push({ icon:"🔥", layer:"LƯỚI 4", ten:"[TRỰC PHÙ HỎA TAI] CHÁY NỔ & MẤT MÙA",    mo_ta:"Dân Cơ hội tụ Trực Phù — Nguy cơ hỏa hoạn, hạn hán cục bộ, dịch hại bùng phát, trộm cắp và tệ nạn xã hội tăng cao trong bối cảnh nguồn lực khan hiếm." });
+
+  return canhBao;
+}
+
 function demQuan(startThan, taPalace){
   const [cungStart, loaiThan] = THAN_INFO[startThan];
   if(cungStart === taPalace) return cungStart;
@@ -1372,49 +1835,49 @@ const VX_BDS_MAP = {
     badge:"🟢 [HỎA SINH THỔ — ĐẠI CÁT 🚀]",
     color:"var(--green)",
     nhan:"Cung 2 (Ly · Nam)",
-    mo_ta:"Hỏa sinh Thổ. Đất được nạp sinh khí cuồn cuộn. Thanh khoản chớp nhoáng, mua bán lướt sóng, dự án thương mại trung tâm mang lại lợi nhuận đột biến."
+    mo_ta:"Hỏa sinh Thổ. Đất có xu hướng được nạp sinh khí. Thanh khoản có thể khá chớp nhoáng, mua bán lướt sóng và dự án thương mại trung tâm có tiềm năng sinh lời cao — nhưng vẫn cần xác nhận thêm."
   },
   3:{
     badge:"🟢 [THỔ VƯỢNG — BỀN VỮNG ✅]",
     color:"#00e5c0",
     nhan:"Cung 3 (Cấn · Đ.Bắc)",
-    mo_ta:"Thổ gặp Thổ (Tỷ hòa). Đất nền, nhà phố, bất động sản để ở hoặc tích sản dài hạn. Xu hướng tăng trưởng vững chắc, an toàn tuyệt đối."
+    mo_ta:"Thổ gặp Thổ (Tỷ hòa). Đất nền, nhà phố, bất động sản để ở hoặc tích sản dài hạn có xu hướng tăng trưởng bền vững — xác suất thuận lợi cao hơn, song vẫn cần theo dõi bối cảnh vĩ mô."
   },
   7:{
     badge:"🟢 [THỔ VƯỢNG — BỀN VỮNG ✅]",
     color:"#00e5c0",
     nhan:"Cung 7 (Khôn · T.Nam)",
-    mo_ta:"Thổ gặp Thổ (Tỷ hòa). Đất nền, nhà phố, bất động sản để ở hoặc tích sản dài hạn. Xu hướng tăng trưởng vững chắc, an toàn tuyệt đối."
+    mo_ta:"Thổ gặp Thổ (Tỷ hòa). Đất nền, nhà phố, bất động sản để ở hoặc tích sản dài hạn có xu hướng tăng trưởng bền vững — xác suất thuận lợi cao hơn, song vẫn cần theo dõi bối cảnh vĩ mô."
   },
   4:{
     badge:"🔴 [MỘC KHẮC THỔ — ĐẠI HUNG ⚠️]",
     color:"var(--red)",
     nhan:"Cung 4 (Chấn · Đông)",
-    mo_ta:"Mộc đâm rễ phá Thổ. Môi trường khắc phạt dự án. Cảnh báo nguy cơ dính pháp lý, quy hoạch treo, tranh chấp hoặc đọng vốn cạn kiệt thanh khoản. Chỉ hợp làm nông/lâm nghiệp."
+    mo_ta:"Mộc đâm rễ phá Thổ. Môi trường có xu hướng khắc phạt dự án. Nâng cao cảnh giác trước nguy cơ pháp lý, quy hoạch treo, tranh chấp hoặc đọng vốn — xác suất rủi ro thanh khoản cao hơn bình thường. Tương đối phù hợp hơn cho nông/lâm nghiệp."
   },
   9:{
     badge:"🔴 [MỘC KHẮC THỔ — ĐẠI HUNG ⚠️]",
     color:"var(--red)",
     nhan:"Cung 9 (Tốn · Đ.Nam)",
-    mo_ta:"Mộc đâm rễ phá Thổ. Môi trường khắc phạt dự án. Cảnh báo nguy cơ dính pháp lý, quy hoạch treo, tranh chấp hoặc đọng vốn cạn kiệt thanh khoản. Chỉ hợp làm nông/lâm nghiệp."
+    mo_ta:"Mộc đâm rễ phá Thổ. Môi trường có xu hướng khắc phạt dự án. Nâng cao cảnh giác trước nguy cơ pháp lý, quy hoạch treo, tranh chấp hoặc đọng vốn — xác suất rủi ro thanh khoản cao hơn bình thường. Tương đối phù hợp hơn cho nông/lâm nghiệp."
   },
   1:{
     badge:"🔵 [THỔ SINH KIM — HAO TỔN 🏗️]",
     color:"#a0c8ff",
     nhan:"Cung 1 (Càn · T.Bắc)",
-    mo_ta:"Thổ bị vắt kiệt để sinh Kim. Đất không tự tăng giá mà phải đổ tiền vào xây dựng mới sinh lời. Phù hợp BĐS dòng tiền, xây chung cư mini, nhà xưởng cho thuê (tạo ra Kim/Tiền)."
+    mo_ta:"Thổ bị vắt kiệt để sinh Kim. Đất có xu hướng không tự tăng giá mà cần đổ vốn vào xây dựng mới có khả năng sinh lời. Tương đối phù hợp BĐS dòng tiền, chung cư mini, nhà xưởng cho thuê — song hiệu quả thực tế còn phụ thuộc nhiều yếu tố khác."
   },
   6:{
     badge:"🔵 [THỔ SINH KIM — HAO TỔN 🏗️]",
     color:"#a0c8ff",
     nhan:"Cung 6 (Đoài · Tây)",
-    mo_ta:"Thổ bị vắt kiệt để sinh Kim. Đất không tự tăng giá mà phải đổ tiền vào xây dựng mới sinh lời. Phù hợp BĐS dòng tiền, xây chung cư mini, nhà xưởng cho thuê (tạo ra Kim/Tiền)."
+    mo_ta:"Thổ bị vắt kiệt để sinh Kim. Đất có xu hướng không tự tăng giá mà cần đổ vốn vào xây dựng mới có khả năng sinh lời. Tương đối phù hợp BĐS dòng tiền, chung cư mini, nhà xưởng cho thuê — song hiệu quả thực tế còn phụ thuộc nhiều yếu tố khác."
   },
   8:{
     badge:"🟡 [THỔ KHẮC THỦY — TRÌ TRỆ 🌊]",
     color:"var(--yellow)",
     nhan:"Cung 8 (Khảm · Bắc)",
-    mo_ta:"Thổ phải tốn lực đắp đê ngăn Thủy. Mua bán vất vả, chôn vốn lâu. Phù hợp cho tầm nhìn dài hạn, logistics, cảng biển hoặc BĐS nghỉ dưỡng ven hồ."
+    mo_ta:"Thổ phải tốn lực đắp đê ngăn Thủy. Mua bán có xu hướng vất vả, dễ chôn vốn lâu hơn kỳ vọng. Tương đối phù hợp tầm nhìn dài hạn, logistics, cảng biển hoặc BĐS nghỉ dưỡng ven hồ."
   },
 };
 
@@ -1434,14 +1897,14 @@ function getVanXuongBDS(vanXuong, cungVX){
 //   Mộc TIẾT Thổ(nhưng Kim khắc Mộc) → cung 4(Chấn·Mộc), 9(Tốn·Mộc) → KIM KHẮC MỘC 🟡
 //   Hỏa KHẮC Kim  → cung 2(Ly·Hỏa)                               → ĐẠI HUNG 🔴
 const VANG_CUNG_MAP = {
-  3:{badge:"🟢 [THỔ SINH KIM — ĐẠI CÁT 🚀]", color:"var(--green)",    mo_ta:"Cung 3 · Cấn · Thổ. Đất nuôi dưỡng Kim. Vàng được nạp đầy sinh khí, cấu trúc tăng giá cực kỳ vững chắc."},
-  7:{badge:"🟢 [THỔ SINH KIM — ĐẠI CÁT 🚀]", color:"var(--green)",    mo_ta:"Cung 7 · Khôn · Thổ. Đất mẹ sinh dưỡng Kim. Vàng được vùng đất tương sinh bơm sức mạnh."},
-  8:{badge:"🟢 [KIM SINH THỦY — TIẾT KHÍ 💧]",color:"#00e5c0",         mo_ta:"Cung 8 · Khảm · Thủy. Kim sinh Thủy, vàng tiết khí nhưng không bị phá. Tăng chậm bền, phù hợp tích lũy dài hạn."},
+  3:{badge:"🟢 [THỔ SINH KIM — ĐẠI CÁT 🚀]", color:"var(--green)",    mo_ta:"Cung 3 · Cấn · Thổ. Đất có xu hướng nuôi dưỡng Kim. Vàng có khả năng được nạp sinh khí, cấu trúc tăng giá tương đối vững — xác suất thuận lợi cao hơn trung bình."},
+  7:{badge:"🟢 [THỔ SINH KIM — ĐẠI CÁT 🚀]", color:"var(--green)",    mo_ta:"Cung 7 · Khôn · Thổ. Đất mẹ có xu hướng sinh dưỡng Kim. Vàng được vùng đất tương sinh hỗ trợ — xác suất giá bứt phá tương đối cao hơn."},
+  8:{badge:"🟢 [KIM SINH THỦY — TIẾT KHÍ 💧]",color:"#00e5c0",         mo_ta:"Cung 8 · Khảm · Thủy. Kim sinh Thủy, vàng tiết khí nhưng ít có khả năng bị phá. Xu hướng tăng chậm và bền hơn, tương đối phù hợp tích lũy dài hạn."},
   1:{badge:"⚪ [KIM TỶ HÒA — THUẦN VỰC ⚖️]",  color:"#aabbcc",         mo_ta:"Cung 1 · Càn · Kim. Kim gặp Kim, đồng chất tỷ hòa. Vàng sideway tích lũy, chờ xác nhận breakout mới vào lệnh."},
   6:{badge:"⚪ [KIM TỶ HÒA — THUẦN VỰC ⚖️]",  color:"#aabbcc",         mo_ta:"Cung 6 · Đoài · Kim. Kim gặp Kim, đồng chất tỷ hòa. Vàng sideway tích lũy, chờ xác nhận breakout mới vào lệnh."},
-  4:{badge:"🟡 [KIM KHẮC MỘC — TIÊU HAO 🪓]", color:"var(--yellow)",   mo_ta:"Cung 4 · Chấn · Mộc. Kim khắc Mộc, vàng phải tốn lực chặt phá. Tăng nhưng hao tổn nội lực, cẩn thận đảo chiều."},
-  9:{badge:"🟡 [KIM KHẮC MỘC — TIÊU HAO 🪓]", color:"var(--yellow)",   mo_ta:"Cung 9 · Tốn · Mộc. Kim khắc Mộc, vàng phải tốn lực chặt phá. Tăng nhưng hao tổn nội lực, cẩn thận đảo chiều."},
-  2:{badge:"🔴 [HỎA KHẮC KIM — CHÁY TÀI KHOẢN 🔥]", color:"var(--red)", mo_ta:"Cung 2 · Ly · Hỏa. Vàng bị nung chảy, lực mua cạn kiệt. Nguy cơ sập hầm flash dump. Đứng ngoài hoặc canh Short."},
+  4:{badge:"🟡 [KIM KHẮC MỘC — TIÊU HAO 🪓]", color:"var(--yellow)",   mo_ta:"Cung 4 · Chấn · Mộc. Kim khắc Mộc, vàng có xu hướng tốn lực chặt phá. Có thể tăng nhưng hao tổn nội lực — cần cảnh giác nguy cơ đảo chiều."},
+  9:{badge:"🟡 [KIM KHẮC MỘC — TIÊU HAO 🪓]", color:"var(--yellow)",   mo_ta:"Cung 9 · Tốn · Mộc. Kim khắc Mộc, vàng có xu hướng tốn lực chặt phá. Có thể tăng nhưng hao tổn nội lực — cần cảnh giác nguy cơ đảo chiều."},
+  2:{badge:"🔴 [HỎA KHẮC KIM — CHÁY TÀI KHOẢN 🔥]", color:"var(--red)", mo_ta:"Cung 2 · Ly · Hỏa. Vàng có xu hướng bị nung chảy, lực mua dễ cạn kiệt. Xác suất sập hầm / flash dump cao hơn — nên cân nhắc đứng ngoài hoặc canh Short."},
 };
 
 function getVangBadge(khachDai, anKhachDai){
@@ -1464,15 +1927,15 @@ function getVangBadge(khachDai, anKhachDai){
   let anLenh = "";
   if(anKhachDai.status === "cat"){
     anLenh = `<div style="margin-top:6px;color:var(--green);font-weight:700;font-size:11.5px;">⚔️ Án lệnh: PHÁT 🟢</div>
-              <div style="color:var(--text);font-size:11px;">Bứt phá mọi kháng cự.</div>`;
+              <div style="color:var(--text);font-size:11px;">Xu hướng bứt phá kháng cự — xác suất thuận lợi cao hơn.</div>`;
   } else if(anKhachDai.status === "hung"){
     const anhung = anKhachDai.anList.map(a=>`<li style="margin-bottom:3px">${a}</li>`).join("");
     anLenh = `<div style="margin-top:6px;color:var(--red);font-weight:700;font-size:11.5px;">⛓️ Án lệnh: ${anKhachDai.anList.map(a=>a.match(/^[^(]+/)[0].trim()).join(" · ")} 🔴</div>
               <ul style="color:var(--text);font-size:11px;padding-left:16px;margin-top:3px;line-height:1.7">${anhung}</ul>
-              <div style="color:var(--red);font-size:13px;font-weight:700;margin-top:6px;letter-spacing:.03em;">⚠️ Vàng kẹt thanh khoản hoặc hoảng loạn — Đứng ngoài / canh Short.</div>`;
+              <div style="color:var(--red);font-size:13px;font-weight:700;margin-top:6px;letter-spacing:.03em;">⚠️ Vàng có dấu hiệu kẹt thanh khoản hoặc hoảng loạn — nên cân nhắc đứng ngoài / canh Short.</div>`;
   } else {
     anLenh = `<div style="margin-top:6px;color:var(--yellow);font-weight:700;font-size:11.5px;">⏳ Án lệnh: HƯU PHẾ / SIDEWAY 🟡</div>
-              <div style="color:var(--text);font-size:11px;">Vàng đi ngang lình xình. Chờ tín hiệu rõ hơn, không vào lệnh vội.</div>`;
+              <div style="color:var(--text);font-size:11px;">Vàng có xu hướng đi ngang lình xình. Nên chờ tín hiệu rõ hơn, tránh vào lệnh vội.</div>`;
   }
 
   return `${header}${nhanh}${anLenh}`;
@@ -1497,25 +1960,25 @@ function getNguHanh(s){
 
 function danhGiaVolume(toanSo){
   let val=toanSo%40; if(val===0) val=40;
-  if([33,39].includes(val)) return "⚠️ THUẦN DƯƠNG [ĐẠI HUNG] — FOMO cực đoan, thị trường sắp VỠ TRẬN";
-  if([22,26].includes(val)) return "⚠️ THUẦN ÂM [ĐẠI HUNG] — Khủng hoảng tột độ, bán tháo hỗn loạn";
-  if([10,30].includes(val)) return "🚫 CÔ DƯƠNG [HUNG] — Vô nhân, tắt thanh khoản, sideway hẹp, nguy cơ chôn vốn";
-  if([20,40].includes(val)) return "🚫 CÔ ÂM [HUNG] — Vô nhân, tắt thanh khoản, sideway hẹp, nguy cơ chôn vốn";
+  if([33,39].includes(val)) return "⚠️ THUẦN DƯƠNG [ĐẠI HUNG] — FOMO cực đoan, thị trường có dấu hiệu sắp vỡ trận";
+  if([22,26].includes(val)) return "⚠️ THUẦN ÂM [ĐẠI HUNG] — Khủng hoảng tột độ, xác suất bán tháo hỗn loạn cao";
+  if([10,30].includes(val)) return "🚫 CÔ DƯƠNG [HUNG] — Vô nhân, thanh khoản có xu hướng tắt, sideway hẹp, nguy cơ chôn vốn";
+  if([20,40].includes(val)) return "🚫 CÔ ÂM [HUNG] — Vô nhân, thanh khoản có xu hướng tắt, sideway hẹp, nguy cơ chôn vốn";
   const nhan=[];
-  if([1,3,5,7,9].includes(val))   nhan.push("⚡ ĐƠN DƯƠNG [HUNG] — Vô thiên, lực mỏng manh, dễ bị cá mập quét stoploss");
-  if([2,4,6,8].includes(val))     nhan.push("⚡ ĐƠN ÂM [HUNG] — Vô địa, mất nền tảng, lực mỏng manh, dễ bị quét stoploss");
+  if([1,3,5,7,9].includes(val))   nhan.push("⚡ ĐƠN DƯƠNG [HUNG] — Vô thiên, lực có xu hướng mỏng manh, dễ bị cá mập quét stoploss");
+  if([2,4,6,8].includes(val))     nhan.push("⚡ ĐƠN ÂM [HUNG] — Vô địa, mất nền tảng, lực có xu hướng mỏng manh, dễ bị quét stoploss");
   const HOA_EXEMPT=[14,18,23];
   const last=val%10;
   if([1,2,3,4].includes(last)&&![1,2,3,4,10,20,30,40].includes(val)&&!HOA_EXEMPT.includes(val))
-    nhan.push("🕳️ VÔ ĐỊA [HUNG] — Mất vùng hỗ trợ bên dưới, đà tăng có thể sập gãy thẳng đứng");
-  if([13,19,31,37].includes(val)) nhan.push("🌵 TẠP TRÙNG DƯƠNG [HUNG] — Khô khan, có FOMO nhưng thiếu đà đẩy, tăng rướn rồi gãy");
-  if([24,28].includes(val))       nhan.push("🌧️ TẠP TRÙNG ÂM [HUNG] — Cung dư thừa, áp lực bán ứ đọng, chôn vùi hoàn toàn đà tăng");
-  if([11,17].includes(val))       nhan.push("🎭 DƯƠNG TRONG ÂM [CẢNH BÁO] — Nhà cái đang âm thầm phân phối/gom hàng");
-  if([14,18,23].includes(val))    nhan.push("✅ THƯỢNG HÒA [ĐẠI CÁT] — Thanh khoản dồi dào, lực đẩy cực vững");
-  if([29,36].includes(val))       nhan.push("✅ THỨ HÒA [CÁT] — Xu hướng duy trì đều đặn");
-  if([12,16,27,34,38].includes(val)) nhan.push("✅ HẠ HÒA [CÁT] — Lực đẩy vừa đủ, bình yên, an toàn để chốt lời dần");
+    nhan.push("🕳️ VÔ ĐỊA [HUNG] — Mất vùng hỗ trợ bên dưới, đà tăng có nguy cơ sập gãy");
+  if([13,19,31,37].includes(val)) nhan.push("🌵 TẠP TRÙNG DƯƠNG [HUNG] — Khô khan, có FOMO nhưng thiếu đà đẩy, tăng rướn rồi dễ gãy");
+  if([24,28].includes(val))       nhan.push("🌧️ TẠP TRÙNG ÂM [HUNG] — Cung dư thừa, áp lực bán ứ đọng, có xu hướng chôn vùi đà tăng");
+  if([11,17].includes(val))       nhan.push("🎭 DƯƠNG TRONG ÂM [CẢNH BÁO] — Có dấu hiệu nhà cái đang âm thầm phân phối/gom hàng");
+  if([14,18,23].includes(val))    nhan.push("✅ THƯỢNG HÒA [ĐẠI CÁT] — Thanh khoản có xu hướng dồi dào, lực đẩy tương đối vững");
+  if([29,36].includes(val))       nhan.push("✅ THỨ HÒA [CÁT] — Xu hướng có khả năng duy trì đều đặn");
+  if([12,16,27,34,38].includes(val)) nhan.push("✅ HẠ HÒA [CÁT] — Lực đẩy vừa đủ, tương đối bình yên, có thể cân nhắc chốt lời dần");
   if([16,17,18,19,26,27,28,29,36,37,38,39].includes(val))
-    nhan.push("⭐ TAM TÀI ĐỀU ĐỦ — Hội tụ Thiên-Địa-Nhân, tỷ lệ thắng cao nhất");
+    nhan.push("⭐ TAM TÀI ĐỀU ĐỦ — Hội tụ Thiên-Địa-Nhân, xác suất thắng cao hơn trung bình");
   if(nhan.length) return nhan.join(" | ");
   return `⬜ BÌNH THƯỜNG (${val}) — Không có tín hiệu đặc biệt`;
 }
@@ -1639,14 +2102,14 @@ function giaiPhauAnTuong(cungTuong,thaiAt,vanXuong,thuyKich,dichDai,dichTham,toa
   if(kcDichDai===1&&kcTA===1&&khoangCachKhongGian(dichDai,thaiAt)===2)
     anHung.push("⚔️ ĐỀ (Bị địch mượn sức Thái Ất ép chết ở giữa)");
   if(anHung.length)
-    return {status:"hung",label:"🔴 ĐẠI HUNG (XẤU)",mota:"Tướng đã dính bẫy không gian. Cấu trúc bị phá vỡ, đánh là mất tiền.",anList:anHung};
+    return {status:"hung",label:"🔴 ĐẠI HUNG (XẤU)",mota:"Tướng có dấu hiệu dính bẫy không gian. Cấu trúc có thể bị phá vỡ — xác suất thua lỗ cao hơn đáng kể, cần thận trọng.",anList:anHung};
   const YEU_KEM=["DON","CO","VO_DIA"];
   const CUC_DOAN=["THUAN_DUONG","THUAN_AM"];
   if(YEU_KEM.some(k=>tinhChat.includes(k)))
-    return {status:"binh",label:"🟡 BÌNH HÒA / HƯU PHẾ",mota:"Tướng an toàn nhưng Lính yếu/hết xăng. Thị trường đi ngang (Sideway) khó chịu.",anList:["⏳ HƯU / PHẾ (An toàn phòng ngự, thiếu lực đẩy, dòng tiền ru ngủ)"]};
+    return {status:"binh",label:"🟡 BÌNH HÒA / HƯU PHẾ",mota:"Tướng tương đối an toàn nhưng lính có xu hướng yếu / hết xăng. Thị trường dễ đi ngang (Sideway), khó khai thác.",anList:["⏳ HƯU / PHẾ (Phòng ngự tương đối ổn, thiếu lực đẩy, dòng tiền có xu hướng ru ngủ)"]};
   if(CUC_DOAN.some(k=>tinhChat.includes(k)))
-    return {status:"binh",label:"🟡 CẢNH BÁO BONG BÓNG",mota:"Tướng an toàn nhưng FOMO mù quáng. Tăng ảo, dễ đảo chiều.",anList:["⚠️ BÌNH HÒA ẢO — Kéo rướn nhờ hưng phấn"]};
-  return {status:"cat",label:"🟢 ĐẠI CÁT (TỐT)",mota:"Thiên thời địa lợi hội tụ. Đường cao tốc thênh thang không lực cản.",anList:["🔥 PHÁT (Quân mạnh tướng khỏe, bứt phá mọi kháng cự, bắn tên tất trúng)","🌟 VƯỢNG TƯỚNG (Đắc lệnh Không-Thời gian, sinh khí cuồn cuộn đẩy giá đi lên)"]};
+    return {status:"binh",label:"🟡 CẢNH BÁO BONG BÓNG",mota:"Tướng tương đối an toàn nhưng FOMO có thể mù quáng. Tăng dễ ảo, xác suất đảo chiều cao hơn bình thường.",anList:["⚠️ BÌNH HÒA ẢO — Kéo rướn nhờ hưng phấn, cần xác nhận thêm"]};
+  return {status:"cat",label:"🟢 ĐẠI CÁT (TỐT)",mota:"Thiên thời địa lợi có xu hướng hội tụ. Xác suất thuận lợi cao — nhưng vẫn cần quản trị rủi ro.",anList:["🔥 PHÁT (Quân mạnh tướng khỏe, xu hướng bứt phá kháng cự, xác suất thắng cao hơn)","🌟 VƯỢNG TƯỚNG (Đắc lệnh Không-Thời gian, sinh khí có xu hướng đẩy giá đi lên)"]};
 }
 
 function tinhCuc(tichSo,cucSo,donHe,tichSoNam){
@@ -1746,6 +2209,8 @@ function compute(nam,thang,ngay,gio){
       {ten:"Thời Cục",phu:"Điểm nổ H1",icon:"⚡",cucSo:thoiCuc,data:thoiCucData},
     ],
     batMon,
+    hungTinh: tinhHungTinh(tichSoNam),
+    canhBaoThamHoa: quetThamHoaDanCo(tichSoNam),
   };
 }
 
@@ -1799,7 +2264,7 @@ function renderAnVanXuong(d){
 
 function renderCuc(c,idx){
   const d=c.data;
-  const openClass=idx===3?" open":"";
+  const openClass=""; // tất cả đóng mặc định, bấm mới mở
   const donHeLabel=d.tenDonHe;
   return `
   <div class="cuc-block${openClass}" id="cuc-${idx}">
@@ -1851,13 +2316,13 @@ function renderCuc(c,idx){
       <div class="vol-row ${volClass(d.labelToanKhach)}">${d.labelToanKhach}</div>
 
       <div class="section-label">🎯 Tướng Tinh & Án Phạt</div>
-      ${d.doToanTapChu?`<div style="color:var(--red);font-size:12px;padding:6px 0;font-weight:600">☠️ PHE BÁN ĐỖ TOÀN TẬP — Phe Bán hoàn toàn tê liệt!</div>`:""}
+      ${d.doToanTapChu?`<div style="color:var(--red);font-size:12px;padding:6px 0;font-weight:600">☠️ PHE BÁN ĐỖ TOÀN TẬP — Phe Bán có dấu hiệu tê liệt hoàn toàn, thanh khoản cạn kiệt!</div>`:""}
       <div class="tuong-side ban">
         <div class="tuong-side-title">🩸 PHE BÁN (SHORT / NHÀ CÁI)</div>
         ${renderTuong("Đại Tướng",d.anChuDai)}
         ${renderTuong("Tham Tướng",d.anChuTham)}
       </div>
-      ${d.doToanTapKhach?`<div style="color:var(--red);font-size:12px;padding:6px 0;font-weight:600">☠️ PHE MUA ĐỖ TOÀN TẬP — Phe Mua hoàn toàn tê liệt!</div>`:""}
+      ${d.doToanTapKhach?`<div style="color:var(--red);font-size:12px;padding:6px 0;font-weight:600">☠️ PHE MUA ĐỖ TOÀN TẬP — Phe Mua có dấu hiệu tê liệt hoàn toàn, thanh khoản cạn kiệt!</div>`:""}
       <div class="tuong-side mua" style="margin-top:10px">
         <div class="tuong-side-title">🚀 PHE MUA (LONG / ĐÁM ĐÔNG)</div>
         ${renderTuong("Đại Tướng",d.anKhachDai)}
@@ -1909,6 +2374,10 @@ function toggleBatMon(){
   document.getElementById("cuc-batmon").classList.toggle("open");
 }
 
+function toggleThamHoa(){
+  document.getElementById("block-tham-hoa").classList.toggle("open");
+}
+
 function fillToday(){
   const now=new Date();
   document.getElementById("inp-nam").value=now.getFullYear();
@@ -1942,19 +2411,89 @@ function calculate(){
   }, 60);
 }
 
+function renderThamHoa(hungTinh, canhBao, meta){
+  const { tucThan, thienAt, diaAt, trucPhu, daiDu, danCo, diaChiDanCo, thaiAtNam, cungThuyKich } = hungTinh;
+  const namLabel = meta ? `Năm ${meta.nam}` : "Năm";
+  const ngayLabel = meta ? `${String(meta.ngay).padStart(2,"0")}/${String(meta.thang).padStart(2,"0")}/${meta.nam}` : "";
+
+  const toaDo = [
+    { name:"Dân Cơ",          val:`Cung ${danCo} · ${diaChiDanCo}`,       sub:CUNG_NAME[danCo]||"Trung Cung",      cls:"dan-co" },
+    { name:"Thái Ất Năm",     val:`Cung ${thaiAtNam}`,                     sub:CUNG_NAME[thaiAtNam]||"Trung Cung",  cls:"" },
+    { name:"Thủy Kích Năm",   val:`Cung ${cungThuyKich??"-"}`,             sub:CUNG_NAME[cungThuyKich]||"",         cls:"" },
+    { name:"Tứ Thần",         val:`Cung ${tucThan}`,                       sub:CUNG_NAME[tucThan]||"Trung Cung",    cls:"" },
+    { name:"Thiên Ất",        val:`Cung ${thienAt}`,                       sub:CUNG_NAME[thienAt]||"Trung Cung",    cls:"" },
+    { name:"Địa Ất",          val:`Cung ${diaAt}`,                         sub:CUNG_NAME[diaAt]||"Trung Cung",      cls:"" },
+    { name:"Trực Phù",        val:`Cung ${trucPhu}`,                       sub:CUNG_NAME[trucPhu]||"Trung Cung",    cls:"" },
+    { name:"Đại Du Thái Ất",  val:`Cung ${daiDu}`,                        sub:CUNG_NAME[daiDu]||"Trung Cung",      cls:"" },
+  ].map(r=>`
+    <div class="hung-tinh-cell ${r.cls}">
+      <div class="ht-name">${r.name}</div>
+      <div class="ht-val">${r.val}</div>
+      <div class="ht-sub">${r.sub}</div>
+    </div>`).join("");
+
+  const noidung = canhBao.length === 0
+    ? `<div class="tham-hoa-binh-yen">🟢 ${namLabel} BÌNH YÊN — Cả 4 lưới lọc đều không kích hoạt. Vĩ mô ổn định, thời tiết điều hòa.</div>`
+    : `<div class="tham-hoa-canh-bao">${canhBao.map(c=>`
+        <div class="tham-hoa-item">
+          <span class="tham-hoa-icon">${c.icon}</span>
+          <div class="tham-hoa-body-inner">
+            <div style="font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--red);opacity:.7;margin-bottom:2px;text-transform:uppercase">${c.layer||""} · ${namLabel}</div>
+            <div class="tham-hoa-ten">⚠️ ${c.ten}</div>
+            <div class="tham-hoa-mota">${c.mo_ta}</div>
+          </div>
+        </div>`).join("")}
+      </div>`;
+
+  const tongKet = canhBao.length > 0
+    ? `<div style="margin-top:10px;padding:10px 12px;background:rgba(255,68,85,.06);border-radius:9px;font-size:11px;color:var(--text-dim);line-height:1.7">
+        ⚠️ <strong style="color:#ff6677">${namLabel}</strong> — Phát hiện <strong style="color:#ff6677">${canhBao.length} cảnh báo thảm họa</strong> qua 4 lưới lọc X-Quang Vĩ Mô.
+        Đây là tín hiệu vĩ mô — cần kết hợp phân tích kỹ thuật và quản trị rủi ro trước khi ra quyết định.
+       </div>`
+    : "";
+
+  return `
+  <div class="tham-hoa-block open" id="block-tham-hoa">
+    <div class="tham-hoa-header" onclick="toggleThamHoa()">
+      <span class="icon">☄️</span>
+      <div class="info">
+        <h3>Scanner Thảm Họa Vĩ Mô <span style="font-size:10px;color:var(--text-dim);font-weight:400">4 Lưới Lọc · ${namLabel}</span></h3>
+        <p>Dân Cơ: Cung ${danCo} · ${diaChiDanCo} · ${canhBao.length > 0 ? canhBao.length+" Cảnh Báo Đỏ (" + namLabel + ")":"Bình Yên · "+namLabel}</p>
+      </div>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="tham-hoa-body">
+      <div class="section-label" style="margin-bottom:10px">📍 Tọa Độ Hung Tinh · ${namLabel}</div>
+      <div class="hung-tinh-grid">${toaDo}</div>
+      <div class="section-label" style="margin-bottom:10px">🔴 Quét Thảm Họa ${namLabel} — 4 Lưới Lọc X-Quang Vĩ Mô</div>
+      ${noidung}
+      ${tongKet}
+    </div>
+  </div>`;
+}
+
 function renderResults(r){
-  const {meta,cucs,batMon}=r;
+  const {meta,cucs,batMon,hungTinh,canhBaoThamHoa}=r;
   const donHeLabel=meta.donHe==="am"?"🌙 Âm Độn":"☀️ Dương Độn";
   let html=`
     <div class="result-header">
       <h2>☯ Tọa Độ Vũ Trụ</h2>
       <p>${meta.gio}H · ${String(meta.ngay).padStart(2,"0")}/${String(meta.thang).padStart(2,"0")}/${meta.nam} · ${donHeLabel}</p>
     </div>`;
+  // 1. Thảm họa lên đầu tiên — luôn mở
+  html+=renderThamHoa(hungTinh, canhBaoThamHoa, meta);
+  // 2. Các cục — tất cả đóng, bấm mới mở
   cucs.forEach((c,i)=>{ html+=renderCuc(c,i); });
+  // 3. Bát Môn — đóng
   html+=renderBatMon(batMon);
   const el=document.getElementById("results");
   el.innerHTML=html;
-  el.scrollIntoView({behavior:"smooth",block:"start"});
+  const isDesktop = window.innerWidth >= 900;
+  if(isDesktop){
+    document.getElementById("right-panel").scrollIntoView({behavior:"smooth",block:"start"});
+  } else {
+    el.scrollIntoView({behavior:"smooth",block:"start"});
+  }
 }
 
 fillToday();
