@@ -795,6 +795,58 @@ input[type=range]::-webkit-slider-thumb {
   box-shadow: 0 0 8px var(--cyan);
 }
 
+/* ── ÁN VĂN XƯƠNG ── */
+.vx-an-panel {
+  margin: 8px 0 6px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,212,255,.18);
+  background: rgba(0,212,255,.04);
+  overflow: hidden;
+}
+.vx-an-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  border-bottom: 1px solid rgba(0,212,255,.1);
+}
+.vx-an-header::before {
+  content: '';
+  display: block;
+  width: 3px; height: 12px;
+  background: linear-gradient(180deg, var(--cyan), var(--teal));
+  border-radius: 2px;
+  flex-shrink: 0;
+  box-shadow: 0 0 6px var(--cyan);
+}
+.vx-an-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 12px;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  font-size: 11px;
+  line-height: 1.6;
+}
+.vx-an-item:last-child { border-bottom: none; }
+.vx-an-icon { font-size: 16px; flex-shrink: 0; line-height: 1.4; }
+.vx-an-body { flex: 1; }
+.vx-an-ten {
+  font-weight: 700;
+  font-size: 11.5px;
+  letter-spacing: .06em;
+  margin-bottom: 2px;
+}
+.vx-an-mota { color: var(--text-dim); font-size: 10.5px; line-height: 1.55; }
+.vx-an-item.level-cat  { background: rgba(34,221,136,.04); border-left: 2px solid rgba(34,221,136,.35); }
+.vx-an-item.level-hung { background: rgba(255,68,85,.05);  border-left: 2px solid rgba(255,68,85,.45); }
+.vx-an-item.level-warn { background: rgba(255,215,0,.04);  border-left: 2px solid rgba(255,215,0,.35); }
+
 ::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
@@ -1501,6 +1553,74 @@ function khoangCachKhongGian(c1,c2){
   return Math.min(d,8-d);
 }
 
+// ── VĂN XƯƠNG ÁN — xác định án phạt trên Văn Xương ──
+function timCungTruoc(cung){
+  const idx=VONG_BAT_QUAI.indexOf(cung);
+  if(idx===-1) return -1;
+  return VONG_BAT_QUAI[(idx+7)%8]; // cung liền trước (nghịch chiều)
+}
+function timCungSau(cung){
+  const idx=VONG_BAT_QUAI.indexOf(cung);
+  if(idx===-1) return -1;
+  return VONG_BAT_QUAI[(idx+1)%8]; // cung liền sau (thuận chiều)
+}
+
+function xacDinhAnVanXuong(cungVanXuong, cungThaiAt, cungThuyKich){
+  const anPhat = [];
+
+  // 1. Án TÙ — Văn Xương trùng cung Thái Ất
+  if(cungVanXuong === cungThaiAt){
+    anPhat.push({
+      icon:"⛓️", ten:"TÙ",
+      mo_ta:"Mưu kế bị giam lỏng. Smart Money chôn vốn, kẹt lệnh, tín hiệu phá vỡ là bẫy.",
+      color:"var(--red)", level:"hung"
+    });
+  }
+  // 2. Án ĐỐI — cách 4 bước đối diện
+  else if(khoangCachKhongGian(cungVanXuong, cungThaiAt) === 4){
+    anPhat.push({
+      icon:"⚔️", ten:"ĐỐI",
+      mo_ta:"Đi ngược vĩ mô. Mưu kế xung đột hướng chính của Thái Ất, cấu trúc xu hướng lớn đứt gãy.",
+      color:"var(--red)", level:"hung"
+    });
+  }
+  // 3. Án BÁCH — cung liền kề (NGOẠI/NỘI)
+  else if(cungVanXuong === timCungTruoc(cungThaiAt)){
+    anPhat.push({
+      icon:"🗜️", ten:"NGOẠI BÁCH",
+      mo_ta:"Bức bách bên ngoài. Áp lực từ macro / tin tức bên ngoài rung lắc, dọa stoploss.",
+      color:"var(--yellow)", level:"warn"
+    });
+  }
+  else if(cungVanXuong === timCungSau(cungThaiAt)){
+    anPhat.push({
+      icon:"🗜️", ten:"NỘI BÁCH",
+      mo_ta:"Bức bách nội bộ. Phe trong cuộc dẫm đạp lên nhau, thanh khoản hỗn loạn.",
+      color:"var(--yellow)", level:"warn"
+    });
+  }
+
+  // 4. Án QUAN — Văn Xương trùng cung Thủy Kích (độc lập với if trên)
+  if(cungVanXuong === cungThuyKich){
+    anPhat.push({
+      icon:"👁️", ten:"QUAN",
+      mo_ta:"Nhị mục tương quan. Văn Xương & Thủy Kích hội tụ — kìm kẹp lẫn nhau, mưu đồ bị dập tắt, nguy cơ flash dump.",
+      color:"#ff8c00", level:"warn"
+    });
+  }
+
+  // 5. Bình yên
+  if(anPhat.length === 0){
+    anPhat.push({
+      icon:"🟢", ten:"BÌNH YÊN",
+      mo_ta:"Văn Xương vận hành trơn tru. Không dính bẫy không gian — mưu kế Smart Money thông suốt.",
+      color:"var(--green)", level:"cat"
+    });
+  }
+
+  return anPhat;
+}
+
 function giaiPhauAnTuong(cungTuong,thaiAt,vanXuong,thuyKich,dichDai,dichTham,toanSo){
   const cungVX=THAN_INFO[vanXuong][0], cungTK=THAN_INFO[thuyKich][0];
   const tinhChat=layTinhChatToanSo(toanSo);
@@ -1657,6 +1777,26 @@ function renderTuong(name,data){
     </div>`;
 }
 
+function renderAnVanXuong(d){
+  const cungVX  = THAN_INFO[d.vanXuong][0];
+  const cungTA  = d.thaiAt;
+  const cungTK  = THAN_INFO[d.thuyKich][0];
+  const anList  = xacDinhAnVanXuong(cungVX, cungTA, cungTK);
+  const items   = anList.map(a=>`
+    <div class="vx-an-item level-${a.level}">
+      <span class="vx-an-icon">${a.icon}</span>
+      <div class="vx-an-body">
+        <div class="vx-an-ten" style="color:${a.color}">${a.ten}</div>
+        <div class="vx-an-mota">${a.mo_ta}</div>
+      </div>
+    </div>`).join("");
+  return `
+    <div class="vx-an-panel">
+      <div class="vx-an-header">👁 Án Văn Xương — Cung ${cungVX} soi Thái Ất Cung ${cungTA}</div>
+      ${items}
+    </div>`;
+}
+
 function renderCuc(c,idx){
   const d=c.data;
   const openClass=idx===3?" open":"";
@@ -1689,6 +1829,7 @@ function renderCuc(c,idx){
         <span class="key">Văn Xương (Mưu)</span>
         <span class="val">${d.vanXuong} · Cung ${THAN_INFO[d.vanXuong][0]} · ${getNguHanh(d.vanXuong)}</span>
       </div>
+      ${idx===0?renderAnVanXuong(d):""}
       ${idx===0?`<div class="shen-row vx-bds-row">
         <span class="icon-col">🏠</span>
         <span class="key" style="color:var(--gold);font-size:10.5px;">└ BĐS / Thổ Địa</span>
