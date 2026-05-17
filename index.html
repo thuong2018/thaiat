@@ -1562,6 +1562,130 @@ input[type=range]::-webkit-slider-thumb {
 }
 #baocao-text::-webkit-scrollbar { width: 4px; }
 #baocao-text::-webkit-scrollbar-thumb { background: rgba(200,153,58,.3); border-radius: 2px; }
+
+/* ══════════════════════════════════════
+   SA BÀN 9 CUNG — Visual Grid
+   ══════════════════════════════════════ */
+.saban-wrap {
+  margin: 14px 0 6px;
+}
+.saban-title {
+  font-size: 9.5px; font-weight: 700; color: var(--cyan);
+  letter-spacing: .16em; text-transform: uppercase;
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.saban-title::before {
+  content:''; display:block; width:3px; height:12px;
+  background: linear-gradient(180deg, var(--cyan), var(--teal));
+  border-radius:2px; flex-shrink:0; box-shadow:0 0 6px var(--cyan);
+}
+.saban-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  aspect-ratio: 1;
+  max-width: 300px;
+  margin: 0 auto;
+}
+.saban-cell {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 8px;
+  padding: 6px 4px 5px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 2px;
+  position: relative;
+  min-height: 68px;
+  transition: background .2s;
+}
+.saban-cell.trung-cung {
+  background: rgba(255,255,255,.06);
+  border-color: rgba(255,255,255,.15);
+}
+.saban-cell-dir {
+  font-size: 8px; color: var(--text-dim);
+  letter-spacing: .06em; text-transform: uppercase;
+  line-height: 1;
+}
+.saban-cell-num {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 15px; font-weight: 700;
+  color: var(--text); line-height: 1;
+}
+.saban-cell-name {
+  font-size: 9px; color: var(--text-dim); line-height: 1;
+}
+.saban-dots {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: 2px; margin-top: 3px; min-height: 12px;
+}
+.saban-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+/* Highlight khi có thần sát */
+.saban-cell.has-thai-at  { border-color: rgba(200,153,58,.7); background: rgba(200,153,58,.1); }
+.saban-cell.has-thuy-kich{ border-color: rgba(255,68,85,.6);  background: rgba(255,68,85,.08);}
+.saban-cell.has-van-xuong{ border-color: rgba(0,212,255,.5);  background: rgba(0,212,255,.07);}
+.saban-cell.has-ke-than  { border-color: rgba(255,100,64,.5); background: rgba(255,100,64,.06);}
+.saban-dot-thai-at   { background: #f0c060; box-shadow: 0 0 4px rgba(200,153,58,.8); }
+.saban-dot-thuy-kich { background: #ff4455; box-shadow: 0 0 4px rgba(255,68,85,.8);  }
+.saban-dot-van-xuong { background: #00d4ff; box-shadow: 0 0 4px rgba(0,212,255,.8);  }
+.saban-dot-ke-than   { background: #ff6440; box-shadow: 0 0 4px rgba(255,100,64,.8); }
+.saban-dot-ngu-phuc  { background: #22dd88; box-shadow: 0 0 4px rgba(34,221,136,.8); }
+.saban-legend {
+  display: flex; flex-wrap: wrap; gap: 8px 14px;
+  margin-top: 8px; justify-content: center;
+}
+.saban-legend-item {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 9.5px; color: var(--text-dim);
+}
+.saban-legend-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════
+   RADAR / SPIDER CHART — Canvas-based
+   ══════════════════════════════════════ */
+.radar-wrap {
+  margin: 14px 0 6px;
+}
+.radar-title {
+  font-size: 9.5px; font-weight: 700; color: var(--gold);
+  letter-spacing: .16em; text-transform: uppercase;
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.radar-title::before {
+  content:''; display:block; width:3px; height:12px;
+  background: linear-gradient(180deg, var(--gold), var(--gold-light));
+  border-radius:2px; flex-shrink:0;
+}
+.radar-canvas-wrap {
+  display: flex; justify-content: center;
+}
+.radar-legend {
+  display: flex; gap: 16px; justify-content: center;
+  margin-top: 6px;
+}
+.radar-legend-item {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 10px; color: var(--text-dim);
+}
+.radar-legend-swatch {
+  width: 20px; height: 3px; border-radius: 2px;
+}
+
+/* Pulse animation cho Thái Ất cell */
+@keyframes saban-pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(200,153,58,0); }
+  50%      { box-shadow: 0 0 0 4px rgba(200,153,58,.25); }
+}
+.saban-cell.has-thai-at { animation: saban-pulse 2.5s ease-in-out infinite; }
 </style>
 </head>
 <body>
@@ -1765,6 +1889,24 @@ input[type=range]::-webkit-slider-thumb {
         </ol>
         <div class="tip">
           💡 Thái Ất trao "Thiên Thời – Địa Lợi". Quản trị rủi ro là <strong>Nhân Hòa</strong> của bạn!
+        </div>
+      </div>
+
+      <!-- XAU/USD CHART CARD -->
+      <div class="card" style="padding:14px 14px 10px;">
+        <div class="card-title">📈 XAU/USD · Biểu Đồ Thực Tế</div>
+        <div style="border-radius:12px;overflow:hidden;border:1px solid rgba(200,153,58,.18);">
+          <iframe
+            id="xauusd-iframe"
+            src="https://s.tradingview.com/widgetembed/?frameElementId=xauusd-iframe&symbol=OANDA%3AXAUUSD&interval=60&hidesidetoolbar=0&hidetoptoolbar=0&symboledit=0&saveimage=0&toolbarbg=030810&studies=RSI%40tv-basicstudies&theme=dark&style=1&timezone=Asia%2FHo_Chi_Minh&studies_overrides=%7B%7D&overrides=%7B%22paneProperties.background%22%3A%22%23030810%22%2C%22mainSeriesProperties.candleStyle.upColor%22%3A%22%2322dd88%22%2C%22mainSeriesProperties.candleStyle.downColor%22%3A%22%23ff4455%22%7D&locale=vi_VN&utm_source=localhost&utm_medium=widget"
+            style="width:100%;height:320px;border:none;display:block;background:#030810;"
+            allowtransparency="true"
+            scrolling="no"
+          ></iframe>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding:0 2px;">
+          <span style="font-size:9px;color:var(--text-dim);letter-spacing:.1em;">Nguồn: TradingView · OANDA · H1</span>
+          <span style="font-size:9px;color:rgba(200,153,58,.5);letter-spacing:.08em;">⚡ Dữ liệu thực tế</span>
         </div>
       </div>
 
@@ -3720,6 +3862,226 @@ function renderAnVanXuong(d){
     </div>`;
 }
 
+// ─── SA BÀN 9 CUNG — vị trí thần sát trên lưới 3×3 ───────────────────────────
+// Thứ tự ô trong grid CSS (row-major, trái→phải, trên→dưới):
+// [TN=9, B=8, ĐB=3]  → hàng trên  (Tây Bắc, Bắc, Đông Bắc)  = cung 1,8,3
+// [T=6,  TC=5, Đ=4]  → hàng giữa  (Tây, Trung, Đông)         = cung 6,5,4
+// [TN=7, N=2, ĐN=9]  → hàng dưới  (Tây Nam, Nam, Đông Nam)   = cung 7,2,9
+// Lưu ý: Trung Cung = 5 (không phải cung Bát Quái nhưng giữ vị trí trung tâm)
+const SABAN_LAYOUT = [
+  {cung:1, huong:"Tây Bắc",  shortHuong:"T.Bắc"},
+  {cung:8, huong:"Bắc",       shortHuong:"Bắc"},
+  {cung:3, huong:"Đông Bắc", shortHuong:"Đ.Bắc"},
+  {cung:6, huong:"Tây",       shortHuong:"Tây"},
+  {cung:5, huong:"Trung",     shortHuong:"Trung"},
+  {cung:4, huong:"Đông",      shortHuong:"Đông"},
+  {cung:7, huong:"Tây Nam",  shortHuong:"T.Nam"},
+  {cung:2, huong:"Nam",       shortHuong:"Nam"},
+  {cung:9, huong:"Đông Nam", shortHuong:"Đ.Nam"},
+];
+
+function renderSaBan(d, cucLabel){
+  const cungTA  = d.thaiAt;
+  const cungVX  = THAN_INFO[d.vanXuong][0];
+  const cungTK  = THAN_INFO[d.thuyKich][0];
+  const cungKT  = THAN_INFO[d.keThan][0];
+
+  const cells = SABAN_LAYOUT.map(cell => {
+    const c = cell.cung;
+    const isTA  = c === cungTA;
+    const isVX  = c === cungVX;
+    const isTK  = c === cungTK;
+    const isKT  = c === cungKT;
+    const isMid = c === 5;
+
+    let extraClass = "";
+    if(isTA)  extraClass += " has-thai-at";
+    if(isTK)  extraClass += " has-thuy-kich";
+    if(isVX && !isTA && !isTK) extraClass += " has-van-xuong";
+    if(isKT && !isTA && !isTK && !isVX) extraClass += " has-ke-than";
+    if(isMid) extraClass += " trung-cung";
+
+    // Build dots
+    const dots = [];
+    if(isTA)  dots.push(`<span class="saban-dot saban-dot-thai-at"   title="Thái Ất"></span>`);
+    if(isVX)  dots.push(`<span class="saban-dot saban-dot-van-xuong" title="Văn Xương"></span>`);
+    if(isTK)  dots.push(`<span class="saban-dot saban-dot-thuy-kich" title="Thủy Kích"></span>`);
+    if(isKT)  dots.push(`<span class="saban-dot saban-dot-ke-than"   title="Kế Thần"></span>`);
+
+    const cungLabel = isMid ? "5" : String(c);
+    const cungTen   = isMid ? "—" : (CUNG_NAME[c] || "");
+
+    return `<div class="saban-cell${extraClass}">
+      <div class="saban-cell-dir">${cell.shortHuong}</div>
+      <div class="saban-cell-num">${cungLabel}</div>
+      <div class="saban-cell-name">${cungTen}</div>
+      <div class="saban-dots">${dots.join("")}</div>
+    </div>`;
+  });
+
+  return `<div class="saban-wrap">
+    <div class="saban-title">🗺 Sa Bàn · ${cucLabel}</div>
+    <div class="saban-grid">${cells.join("")}</div>
+    <div class="saban-legend">
+      <span class="saban-legend-item"><span class="saban-legend-dot saban-dot-thai-at"></span>Thái Ất</span>
+      <span class="saban-legend-item"><span class="saban-legend-dot saban-dot-van-xuong"></span>Văn Xương</span>
+      <span class="saban-legend-item"><span class="saban-legend-dot saban-dot-thuy-kich"></span>Thủy Kích</span>
+      <span class="saban-legend-item"><span class="saban-legend-dot saban-dot-ke-than"></span>Kế Thần</span>
+    </div>
+  </div>`;
+}
+
+// ─── RADAR CHART — so sánh Chủ vs Khách 5 chiều ─────────────────────────────
+let _radarIdCounter = 0;
+
+function renderRadarChart(d, cucLabel){
+  const id = "radar-" + (++_radarIdCounter);
+
+  // 5 chiều đánh giá: Lực | Thế | Tướng | Cục | Hòa
+  // Lực     = Toán số (quân số, normalize về 0-10 theo /40)
+  // Thế     = Tướng Đại status: cat=10, binh=5, hung=2
+  // Tướng   = Tướng Tham status
+  // Cục     = Đỗ toàn tập? 0; else toanSo % 10 normalize
+  // Hòa     = labelToanSo chứa "HÒA" hay "TAM TÀI"
+
+  function statusScore(s){ return s==="cat"?10 : s==="hung"?2 : 5; }
+  function labelScore(lbl){
+    if(lbl.includes("ĐỖ TOÀN TẬP")) return 0;
+    if(lbl.includes("ĐẠI CÁT")||lbl.includes("THƯỢNG HÒA")||lbl.includes("TAM TÀI")) return 10;
+    if(lbl.includes("THỨ HÒA")||lbl.includes("HẠ HÒA")) return 8;
+    if(lbl.includes("BÌNH THƯỜNG")||lbl.includes("⬜")) return 6;
+    if(lbl.includes("CẢNH BÁO")||lbl.includes("DƯƠNG TRONG ÂM")) return 4;
+    if(lbl.includes("HUNG")) return 2;
+    return 5;
+  }
+
+  const chuScores  = [
+    Math.min(10, (d.toanChu  / 40) * 10),
+    statusScore(d.anChuDai.status),
+    statusScore(d.anChuTham.status),
+    d.doToanTapChu  ? 0 : labelScore(d.labelToanChu),
+    labelScore(d.labelToanChu),
+  ];
+  const khachScores = [
+    Math.min(10, (d.toanKhach / 40) * 10),
+    statusScore(d.anKhachDai.status),
+    statusScore(d.anKhachTham.status),
+    d.doToanTapKhach ? 0 : labelScore(d.labelToanKhach),
+    labelScore(d.labelToanKhach),
+  ];
+
+  const axes = ["Quân Số","Đại Tướng","Tham Tướng","Cục Thế","Chất Lượng"];
+
+  // Encode data thành data-attributes để script inline đọc
+  const chuData    = chuScores.join(",");
+  const khachData  = khachScores.join(",");
+  const axesData   = axes.join("|");
+
+  return `<div class="radar-wrap">
+    <div class="radar-title">📡 Radar Chủ vs Khách · ${cucLabel}</div>
+    <div class="radar-canvas-wrap">
+      <canvas id="${id}" width="220" height="200"
+        data-chu="${chuData}" data-khach="${khachData}" data-axes="${axesData}"
+        style="display:block"></canvas>
+    </div>
+    <div class="radar-legend">
+      <span class="radar-legend-item">
+        <span class="radar-legend-swatch" style="background:#ff6b6b;opacity:.85"></span>Chủ (Bán)
+      </span>
+      <span class="radar-legend-item">
+        <span class="radar-legend-swatch" style="background:#00d4ff;opacity:.85"></span>Khách (Mua)
+      </span>
+    </div>
+  </div>`;
+}
+
+// Vẽ tất cả Radar canvas sau khi DOM đã render
+function drawAllRadars(){
+  document.querySelectorAll('canvas[data-chu]').forEach(canvas => {
+    if(canvas.dataset.drawn) return;
+    canvas.dataset.drawn = "1";
+    const ctx = canvas.getContext("2d");
+    const W = canvas.width, H = canvas.height;
+    const cx = W/2, cy = H/2 + 10;
+    const R  = Math.min(W, H) * 0.36;
+
+    const chuVals   = canvas.dataset.chu.split(",").map(Number);
+    const khachVals = canvas.dataset.khach.split(",").map(Number);
+    const axes      = canvas.dataset.axes.split("|");
+    const N         = axes.length;
+    const step      = (2 * Math.PI) / N;
+    const offset    = -Math.PI / 2;
+
+    function pt(val, i){ // val 0-10
+      const r = (val / 10) * R;
+      const a = offset + i * step;
+      return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+    }
+
+    // Clear
+    ctx.clearRect(0,0,W,H);
+
+    // Draw bg rings
+    const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const ringColor = "rgba(255,255,255,0.07)";
+    const gridColor = "rgba(255,255,255,0.10)";
+    const textColor = "rgba(200,200,220,0.80)";
+
+    for(let ring=1; ring<=5; ring++){
+      ctx.beginPath();
+      for(let i=0; i<N; i++){
+        const [x,y] = pt(ring*2, i);
+        i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = ringColor;
+      ctx.lineWidth   = 0.7;
+      ctx.stroke();
+    }
+    // Axes lines
+    for(let i=0; i<N; i++){
+      const [x,y] = pt(10, i);
+      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(x,y);
+      ctx.strokeStyle = gridColor; ctx.lineWidth = 0.7; ctx.stroke();
+    }
+    // Axis labels
+    ctx.font = "bold 9px 'Noto Sans SC', sans-serif";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    for(let i=0; i<N; i++){
+      const [x,y] = pt(12.5, i);
+      ctx.fillStyle = textColor;
+      ctx.fillText(axes[i], x, y);
+    }
+
+    function drawPolygon(vals, fillColor, strokeColor){
+      ctx.beginPath();
+      for(let i=0; i<N; i++){
+        const [x,y] = pt(vals[i], i);
+        i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+      }
+      ctx.closePath();
+      ctx.fillStyle = fillColor;
+      ctx.fill();
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      // Dots
+      for(let i=0; i<N; i++){
+        const [x,y] = pt(vals[i], i);
+        ctx.beginPath(); ctx.arc(x,y,2.5,0,Math.PI*2);
+        ctx.fillStyle = strokeColor; ctx.fill();
+      }
+    }
+
+    drawPolygon(chuVals,   "rgba(255,107,107,0.22)", "rgba(255,107,107,0.9)");
+    drawPolygon(khachVals, "rgba(0,212,255,0.18)",   "rgba(0,212,255,0.9)");
+
+    // Center dot
+    ctx.beginPath(); ctx.arc(cx,cy,2,0,Math.PI*2);
+    ctx.fillStyle="rgba(255,255,255,0.3)"; ctx.fill();
+  });
+}
+
 function renderCuc(c,idx){
   const d=c.data;
   const openClass=""; // tất cả đóng mặc định, bấm mới mở
@@ -3773,6 +4135,8 @@ function renderCuc(c,idx){
       ${d.thanCo?`<div class="shen-row"><span class="icon-col">👑</span><span class="key">Thần Cơ (Tiền to)</span><span class="val">${d.thanCo} · ${getNguHanh(d.thanCo)}</span></div>`:""}
       ${d.danCo?`<div class="shen-row"><span class="icon-col">🐑</span><span class="key">Dân Cơ (Đám đông)</span><span class="val">${d.danCo} · ${getNguHanh(d.danCo)}</span></div>`:""}
 
+      ${renderSaBan(d, c.ten)}
+
       ${idx===0 && c.tamCo ? `
       <div class="section-label" style="color:var(--gold)">⚔️ Bộ Ba Tam Cơ · Dòng tiền & Tâm lý</div>
       ${tamCoGrid(c.tamCo, d.thaiAt)}` : ""}
@@ -3799,6 +4163,8 @@ function renderCuc(c,idx){
         <div class="vang-badge-title">🟡 VÀNG (Khách Đại Tướng · Ngoại Lực)</div>
         ${getVangBadge(d.khachDai, d.anKhachDai)}
       </div>`:""}
+
+      ${renderRadarChart(d, c.ten)}
     </div>
   </div>`;
 }
@@ -3835,6 +4201,7 @@ function renderBatMon(batMon){
 
 function toggleCuc(idx){
   document.getElementById(`cuc-${idx}`).classList.toggle("open");
+  setTimeout(drawAllRadars, 50);
 }
 
 function toggleBatMon(){
@@ -4152,6 +4519,7 @@ function renderResults(r){
   </div>`;
   const el=document.getElementById("results");
   el.innerHTML=html;
+  setTimeout(drawAllRadars, 0); // draw canvas after DOM paint
   const isDesktop = window.innerWidth >= 900;
   if(isDesktop){
     document.getElementById("right-panel").scrollIntoView({behavior:"smooth",block:"start"});
