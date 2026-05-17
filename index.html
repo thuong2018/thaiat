@@ -1485,6 +1485,83 @@ input[type=range]::-webkit-slider-thumb {
   color: rgba(240,192,96,.8);
   line-height: 1.7;
 }
+/* ── BÁO CÁO MODAL ── */
+#baocao-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: rgba(3,8,16,.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+#baocao-modal.open { display: flex; }
+#baocao-box {
+  background: #070f24;
+  border: 1px solid rgba(200,153,58,.35);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 640px;
+  max-height: 88dvh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 80px rgba(0,0,0,.8), 0 0 0 1px rgba(0,212,255,.06) inset;
+}
+#baocao-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(200,153,58,.15);
+  flex-shrink: 0;
+}
+#baocao-header h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--gold-light);
+  letter-spacing: .05em;
+}
+#baocao-actions {
+  display: flex;
+  gap: 8px;
+}
+.baocao-act-btn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(0,212,255,.3);
+  background: rgba(0,212,255,.07);
+  color: var(--cyan);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: .05em;
+  transition: background .15s;
+}
+.baocao-act-btn:hover { background: rgba(0,212,255,.15); }
+.baocao-act-btn.close-btn {
+  border-color: rgba(255,68,85,.3);
+  background: rgba(255,68,85,.07);
+  color: var(--red);
+}
+.baocao-act-btn.close-btn:hover { background: rgba(255,68,85,.18); }
+#baocao-text {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 18px;
+  font-family: 'Noto Sans SC', monospace;
+  font-size: 11.5px;
+  line-height: 1.8;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  -webkit-overflow-scrolling: touch;
+}
+#baocao-text::-webkit-scrollbar { width: 4px; }
+#baocao-text::-webkit-scrollbar-thumb { background: rgba(200,153,58,.3); border-radius: 2px; }
 </style>
 </head>
 <body>
@@ -2912,14 +2989,58 @@ function quetThamHoaDanCo(tichSoNam, extraAnChu, extraAnKhach){
     }
   }
 
+  // ══════════════════════════════════════════════════════
+  // ⚖️ HỆ SỐ NGŨ PHÚC — Bộ Quy Tắc Trọng Số Trung Cung
+  //
+  //  QUY TẮC 1 (Bẫy Trung Cung):
+  //    Ngũ Phúc đóng Cung 5 → màng lọc bảo vệ toàn cầu vỡ (Đỗ vô môn)
+  //    Hệ số nhân = 1.5  →  Điểm Thực Tế = Raw Score × 1.5
+  //
+  //  QUY TẮC 2 (Ngũ Phúc Hoạt Động):
+  //    Ngũ Phúc đóng cung khác (1–4, 6–9) → khiên bảo vệ còn hoạt động
+  //    Hệ số nhân = 1.0  →  Điểm Thực Tế = Raw Score × 1.0
+  //
+  //  Ngưỡng kích hoạt kết luận: NGUONG_KICH_HOAT = 5.0
+  //    Điểm Thực Tế ≥ 5.0  →  🔴 KÍCH HOẠT (Thảm họa xảy ra)
+  //    Điểm Thực Tế < 5.0  →  🟢 BÌNH YÊN (Rủi ro được hóa giải)
+  // ══════════════════════════════════════════════════════
+  const NGUONG_KICH_HOAT = 5.0;
+  const heSoNguPhuc = (nguPhucCung === 5) ? 1.5 : 1.0;
+  const tongDiemThucTe = tongDiem * heSoNguPhuc;
+  const trangThaiKichHoat = tongDiemThucTe >= NGUONG_KICH_HOAT
+    ? "🔴 KÍCH HOẠT"
+    : "🟢 BÌNH YÊN";
+  const moTaKichHoat = tongDiemThucTe >= NGUONG_KICH_HOAT
+    ? "Thảm họa xảy ra"
+    : "Rủi ro được hóa giải";
+
+  // Gắn thông tin hệ số vào mảng để renderThamHoa hiển thị
+  const _neguPhucMeta = {
+    heSo: heSoNguPhuc,
+    rawScore: tongDiem,
+    diemThucTe: tongDiemThucTe,
+    trangThai: trangThaiKichHoat,
+    moTa: moTaKichHoat,
+    cungNguPhuc: nguPhucCung,
+    isKichHoat: tongDiemThucTe >= NGUONG_KICH_HOAT,
+  };
+
   // TỔNG HỢP — chỉ trả cảnh báo khi tổng điểm ≥ ngưỡng
   // ══════════════════════════════════════════════════════
-  if(tongDiem < NGUONG_DIEM && !ung.some(u=>u._isNguPhucHoaGiai)) return [];
+  if(tongDiem < NGUONG_DIEM && !ung.some(u=>u._isNguPhucHoaGiai)){
+    const empty = [];
+    empty._nguPhucMeta = _neguPhucMeta;
+    return empty;
+  }
 
   // Gắn thêm thông tin điểm vào header của mảng trả về
   const canhBao = ung.sort((a,b) => b.diem - a.diem); // ưu tiên cảnh báo nặng lên trên
-  // Đính kèm tổng điểm vào phần tử đầu để renderThamHoa có thể hiển thị
-  if(canhBao.length > 0) canhBao[0]._tongDiem = tongDiem;
+  // Đính kèm tổng điểm và hệ số Ngũ Phúc vào phần tử đầu để renderThamHoa có thể hiển thị
+  if(canhBao.length > 0) {
+    canhBao[0]._tongDiem = tongDiem;
+    canhBao[0]._nguPhucMeta = _neguPhucMeta;
+  }
+  canhBao._nguPhucMeta = _neguPhucMeta;
   return canhBao;
 }
 
@@ -3873,6 +3994,11 @@ function renderThamHoa(hungTinh, canhBao, meta){
   const mucDoMau = tongDiem >= 6 ? "#cc1122" : tongDiem >= 4 ? "#ff4455" : "#ff8844";
   const mucDoNhan = tongDiem >= 6 ? "⛔ CỰC NGUY HIỂM" : tongDiem >= 4 ? "🔴 NGUY HIỂM CAO" : "🟠 CẢNH BÁO";
 
+  // Lấy metadata hệ số Ngũ Phúc (nếu có)
+  const npMeta = (canhBao._nguPhucMeta) ? canhBao._nguPhucMeta
+    : (canhBao.length > 0 && canhBao[0]._nguPhucMeta) ? canhBao[0]._nguPhucMeta
+    : null;
+
   // Tách mảng: Ngũ Phúc lên đầu (class riêng), hung tinh xuống dưới
   const nguPhucItems = canhBao.filter(c=>c._isNguPhucHoaGiai);
   const hungItems    = canhBao.filter(c=>!c._isNguPhucHoaGiai);
@@ -3906,17 +4032,59 @@ function renderThamHoa(hungTinh, canhBao, meta){
         : `<div class="tham-hoa-canh-bao">${renderHungItems}</div>`;
 
   const tongKet = hungItems.length > 0
-    ? `<div style="margin-top:10px;padding:10px 12px;background:rgba(255,68,85,.06);border-radius:9px;font-size:11px;color:var(--text-dim);line-height:1.7">
-        <span style="color:${mucDoMau};font-weight:700">${mucDoNhan}</span>
-        &nbsp;— <strong style="color:#ff6677">${namLabel}</strong> · Tổng điểm <strong style="color:${mucDoMau};font-size:13px">${tongDiem}đ</strong> · ${hungItems.length} cảnh báo qua 11 lưới lọc X-Quang Vĩ Mô.
-        Cần kết hợp phân tích kỹ thuật và quản trị rủi ro trước khi ra quyết định.
-       </div>`
+    ? (() => {
+        const diemHienThi = npMeta ? npMeta.diemThucTe : tongDiem;
+        const diemStr = npMeta ? diemHienThi.toFixed(1) : diemHienThi;
+        const mucDoMauKH = diemHienThi >= 6 ? "#cc1122" : diemHienThi >= 4 ? "#ff4455" : "#ff8844";
+        const mucDoNhanKH = diemHienThi >= 6 ? "⛔ CỰC NGUY HIỂM" : diemHienThi >= 5 ? "🔴 NGUY HIỂM CAO" : "🟠 CẢNH BÁO";
+        return `<div style="margin-top:10px;padding:10px 12px;background:rgba(255,68,85,.06);border-radius:9px;font-size:11px;color:var(--text-dim);line-height:1.7">
+          <span style="color:${mucDoMauKH};font-weight:700">${mucDoNhanKH}</span>
+          &nbsp;— <strong style="color:#ff6677">${namLabel}</strong> · Điểm thực tế <strong style="color:${mucDoMauKH};font-size:13px">${diemStr}đ</strong> · ${hungItems.length} cảnh báo qua 11 lưới lọc X-Quang Vĩ Mô.
+          Cần kết hợp phân tích kỹ thuật và quản trị rủi ro trước khi ra quyết định.
+         </div>`;
+      })()
     : nguPhucItems.length > 0
       ? `<div style="margin-top:10px;padding:10px 12px;background:rgba(255,215,0,.06);border-radius:9px;font-size:11px;color:var(--text-dim);line-height:1.7">
           <span style="color:#c8a800;font-weight:700">🌟 NGŨ PHÚC BẢO HỘ</span>
           &nbsp;— <strong style="color:#d4a800">${namLabel}</strong> · Sa bàn được Ngũ Phúc hóa giải. Đây là năm hiếm có — phúc khí áp đảo sát khí.
          </div>`
       : "";
+
+  // ── PANEL HỆ SỐ NGŨ PHÚC ─────────────────────────────
+  const heSoPanel = npMeta ? (() => {
+    const isKetTC = npMeta.cungNguPhuc === 5;
+    const kichHoat = npMeta.isKichHoat;
+    const bgColor  = kichHoat ? "rgba(255,68,85,.07)"   : "rgba(34,221,136,.05)";
+    const bdColor  = kichHoat ? "rgba(255,68,85,.35)"   : "rgba(34,221,136,.25)";
+    const lblColor = kichHoat ? "var(--red)"             : "var(--green)";
+    const ketQuaText = kichHoat
+      ? `🔴 KÍCH HOẠT <span style="color:var(--text-dim);font-weight:400">(Thảm họa xảy ra)</span>`
+      : `🟢 BÌNH YÊN <span style="color:var(--text-dim);font-weight:400">(Rủi ro được hóa giải)</span>`;
+    return `
+    <div style="margin-top:12px;padding:12px 14px;background:${bgColor};border:1px solid ${bdColor};border-radius:11px;">
+      <div style="font-size:9.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--cyan);margin-bottom:9px;opacity:.85">
+        ⚖️ Bộ Quy Tắc Trọng Số — Hệ Số Ngũ Phúc
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:9px;">
+        <div style="background:${isKetTC?"rgba(255,68,85,.07)":"rgba(34,221,136,.05)"};border:1px solid ${isKetTC?"rgba(255,68,85,.3)":"rgba(34,221,136,.2)"};border-radius:8px;padding:7px 9px;text-align:center;">
+          <div style="font-size:9px;color:var(--text-dim);margin-bottom:3px">Hệ Số × ${isKetTC?"1.5 ⚠️":"1.0 ✅"}</div>
+          <div style="font-size:11px;font-weight:700;color:${isKetTC?"var(--red)":"var(--green)"}">${isKetTC?"Cung 5 · Đỗ Vô Môn":"Cung "+npMeta.cungNguPhuc+" · Hoạt Động"}</div>
+        </div>
+        <div style="background:${kichHoat?"rgba(255,68,85,.09)":"rgba(34,221,136,.07)"};border:1px solid ${kichHoat?"rgba(255,68,85,.4)":"rgba(34,221,136,.3)"};border-radius:8px;padding:7px 9px;text-align:center;">
+          <div style="font-size:9px;color:var(--text-dim);margin-bottom:3px">Điểm Thực Tế</div>
+          <div style="font-size:16px;font-weight:700;color:${lblColor}">${npMeta.diemThucTe.toFixed(1)}<span style="font-size:10px">đ</span></div>
+        </div>
+      </div>
+      <div style="padding:8px 10px;background:${kichHoat?"rgba(255,68,85,.08)":"rgba(34,221,136,.06)"};border-radius:8px;display:flex;align-items:center;gap:8px;">
+        <div style="flex:1;font-size:10px;color:var(--text-dim)">
+          Ngưỡng kích hoạt <strong style="color:var(--gold)">5.0đ</strong>
+          &nbsp;·&nbsp; Điểm Thực Tế <strong style="color:${lblColor}">${npMeta.diemThucTe.toFixed(1)}</strong>
+          &nbsp;${kichHoat?"≥":"<"}&nbsp;5.0
+        </div>
+        <div style="font-size:11px;font-weight:700;color:${lblColor};white-space:nowrap">${ketQuaText}</div>
+      </div>
+    </div>`;
+  })() : "";
 
   // Header badge: hiển thị Ngũ Phúc nếu có hóa giải
   const headerExtra = nguPhucItems.length > 0
@@ -3930,6 +4098,12 @@ function renderThamHoa(hungTinh, canhBao, meta){
       <div class="info">
         <h3>Scanner Thảm Họa Vĩ Mô <span style="font-size:10px;color:var(--text-dim);font-weight:400">11 Lưới Lọc · ${namLabel}</span></h3>
         <p>${headerExtra}Dân Cơ: Cung ${danCo} · ${diaChiDanCo} · ${canhBao.length > 0 ? (nguPhucItems.length>0&&hungItems.length===0?"🌟 Ngũ Phúc Bảo Hộ · "+namLabel:hungItems.length+" Cảnh Báo · Tổng "+(tongDiem||"?")+"đ ("+namLabel+")"):"Bình Yên · "+namLabel}</p>
+        ${npMeta ? `<p style="margin-top:4px;font-size:11px;font-weight:700;color:${npMeta.isKichHoat?"var(--red)":"var(--green)"}">
+          ${npMeta.isKichHoat?"🔴 KÍCH HOẠT":"🟢 BÌNH YÊN"}
+          <span style="font-weight:400;font-size:10px;color:var(--text-dim)">
+            · Hệ số ×${npMeta.heSo} · Điểm TT: ${npMeta.diemThucTe.toFixed(1)}đ
+          </span>
+        </p>` : ""}
       </div>
       <span class="chevron">▼</span>
     </div>
@@ -3939,11 +4113,13 @@ function renderThamHoa(hungTinh, canhBao, meta){
       <div class="section-label" style="margin-bottom:10px">🔴 Quét Thảm Họa ${namLabel} — 11 Lưới Lọc X-Quang Vĩ Mô</div>
       ${noidung}
       ${tongKet}
+      ${heSoPanel}
     </div>
   </div>`;
 }
 
 function renderResults(r){
+  window.__lastResult = r; // lưu để xuất báo cáo
   const {meta,cucs,batMon,hungTinh,canhBaoThamHoa}=r;
   const donHeLabel=meta.donHe==="am"?"🌙 Âm Độn":"☀️ Dương Độn";
   let html=`
@@ -3960,6 +4136,20 @@ function renderResults(r){
   });
   // 3. Bát Môn — đóng
   html+=renderBatMon(batMon);
+  // 4. Nút xuất báo cáo
+  html+=`<div style="padding:16px 0 4px;text-align:center;">
+    <button onclick="xuatBaoCao()" style="
+      display:inline-flex;align-items:center;gap:8px;
+      padding:11px 28px;border-radius:50px;cursor:pointer;
+      background:linear-gradient(135deg,rgba(200,153,58,.12),rgba(200,153,58,.06));
+      border:1px solid rgba(200,153,58,.4);
+      color:var(--gold-light);font-size:12px;font-weight:700;
+      letter-spacing:.1em;transition:background .2s;
+    " onmouseover="this.style.background='linear-gradient(135deg,rgba(200,153,58,.22),rgba(200,153,58,.1))'"
+       onmouseout="this.style.background='linear-gradient(135deg,rgba(200,153,58,.12),rgba(200,153,58,.06))'">
+      📋 Xuất Báo Cáo
+    </button>
+  </div>`;
   const el=document.getElementById("results");
   el.innerHTML=html;
   const isDesktop = window.innerWidth >= 900;
@@ -3970,7 +4160,154 @@ function renderResults(r){
   }
 }
 
+// ═══════════════════════════════════════════════════════
+//  BÁO CÁO — generate text report & modal controls
+// ═══════════════════════════════════════════════════════
+function xuatBaoCao(){
+  const r = window.__lastResult;
+  if(!r){ alert("Chưa có dữ liệu."); return; }
+  const txt = genBaoCao(r);
+  document.getElementById("baocao-text").textContent = txt;
+  document.getElementById("baocao-modal").classList.add("open");
+}
+function closeBaoCao(){
+  document.getElementById("baocao-modal").classList.remove("open");
+}
+function copyBaoCao(){
+  const txt = document.getElementById("baocao-text").textContent;
+  navigator.clipboard.writeText(txt).then(()=>{
+    const btn = document.querySelector("#baocao-actions .baocao-act-btn");
+    const orig = btn.textContent;
+    btn.textContent = "✅ Đã sao chép!";
+    setTimeout(()=>{ btn.textContent = orig; }, 1800);
+  });
+}
+
+function pad(n,w=2){ return String(n).padStart(w,"0"); }
+function line(ch,n){ return ch.repeat(n); }
+
+function genBaoCao(r){
+  const { meta, cucs, batMon, hungTinh, canhBaoThamHoa } = r;
+  const { nam, thang, ngay, gio, donHe } = meta;
+  const donHeLabel = donHe==="am" ? "Âm Độn" : "Dương Độn";
+  const tichSoNam = 10155509 + (nam - 1592);
+  const npMeta = (canhBaoThamHoa._nguPhucMeta) ? canhBaoThamHoa._nguPhucMeta
+    : (canhBaoThamHoa.length > 0 && canhBaoThamHoa[0]._nguPhucMeta) ? canhBaoThamHoa[0]._nguPhucMeta
+    : null;
+
+  const L1 = line("═",54);
+  const L2 = line("─",54);
+  const L3 = line("·",54);
+
+  let b = "";
+  const ln  = s => { b += s + "\n"; };
+  const sec = t => { ln(""); ln(L2); ln(`  ${t}`); ln(L2); };
+
+  ln(`☯ BÁO CÁO TỌA ĐỘ VŨ TRỤ`);
+  ln(L1);
+  ln(`  📅 Thời điểm : ${pad(ngay)}/${pad(thang)}/${nam}  —  ${pad(gio)}H`);
+  ln(`  ☯  Độn hệ   : ${donHeLabel}`);
+  ln(L1);
+
+  // ── SCANNER THẢM HỌA ──
+  sec("☄️  SCANNER THẢM HỌA VĨ MÔ — 11 Lưới Lọc");
+  const { tucThan, thienAt, diaAt, trucPhu, daiDu, tieuDu,
+          danCo, diaChiDanCo, thaiAtNam, cungThuyKich, nguPhuc, tamCo } = hungTinh;
+  ln(`  Thái Ất Năm     : Cung ${thaiAtNam}  (${CUNG_NAME[thaiAtNam]||"Trung Cung"})`);
+  ln(`  Thủy Kích Năm   : Cung ${cungThuyKich??"-"}`);
+  ln(`  Tứ Thần         : Cung ${tucThan}  (${CUNG_NAME[tucThan]||"Trung Cung"})`);
+  ln(`  Thiên Ất        : Cung ${thienAt}  (${CUNG_NAME[thienAt]||"Trung Cung"})`);
+  ln(`  Địa Ất          : Cung ${diaAt}  (${CUNG_NAME[diaAt]||"Trung Cung"})`);
+  ln(`  Trực Phù        : Cung ${trucPhu}  (${CUNG_NAME[trucPhu]||"Trung Cung"})`);
+  ln(`  Đại Du Thái Ất  : Cung ${daiDu}  (${CUNG_NAME[daiDu]||"Trung Cung"})`);
+  ln(`  Tiểu Du Thái Ất : Cung ${tieuDu??"-"}`);
+  ln(`  Ngũ Phúc        : Cung ${nguPhuc.cung}  (${nguPhuc.tenVung})  — Đã ở ${nguPhuc.soNamDaO} năm · Còn ${nguPhuc.soNamConLai} năm`);
+  ln(`  Dân Cơ          : Cung ${danCo}  (${diaChiDanCo})`);
+  if(tamCo){
+    ln(L3);
+    ln(`  Quân Cơ   : Cung ${tamCo.quanCo.cung}  (${tamCo.quanCo.diaChi})  — ${tamCo.quanCo.soNamDaO}/30 năm`);
+    ln(`  Thần Cơ   : Cung ${tamCo.thanCo.cung}  (${tamCo.thanCo.diaChi})  — ${tamCo.thanCo.soNamDaO}/3 năm`);
+  }
+
+  // ── HỆ SỐ & KẾT LUẬN ──
+  if(npMeta){
+    ln("");
+    ln(L3);
+    ln(`  ⚖️  Hệ Số Ngũ Phúc`);
+    ln(L3);
+    ln(`  Raw Score      : ${npMeta.rawScore}đ`);
+    ln(`  Hệ số nhân     : ×${npMeta.heSo}  (${npMeta.cungNguPhuc===5?"Cung 5 · Đỗ Vô Môn — mất bảo hiểm":"Cung "+npMeta.cungNguPhuc+" · Ngũ Phúc hoạt động"})`);
+    ln(`  Điểm Thực Tế   : ${npMeta.diemThucTe.toFixed(1)}đ`);
+    ln(`  Ngưỡng kích hoạt: 5.0đ`);
+    ln(`  Kết luận       : ${npMeta.trangThai} (${npMeta.moTa})`);
+  }
+
+  // ── CẢNH BÁO ──
+  const hungItems = canhBaoThamHoa.filter(c=>!c._isNguPhucHoaGiai);
+  const npItems   = canhBaoThamHoa.filter(c=>c._isNguPhucHoaGiai);
+  if(hungItems.length > 0){
+    sec("🔴 CẢNH BÁO THẢM HỌA");
+    hungItems.forEach((c,i)=>{
+      ln(`  ${i+1}. [${c.layer||""}]  ${c.ten}`);
+      ln(`     ${c.mo_ta}`);
+      ln("");
+    });
+  } else if(npItems.length > 0){
+    sec("🌟 NGŨ PHÚC BẢO HỘ");
+    npItems.forEach(c=>{ ln(`  ${c.ten}`); ln(`  ${c.mo_ta}`); });
+  } else {
+    sec("🟢 BÌNH YÊN");
+    ln(`  Cả 11 lưới lọc đều không đủ ngưỡng kích hoạt.`);
+    ln(`  Vĩ mô ổn định, thời tiết điều hòa.`);
+  }
+
+  // ── CÁC CỤC ──
+  sec("🌍 CÁC CỤC TỌA ĐỘ");
+  cucs.forEach(c=>{
+    ln(`  ${c.icon} ${c.ten} (${c.phu})  —  Cục số: ${c.cucSo}`);
+    if(c.data){
+      const d = c.data;
+      if(d.thaiAt) ln(`     Thái Ất   : Cung ${d.thaiAt}`);
+      if(d.vanXuong) ln(`     Văn Xương : ${d.vanXuong}`);
+      if(d.thuyKich) ln(`     Thủy Kích : ${d.thuyKich}`);
+      if(d.toanChu!=null) ln(`     Toán Chủ  : ${d.toanChu}  |  Toán Khách: ${d.toanKhach}`);
+      if(d.anChuDai) ln(`     Án Chủ Đại: ${d.anChuDai.label||"-"}`);
+      if(d.anKhachDai) ln(`     Án Khách Đại: ${d.anKhachDai.label||"-"}`);
+    }
+    ln("");
+  });
+
+  // ── BÁT MÔN ──
+  sec("🚪 BÁT MÔN");
+  batMon.forEach(m=>{
+    const mark = m.isTrucSu ? " ◀ TRỰC SỰ" : "";
+    ln(`  Cung ${m.cung} (${m.huong||"-"})  :  ${m.door}  —  ${DOOR_DESC[m.door]||""}${mark}`);
+  });
+
+  ln("");
+  ln(L1);
+  ln(`  Xuất bởi ☯ Thái Ất Thần Kinh  —  ${pad(ngay)}/${pad(thang)}/${nam}`);
+  ln(L1);
+
+  return b;
+}
+
+
 fillToday();
 </script>
+<!-- BÁO CÁO MODAL -->
+<div id="baocao-modal" onclick="if(event.target===this)closeBaoCao()">
+  <div id="baocao-box">
+    <div id="baocao-header">
+      <h3>📋 Báo Cáo Tọa Độ Vũ Trụ</h3>
+      <div id="baocao-actions">
+        <button class="baocao-act-btn" onclick="copyBaoCao()">📋 Sao chép</button>
+        <button class="baocao-act-btn close-btn" onclick="closeBaoCao()">✕ Đóng</button>
+      </div>
+    </div>
+    <div id="baocao-text"></div>
+  </div>
+</div>
+
 </body>
 </html>
