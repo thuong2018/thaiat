@@ -1621,6 +1621,84 @@ function modPositive(a,b){ return ((a%b)+b)%b; }
 //  HUNG TINH THẢM HỌA & DÂN CƠ ENGINE
 // ═══════════════════════════════════════════════════════
 
+// ═══════════════════════════════════════════════════════
+//  NGŨ PHÚC THÁI ẤT — Gia sai 115, Tiểu Chu 225 năm (5 cung × 45 năm)
+//  Quỹ đạo: Càn(1) → Cấn(3) → Tốn(9) → Khôn(7) → Trung(5)
+//  Cổ thư: "Số năm tích được bao nhiêu, gia sai số cung là 115... lấy phép Tiểu chu là 225 mà chia"
+// ═══════════════════════════════════════════════════════
+const NGU_PHUC_QUY_DAO = [
+  { cung:1, tenVung:"Hoàng Bí (Càn)"    },
+  { cung:3, tenVung:"Hoàng Thủy (Cấn)"  },
+  { cung:9, tenVung:"Hoàng Thất (Tốn)"  },
+  { cung:7, tenVung:"Hoàng Đình (Khôn)" },
+  { cung:5, tenVung:"Huyền Thất (Trung)"},
+];
+
+function tinhNguPhuc(tichSoNam){
+  // Gia sai 115, Tiểu Chu 225 (theo cổ thư Thái Ất Dị Giản Lục)
+  const duTieuChu  = (tichSoNam + 115) % 225;
+  const chiMuc     = Math.floor(duTieuChu / 45);
+  const soNamCuTru = duTieuChu % 45;
+  const entry      = NGU_PHUC_QUY_DAO[chiMuc] || NGU_PHUC_QUY_DAO[0];
+  // Giai đoạn trong 45 năm: 15 năm Lý Thiên / 15 năm Lý Địa / 15 năm Lý Nhân
+  const giaiDoan  = soNamCuTru < 15 ? "Lý Thiên (mưa thuận gió hòa, bơm tiền)"
+                  : soNamCuTru < 30 ? "Lý Địa (tài sản nền tảng, BĐS/Vàng tạo đỉnh)"
+                  :                   "Lý Nhân (phân phối của cải, thế hệ mới lên ngôi)";
+  return {
+    cung       : entry.cung,
+    tenVung    : entry.tenVung,
+    soNamDaO   : soNamCuTru,
+    soNamConLai: 45 - soNamCuTru,
+    giaiDoan,
+  };
+}
+
+// ═══════════════════════════════════════════════════════
+//  BỘ BA TAM CƠ — Hằng số gia sai chung: 250
+//  QUÂN CƠ: 360 năm vòng (12 cung × 30 năm), khởi Ngọ, xuôi chiều
+//  THẦN CƠ: 36 năm vòng (12 cung × 3 năm),   khởi Ngọ, xuôi chiều
+//  DÂN CƠ : 12 năm vòng (12 cung × 1 năm),   khởi Tuất, xuôi chiều
+//  (Cổ thư: "Đại chu là 3600... gia sai 250")
+// ═══════════════════════════════════════════════════════
+const QUAN_CO_QUY_DAO = ["Ngọ","Mùi","Thân","Dậu","Tuất","Hợi","Tý","Sửu","Dần","Mão","Thìn","Tỵ"];
+const THAN_CO_QUY_DAO = ["Ngọ","Mùi","Thân","Dậu","Tuất","Hợi","Tý","Sửu","Dần","Mão","Thìn","Tỵ"];
+const DAN_CO_QUY_DAO  = ["Tuất","Hợi","Tý","Sửu","Dần","Mão","Thìn","Tỵ","Ngọ","Mùi","Thân","Dậu"];
+
+// Map địa chi → cung Bát Quái (dùng cho Quân Cơ & Thần Cơ)
+const DIA_CHI_TO_CUNG = {
+  "Tý":8,"Sửu":3,"Dần":3,"Mão":4,"Thìn":9,"Tỵ":9,
+  "Ngọ":2,"Mùi":7,"Thân":7,"Dậu":6,"Tuất":1,"Hợi":8
+};
+
+function tinhBoBaTamCo(tichSoNam){
+  const giaSai = tichSoNam + 250;
+
+  // 1. QUÂN CƠ — chu kỳ 360 năm, mỗi cung 30 năm
+  const duQuanCo    = giaSai % 360;
+  const idxQuanCo   = Math.floor(duQuanCo / 30);
+  const namQuanCo   = duQuanCo % 30; // số năm đã ở trong cung hiện tại
+  const diaChiQC    = QUAN_CO_QUY_DAO[idxQuanCo];
+  const cungQuanCo  = DIA_CHI_TO_CUNG[diaChiQC];
+
+  // 2. THẦN CƠ — chu kỳ 36 năm, mỗi cung 3 năm
+  const duThanCo    = giaSai % 36;
+  const idxThanCo   = Math.floor(duThanCo / 3);
+  const namThanCo   = duThanCo % 3;
+  const diaChiTC    = THAN_CO_QUY_DAO[idxThanCo];
+  const cungThanCo  = DIA_CHI_TO_CUNG[diaChiTC];
+
+  // 3. DÂN CƠ — chu kỳ 12 năm, mỗi năm 1 cung (đã tính ở tinhHungTinh, đây để tam cơ hiển thị chung)
+  const buocDanCo   = giaSai % 12;
+  const diaChiDC    = DAN_CO_QUY_DAO[buocDanCo];
+  const cungDanCo   = DIA_CHI_TO_CUNG[diaChiDC];
+
+  return {
+    quanCo : { diaChi: diaChiQC, cung: cungQuanCo, soNamDaO: namQuanCo, conLai: 30 - namQuanCo },
+    thanCo : { diaChi: diaChiTC, cung: cungThanCo, soNamDaO: namThanCo, conLai: 3  - namThanCo },
+    danCo  : { diaChi: diaChiDC, cung: cungDanCo },
+  };
+}
+
 // Vòng 9 cung thuận (gồm cung 5 — Trung Cung)
 const VONG_9_CUNG = [1,2,3,4,5,6,7,8,9];
 
@@ -1688,6 +1766,12 @@ function tinhHungTinh(tichSoNam){
   // Cung Thủy Kích (dùng cho Lưới Lọc 1 — Án Yểm)
   const cungThuyKich = THAN_INFO[thuyKichNam] ? THAN_INFO[thuyKichNam][0] : null;
 
+  // ── 6. Ngũ Phúc Thái Ất
+  const nguPhuc = tinhNguPhuc(tichSoNam);
+
+  // ── 7. Bộ Ba Tam Cơ (Quân Cơ + Thần Cơ + Dân Cơ)
+  const tamCo = tinhBoBaTamCo(tichSoNam);
+
   return {
     tucThan, thienAt, diaAt, trucPhu, daiDu,
     danCo: danCoCung, diaChiDanCo,
@@ -1695,6 +1779,8 @@ function tinhHungTinh(tichSoNam){
     cungThuyKich,    // Lưới Lọc 1 (Án Yểm)
     toanChuNam,      // Lưới Lọc 2
     toanKhachNam,    // Lưới Lọc 2
+    nguPhuc,         // Sao hóa giải & thịnh vượng
+    tamCo,           // Bộ Ba Tam Cơ (Quân + Thần + Dân)
   };
 }
 
@@ -1706,14 +1792,20 @@ function tinhHungTinh(tichSoNam){
  *  HỆ THỐNG ĐIỂM TRỌNG SỐ — tối ưu hóa qua grid-search 100 năm
  *  (w1=2, w2=1, w3=1, w4=2, ngưỡng kích hoạt ≥ 2 điểm)
  *
- *  Lưới 1 · Án Yểm            → 2 điểm  (hiếm, precision ~80%)
- *  Lưới 2 · Toán Số Cực Đoan  → 1 điểm  (Thuần/Cô/Vô Địa)
- *  Lưới 3 · Thời Tiết         → 1 điểm  (siết thêm: chỉ khi khoảng cách cung ≤ 2)
- *  Lưới 4 · Dân Cơ Đại Hung   → 2 điểm  (tucThan/daiDu/thienAt — ưu tiên)
- *           Dân Cơ Tiểu Hung  → 1 điểm  (diaAt/trucPhu)
- *  Lưới 5 · Đại Du Xung Thái  → 2 điểm  (mới — Đại Du đối diện hoặc kề Thái Ất)
- *  Lưới 6 · Vô Thiên          → 1 điểm  (toán đơn 1-9 = thiên văn dị biến)
- *           Thiên Thể Sai Lệch → 1 điểm  (tướng hung + Âm Dương bất hòa)
+ *  Lưới 1   · Án Yểm                   → 2 điểm  (hiếm, precision ~80%)
+ *  Lưới 2   · Toán Số Cực Đoan         → 1 điểm  (Thuần/Cô/Vô Địa)
+ *  Lưới 3   · Thời Tiết                → 1 điểm  (siết thêm: chỉ khi khoảng cách cung ≤ 2)
+ *  Lưới 4   · Dân Cơ Đại Hung          → 2 điểm  (tucThan/daiDu/thienAt — ưu tiên)
+ *             Dân Cơ Tiểu Hung         → 1 điểm  (diaAt/trucPhu)
+ *  Lưới 4.2 · Thái Ất ∩ Thiên Ất/Tứ Thần → 2 điểm (sụp đổ thượng tầng)
+ *             Thái Ất ∩ Trực Phù       → 1 điểm
+ *  Lưới 5   · Đại Du Xung Thái Ất      → 2 điểm  (Đại Du đối diện Thái Ất)
+ *             Đại Du Kề Thái Ất        → 1 điểm
+ *  Lưới 5.1 · Đại Du ∩ Tứ Thần/Trực Phù → 2 điểm (cộng hưởng hủy diệt)
+ *             Đại Du ∩ Địa Ất          → 1 điểm
+ *  Lưới 6   · Vô Thiên                 → 1 điểm  (toán đơn 1-9 = thiên văn dị biến)
+ *             Thiên Thể Sai Lệch       → 1 điểm  (tướng hung + Âm Dương bất hòa)
+ *  Lưới 7   · Bẫy Trung Cung           → 2 điểm  (Tướng Đỗ Cung 5 = thượng tầng tê liệt)
  *
  *  Kích hoạt cảnh báo khi tổng điểm ≥ NGUONG_DIEM (= 2)
  * ═══════════════════════════════════════════════════════════════════
@@ -1726,6 +1818,7 @@ function quetThamHoaDanCo(tichSoNam, extraAnChu, extraAnKhach){
     danCo, diaChiDanCo,
     thaiAtNam, cungThuyKich,
     toanChuNam, toanKhachNam,
+    nguPhuc,
   } = tinhHungTinh(tichSoNam);
 
   const CUNG_DUONG = [1,3,7,9];
@@ -1874,6 +1967,11 @@ function quetThamHoaDanCo(tichSoNam, extraAnChu, extraAnKhach){
   // 🌀 LƯỚI 5 · ĐẠI DU XUNG THÁI ẤT (2 điểm) — LƯỚI MỚI
   //    Đại Du Thái Ất đối diện hoặc kề sát Thái Ất năm
   //    = hai trục quyền lực vũ trụ va chạm trực tiếp
+  //
+  //  CỘNG HƯỞNG: Đại Du đụng Hung Tinh trên sa bàn
+  //    "Đại Du... cùng Địa Ất thì giặc dã, trộm cướp, sâu bệnh,
+  //     cùng Trực Phù thì đao binh, hỏa hoạn, hạn hán,
+  //     cùng Tứ Thần thì hạn lụt đói rét"
   // ══════════════════════════════════════════════════════
   const kcDaiDuThaiAt = kcBQ(daiDu, thaiAtNam);
   if(kcDaiDuThaiAt === 4){
@@ -1890,6 +1988,98 @@ function quetThamHoaDanCo(tichSoNam, extraAnChu, extraAnKhach){
       ten:"[ĐẠI DU KỀ THÁI ẤT] ÁP LỰC VĨ MÔ",
       mo_ta:`Đại Du Thái Ất (Cung ${daiDu}) kề sát Thái Ất năm (Cung ${thaiAtNam}) — áp lực vĩ mô tích tụ bên sườn. Dễ bùng phát khủng hoảng cục bộ khi thêm kích hoạt từ lưới khác.`,
     });
+  }
+
+  // ── LƯỚI 5 · CỘNG HƯỞNG ĐẠI DU — Đại Du đụng độ Hung Tinh
+  if(daiDu === tucThan){
+    const d = 2;
+    tongDiem += d;
+    ung.push({ diem:d, icon:"🌀", layer:"LƯỚI 5.1 ★★",
+      ten:"[ĐẠI DU ∩ TỨ THẦN] ĐẠI LỤT / NẠN ĐÓI THẾ KỶ",
+      mo_ta:`Cỗ máy khuếch đại Đại Du (Cung ${daiDu}) hội tụ Tứ Thần — cộng hưởng hủy diệt: hạn lụt đói rét quy mô nhiều thế hệ. Cổ thư: "Đại Du cùng Tứ Thần thì hạn lụt đói rét". Thiên tai nước và lửa xen kẽ, nông nghiệp sụp đổ, an ninh lương thực toàn quốc bị đe dọa.`,
+    });
+  } else if(daiDu === trucPhu){
+    const d = 2;
+    tongDiem += d;
+    ung.push({ diem:d, icon:"🌀", layer:"LƯỚI 5.1 ★★",
+      ten:"[ĐẠI DU ∩ TRỰC PHÙ] HỎA TAI / KHÍ HẬU CỰC ĐOAN",
+      mo_ta:`Đại Du (Cung ${daiDu}) hội tụ Trực Phù — đao binh, hỏa hoạn, biến đổi khí hậu cực đoan. Cổ thư: "Đại Du cùng Trực Phù thì đao binh, hỏa hoạn, hạn hán". Nhiệt độ tăng đột biến, cháy rừng diện rộng, xung đột vũ trang bùng phát.`,
+    });
+  } else if(daiDu === diaAt){
+    const d = 1;
+    tongDiem += d;
+    ung.push({ diem:d, icon:"🌀", layer:"LƯỚI 5.1 ★",
+      ten:"[ĐẠI DU ∩ ĐỊA ẤT] DỊCH BỆNH & SÂU BỌ DIỆT NÔNG NGHIỆP",
+      mo_ta:`Đại Du (Cung ${daiDu}) hội tụ Địa Ất — giặc dã, trộm cướp, sâu bệnh diện rộng. Cổ thư: "Đại Du cùng Địa Ất thì giặc dã, trộm cướp, sâu bệnh". Dịch bệnh lan nhanh, sâu bọ tàn phá mùa màng, kinh tế nông nghiệp kiệt sức.`,
+    });
+  }
+
+  // ══════════════════════════════════════════════════════
+  // 👑 LƯỚI 4.2 · THÁI ẤT ĐỤNG ĐỘ ÁC THẦN — Quốc Gia Lâm Nạn
+  //    Thái Ất (Ngai vàng/Nền tảng Quốc gia) bị Ác Thần ập vào
+  //    = Sụp đổ từ THƯỢNG TẦNG — khác với Lưới 4 (Dân Cơ bị tấn công)
+  //    Cổ thư: "Thái Ất cùng Thủy Kích... là tuyệt khí; hung họa khá nặng,
+  //    có biểu tượng diệt cũ thay mới... binh nổi dậy"
+  //    "Thiên Ất là khí Nghịch Kim... chủ binh đao khởi lớn"
+  // ══════════════════════════════════════════════════════
+  if(thaiAtNam === thienAt){
+    const d = 2;
+    tongDiem += d;
+    ung.push({ diem:d, icon:"⚔️", layer:"LƯỚI 4.2 ★★",
+      ten:"[THÁI ẤT ∩ THIÊN ẤT] ĐẠI HỌA BINH ĐAO THƯỢNG TẦNG",
+      mo_ta:`Thái Ất (Cung ${thaiAtNam}·${CUNG_NAME[thaiAtNam]||thaiAtNam}) đồng cung Thiên Ất — Ác Thần ập thẳng vào Ngai Vàng. Cổ thư: "Thiên Ất là khí Nghịch Kim, chủ binh đao khởi lớn". Chính biến, nổi loạn quân sự, sương tuyết bất thường thất mùa. Thể chế sụp đổ từ đỉnh.`,
+    });
+  }
+  if(thaiAtNam === tucThan){
+    const d = 2;
+    tongDiem += d;
+    ung.push({ diem:d, icon:"🌊", layer:"LƯỚI 4.2 ★★",
+      ten:"[THÁI ẤT ∩ TỨ THẦN] ĐẠI HỒNG THỦY QUỐC GIA",
+      mo_ta:`Thái Ất (Cung ${thaiAtNam}) đồng cung Tứ Thần — nền tảng quốc gia chìm trong hồng thủy. Cổ thư: "Tứ Thần chủ lũ lụt đói rét lớn". Lũ lụt kinh hoàng, đói kém toàn diện, cơ sở hạ tầng nhà nước tê liệt.`,
+    });
+  }
+  if(thaiAtNam === trucPhu){
+    const d = 1;
+    tongDiem += d;
+    ung.push({ diem:d, icon:"🔥", layer:"LƯỚI 4.2 ★",
+      ten:"[THÁI ẤT ∩ TRỰC PHÙ] HẠN HÁN & QUAN LẠI BỨC DÂN",
+      mo_ta:`Thái Ất (Cung ${thaiAtNam}) đồng cung Trực Phù — quyền lực nhà nước bị đốt cháy nội bộ. Cổ thư: "Trực Phù chủ hạn hán, hỏa hoạn, quan lại bức bách dân". Hạn hán kéo dài, hỏa hoạn đô thị, bộ máy hành chính tham nhũng mất kiểm soát.`,
+    });
+  }
+
+  // ══════════════════════════════════════════════════════
+  // 🕳️ LƯỚI 7 · BẪY TRUNG CUNG — Sự Tê Liệt Của Thượng Tầng
+  //    Tướng (Đại Tướng hoặc Tham Tướng — Chủ hoặc Khách) rơi vào
+  //    Cung 5 (Trung Cung) = Đỗ vô môn, hệ thống quản trị tê liệt
+  //    Cổ thư: "Đỗ tắc không cửa nào là không lợi... giặc dã trộm cướp là Khách"
+  //            "Chủ Đỗ tắc khởi sự là xấu"
+  // ══════════════════════════════════════════════════════
+  const tuongChuDaiCung  = extraAnChu  ? null : null; // cần cung từ extraAnChu
+  // Lấy cung Tướng từ extraAnChu (anChuDai): chuDai là số cung, được truyền vào
+  // extraAnChu chứa {status, label, mota, anList} — cung tướng nằm trong anList "ĐỖ"
+  // Ta cần check trực tiếp từ toanChuNam & toanKhachNam qua tinhTuong
+  {
+    // tinhTuong trả về [cungDai, cungTham] — kiểm tra xem cung nào === 5
+    // Hàm tinhTuong có sẵn trong scope toàn cục
+    if(typeof tinhTuong === "function"){
+      const [chuDaiCung, chuThamCung]     = tinhTuong(toanChuNam);
+      const [khachDaiCung, khachThamCung] = tinhTuong(toanKhachNam);
+
+      const tuongTrungCung = [];
+      if(chuDaiCung   === 5) tuongTrungCung.push("Đại Tướng Chủ");
+      if(chuThamCung  === 5) tuongTrungCung.push("Tham Tướng Chủ");
+      if(khachDaiCung === 5) tuongTrungCung.push("Đại Tướng Khách");
+      if(khachThamCung=== 5) tuongTrungCung.push("Tham Tướng Khách");
+
+      if(tuongTrungCung.length > 0){
+        const d = 2;
+        tongDiem += d;
+        ung.push({ diem:d, icon:"🕳️", layer:"LƯỚI 7 ★★",
+          ten:"[BẪY TRUNG CUNG · ĐỖ VÔ MÔN] THƯỢNG TẦNG TÊ LIỆT TOÀN DIỆN",
+          mo_ta:`${tuongTrungCung.join(" & ")} rơi vào Trung Cung (Cung 5) — Đỗ vô môn, bế tắc tứ phía. Cổ thư: "Đỗ tắc không cửa nào là không lợi, giặc dã trộm cướp là Khách". Bộ máy quan lại/quân đội bất động, tàng hình, trộm cướp nổi lên. Chuỗi cung ứng và hệ thống xã hội bị chia cắt hoàn toàn.`,
+        });
+      }
+    }
   }
 
   // ══════════════════════════════════════════════════════
@@ -1940,9 +2130,116 @@ function quetThamHoaDanCo(tichSoNam, extraAnChu, extraAnKhach){
     }
   });
 
+  // ══════════════════════════════════════════════════════
+  // 🌟 NGŨ PHÚC HÓA GIẢI — Targeted Heal theo Tọa Độ Cung
+  //
+  //  Logic chuẩn (cổ thư):
+  //  "Khi đến cung nào thì ở cung đó vua có phúc, dân giàu mạnh,
+  //   cung chiếu cũng thế, không có binh đao, hạn, lụt, ốm đau"
+  //  "Đại Du mà cùng gặp Ngũ Phúc thì tai họa binh đao giáng vào
+  //   địa phận ĐỐI XUNG"
+  //
+  //  → Ngũ Phúc là "Vùng An Toàn CỤC BỘ":
+  //    - Cảnh báo nào phát sinh TẠI CUNG Ngũ Phúc → bị vô hiệu hóa
+  //    - Cảnh báo tại cung KHÁC → Ngũ Phúc KHÔNG thể hóa giải
+  //    - Đặc biệt: Ngũ Phúc hội tụ Thái Ất → mọi cảnh báo dính Thái Ất bị hóa giải
+  // ══════════════════════════════════════════════════════
+  const nguPhucCung = nguPhuc.cung;
+  const nguPhucHoiTuThaiAt = (nguPhucCung === thaiAtNam);
+
+  // Các cung mà Ngũ Phúc bảo vệ (cung nó đứng + cung chiếu = cung đối xung)
+  const cungNguPhucBaoVe = new Set([nguPhucCung]);
+  // Cung chiếu (đối xung) trên vòng Bát Quái
+  const VONG_BAT_QUAI_NP = [1,2,3,4,6,7,8,9];
+  const idxNP = VONG_BAT_QUAI_NP.indexOf(nguPhucCung);
+  if(idxNP !== -1){
+    const idxDoi = (idxNP + 4) % 8;
+    cungNguPhucBaoVe.add(VONG_BAT_QUAI_NP[idxDoi]);
+  }
+  // Cung 5 (Trung Cung) — Ngũ Phúc ở Trung Cung thì bảo vệ tất cả
+  const nguPhucBaoVeToanBo = (nguPhucCung === 5);
+
+  // Xác định cung liên quan của từng cảnh báo để kiểm tra targeted heal
+  function getCungCanhBao(cb){
+    // Trích cung từ layer hoặc ten — dùng thaiAtNam, danCo, daiDu làm proxy
+    // Lưới 1: Thủy Kích ở thaiAtNam → thaiAtNam
+    // Lưới 4, 4.2: cảnh báo về Thái Ất hoặc danCo
+    // Lưới 5: daiDu hoặc thaiAtNam
+    // Lưới 7: Trung Cung = 5
+    const layer = cb.layer || "";
+    if(layer.includes("LƯỚI 1"))    return thaiAtNam;
+    if(layer.includes("LƯỚI 3"))    return thaiAtNam;
+    if(layer.includes("LƯỚI 4.2"))  return thaiAtNam;
+    if(layer.includes("LƯỚI 4"))    return danCo;
+    if(layer.includes("LƯỚI 5.1"))  return daiDu;
+    if(layer.includes("LƯỚI 5"))    return thaiAtNam; // xung thái ất
+    if(layer.includes("LƯỚI 6"))    return thaiAtNam;
+    if(layer.includes("LƯỚI 7"))    return 5;
+    if(layer.includes("LƯỚI 2"))    return thaiAtNam;
+    return null;
+  }
+
+  // Lọc cảnh báo: giữ lại những cảnh báo mà Ngũ Phúc KHÔNG bảo vệ được
+  let ungSauHoaGiai = [];
+  let diemHoaGiai = 0;
+  let soHoaGiai = 0;
+
+  if(nguPhucBaoVeToanBo){
+    // Ngũ Phúc ở Trung Cung — bảo vệ toàn bộ (giống logic cũ)
+    tongDiem = 0;
+    ung.length = 0;
+    ung.push({
+      diem: 0, icon:"🌟", layer:"NGŨ PHÚC ☆☆",
+      ten:"[NGŨ PHÚC HỘI TỤ TRUNG CUNG] ĐẠI THỊNH VƯỢNG TOÀN DIỆN",
+      mo_ta:`Ngũ Phúc Thái Ất (${nguPhuc.tenVung}) tọa Trung Cung — chiếu khắp bát phương. Cổ thư: "không có binh đao, hạn, lụt, ốm đau bệnh tật". Mọi án hung đều được hóa giải. Ngũ Phúc đã ở đây ${nguPhuc.soNamDaO} năm, còn ${nguPhuc.soNamConLai} năm nữa (${nguPhuc.giaiDoan}).`,
+      _isNguPhucHoaGiai: true,
+    });
+  } else {
+    // Targeted heal — chỉ hóa giải cảnh báo tại cung Ngũ Phúc bảo vệ
+    for(const cb of ung){
+      const cungCB = getCungCanhBao(cb);
+      const baoVe  = cungCB !== null && cungNguPhucBaoVe.has(cungCB);
+      // Trường hợp đặc biệt: Ngũ Phúc hội tụ Thái Ất → hóa giải mọi cảnh báo liên quan Thái Ất
+      const thaiAtBaoVe = nguPhucHoiTuThaiAt && (cungCB === thaiAtNam || cungCB === null);
+      if(baoVe || thaiAtBaoVe){
+        diemHoaGiai += cb.diem || 0;
+        soHoaGiai++;
+      } else {
+        ungSauHoaGiai.push(cb);
+      }
+    }
+
+    if(soHoaGiai > 0){
+      tongDiem = Math.max(0, tongDiem - diemHoaGiai);
+      ung.length = 0;
+      ung.push(...ungSauHoaGiai);
+      const moTaHoaGiai = nguPhucHoiTuThaiAt
+        ? `Ngũ Phúc (${nguPhuc.tenVung} · Cung ${nguPhucCung}) hội tụ Thái Ất năm — vùng bảo vệ trùng Ngai Vàng. Cổ thư: "cung chiếu cũng thế, không có binh đao, hạn, lụt". ${soHoaGiai} cảnh báo tại Cung ${nguPhucCung} bị vô hiệu hóa (giảm ${diemHoaGiai}đ). Cảnh báo tại các cung khác VẪN CÒN HIỆU LỰC.`
+        : `Ngũ Phúc (${nguPhuc.tenVung} · Cung ${nguPhucCung}) bảo vệ cục bộ cung của mình và cung chiếu. ${soHoaGiai} cảnh báo tại Cung ${nguPhucCung} được hóa giải (giảm ${diemHoaGiai}đ). Cổ thư: "Đại Du mà cùng Ngũ Phúc thì tai họa giáng vào địa phận đối xung". Cảnh báo tại các cung khác KHÔNG được hóa giải.`;
+      ung.push({
+        diem: -diemHoaGiai, icon:"🌟", layer:"NGŨ PHÚC ☆",
+        ten:`[NGŨ PHÚC BẢO VỆ CỤC BỘ · Cung ${nguPhucCung}] HÓA GIẢI ${soHoaGiai} CẢNH BÁO`,
+        mo_ta: moTaHoaGiai,
+        _isNguPhucHoaGiai: true,
+      });
+
+      // Nếu Ngũ Phúc hóa giải toàn bộ (mảng hung = rỗng sau lọc)
+      if(ungSauHoaGiai.length === 0 && tongDiem < NGUONG_DIEM){
+        tongDiem = 0;
+        ung.length = 0;
+        ung.push({
+          diem: 0, icon:"🌟", layer:"NGŨ PHÚC ☆☆",
+          ten:"[NGŨ PHÚC HỘI TỤ THÁI ẤT] ĐẠI THỊNH VƯỢNG TOÀN DIỆN",
+          mo_ta:`Ngũ Phúc Thái Ất (${nguPhuc.tenVung}) hội tụ đúng cung Thái Ất năm (Cung ${thaiAtNam}·${CUNG_NAME[thaiAtNam]||thaiAtNam}). Cổ thư: "không có binh đao, hạn, lụt, ốm đau bệnh tật — phúc lộc lại nhiều". Mọi án hung trên sa bàn đều được hóa giải. Vĩ mô cực kỳ vượng — năm tốt nhất để tích sản, đầu tư dài hạn. Ngũ Phúc đã ở đây ${nguPhuc.soNamDaO} năm, còn ${nguPhuc.soNamConLai} năm nữa (${nguPhuc.giaiDoan}).`,
+          _isNguPhucHoaGiai: true,
+        });
+      }
+    }
+  }
+
   // TỔNG HỢP — chỉ trả cảnh báo khi tổng điểm ≥ ngưỡng
   // ══════════════════════════════════════════════════════
-  if(tongDiem < NGUONG_DIEM) return [];
+  if(tongDiem < NGUONG_DIEM && !ung.some(u=>u._isNguPhucHoaGiai)) return [];
 
   // Gắn thêm thông tin điểm vào header của mảng trả về
   const canhBao = ung.sort((a,b) => b.diem - a.diem); // ưu tiên cảnh báo nặng lên trên
@@ -2056,34 +2353,149 @@ const VANG_CUNG_MAP = {
 };
 
 function getVangBadge(khachDai, anKhachDai){
-  // Khách Đại Tướng = cung số (1-9 trừ 5)
   const cungVang = khachDai;
-  const entry = VANG_CUNG_MAP[cungVang];
-  const nguHanhCung = getNguHanh(String(cungVang));
-  const cungTen = CUNG_NAME[cungVang] || ("Cung " + cungVang);
+  const entry    = VANG_CUNG_MAP[cungVang];
+  const nguHanh  = getNguHanh(String(cungVang));
+  const cungTen  = CUNG_NAME[cungVang] || ("Cung " + cungVang);
 
-  // Header tọa độ
-  const header = `<span style="color:var(--gold-light);font-weight:700">Cung ${cungVang} · ${cungTen} · ${nguHanhCung}</span><span style="color:var(--text-dim);font-size:10px;"> | Bản thể: Kim</span>`;
+  const isHung  = anKhachDai.status === "hung";
+  const isBinh  = anKhachDai.status === "binh";
+  const isCat   = anKhachDai.status === "cat";
 
-  // Badge ngũ hành
-  const nhanh = entry
-    ? `<div style="margin:5px 0 4px;"><span style="color:${entry.color};font-weight:700;font-size:11.5px;">${entry.badge}</span></div>
-       <div style="color:var(--text);font-size:11px;line-height:1.6;">${entry.mo_ta}</div>`
-    : `<div style="color:var(--text-dim);font-size:11px;">Cung ${cungVang} — Chưa có dữ liệu phân tích</div>`;
+  // Nhãn tên các án hung (để hiển thị ngắn gọn)
+  const tenAnHung = isHung
+    ? anKhachDai.anList.map(a => a.match(/^[^(]+/)?.[0]?.trim()).filter(Boolean)
+    : [];
 
-  // Án lệnh từ giaiPhauAnTuong
+  // Phân loại ngũ hành — có lợi (tương sinh/đồng khí) hay bất lợi
+  const NGUHANH_TOT  = [3, 7, 8];          // Thổ sinh Kim, Kim tiết Thủy
+  const NGUHANH_BINH = [1, 6];             // Kim tỷ hòa
+  const NGUHANH_XUNG = [4, 9];             // Kim khắc Mộc (hao tổn)
+  const NGUHANH_HUNG = [2];                // Hỏa khắc Kim
+  const nguHanhTot   = NGUHANH_TOT.includes(cungVang);
+  const nguHanhHung  = NGUHANH_HUNG.includes(cungVang);
+
+  // ── Header tọa độ ──
+  const header = `<span style="color:var(--gold-light);font-weight:700">Cung ${cungVang} · ${cungTen} · ${nguHanh}</span><span style="color:var(--text-dim);font-size:10px;"> | Bản thể: Kim</span>`;
+
+  // ══════════════════════════════════════════════════════════
+  //  LOGIC OVERRIDE — Án Lệnh ghi đè Ngũ Hành
+  //
+  //  Case 1 · BẪY LỒNG SON: Ngũ Hành tốt + Án Lệnh hung
+  //    → Gộp thành cảnh báo Trap, gray-out badge ngũ hành
+  //  Case 2 · KÉP ĐẠI HUNG: Ngũ Hành hung + Án Lệnh hung
+  //    → Cộng hưởng, nhấn mạnh mức độ tối đa
+  //  Case 3 · THUẦN CÁT: Không có án hung
+  //    → Hiển thị bình thường + mo_ta khuyến khích vào lệnh
+  // ══════════════════════════════════════════════════════════
+
+  let nhanh = "";
   let anLenh = "";
-  if(anKhachDai.status === "cat"){
-    anLenh = `<div style="margin-top:6px;color:var(--green);font-weight:700;font-size:11.5px;">⚔️ Án lệnh: PHÁT 🟢</div>
-              <div style="color:var(--text);font-size:11px;">Xu hướng bứt phá kháng cự — xác suất thuận lợi cao hơn.</div>`;
-  } else if(anKhachDai.status === "hung"){
-    const anhung = anKhachDai.anList.map(a=>`<li style="margin-bottom:3px">${a}</li>`).join("");
-    anLenh = `<div style="margin-top:6px;color:var(--red);font-weight:700;font-size:11.5px;">⛓️ Án lệnh: ${anKhachDai.anList.map(a=>a.match(/^[^(]+/)[0].trim()).join(" · ")} 🔴</div>
-              <ul style="color:var(--text);font-size:11px;padding-left:16px;margin-top:3px;line-height:1.7">${anhung}</ul>
-              <div style="color:var(--red);font-size:13px;font-weight:700;margin-top:6px;letter-spacing:.03em;">⚠️ Vàng có dấu hiệu kẹt thanh khoản hoặc hoảng loạn — nên cân nhắc đứng ngoài / canh Short.</div>`;
+
+  if(isHung && nguHanhTot){
+    // ─── CASE 1: BẪY LỒNG SON / BULL TRAP ───────────────────
+    // Badge ngũ hành: gray-out + gạch ngang, đổi icon thành 🪤
+    const badgeGrayout = entry
+      ? entry.badge
+          .replace(/🟢|✅|🚀|💧/g, "🪤")
+          .replace(/\[/g, "[~~").replace(/\]/g, "~~]")
+      : `Cung ${cungVang}`;
+    nhanh = `
+      <div style="margin:5px 0 4px;">
+        <span style="color:#555e6e;font-weight:700;font-size:11px;text-decoration:line-through;opacity:.7;">
+          ${entry ? entry.badge : badgeGrayout}
+        </span>
+        <span style="color:var(--text-dim);font-size:10px;margin-left:5px;">← bị vô hiệu bởi án lệnh</span>
+      </div>`;
+
+    // Phân tích chi tiết bẫy
+    const tenBay = tenAnHung.includes("TÙ") && tenAnHung.includes("YỂM") ? "BẪY LỒNG SON + MẬT NGỌT CHẾT RUỒI"
+                 : tenAnHung.includes("TÙ") ? "BẪY LỒNG SON"
+                 : tenAnHung.includes("YỂM") ? "MẬT NGỌT CHẾT RUỒI"
+                 : "BULL TRAP";
+    const phanTich = entry
+      ? `Mặc dù địa hình ${cungTen} (${nguHanh}) đang ${entry.mo_ta.split(".")[0].toLowerCase()}, thoạt nhìn cấu trúc giá rất vững.`
+      : `Mặc dù địa hình ${cungTen} có vẻ thuận lợi.`;
+    const tuHuyet = anKhachDai.anList.map(a => `<li style="margin-bottom:3px">${a}</li>`).join("");
+
+    anLenh = `
+      <div style="margin-top:7px;padding:10px 12px;background:rgba(255,68,85,.08);border:1px solid rgba(255,68,85,.35);border-radius:10px;">
+        <div style="color:var(--red);font-weight:700;font-size:12px;margin-bottom:6px;letter-spacing:.03em;">
+          🔴 [${tenBay} / BULL TRAP] — Cẩn trọng ảo giác tăng giá!
+        </div>
+        <div style="font-size:11px;line-height:1.75;color:var(--text);">
+          <span style="color:var(--text-dim);font-weight:600;">▸ Địa hình:</span>
+          ${phanTich}<br>
+          <span style="color:var(--red);font-weight:600;">▸ Tử huyệt:</span>
+          NHƯNG Tướng đại diện dính án <strong style="color:var(--red)">${tenAnHung.join(" + ")}</strong> —
+          sự vững vàng bên ngoài chỉ là "Lồng son" giam lỏng dòng tiền.
+          Nhà cái tạo ảo giác an toàn để dụ đám đông mua vào trước khi rút phích gây Flash Dump.<br>
+          <span style="color:var(--yellow);font-weight:600;">▸ Hành động:</span>
+          Đứng ngoài bảo toàn vốn, hoặc canh nhịp giá kéo rướn (FOMO) để mở lệnh SHORT. Tuyệt đối không bắt đáy!
+        </div>
+        <ul style="color:var(--text-dim);font-size:10.5px;padding-left:16px;margin-top:6px;line-height:1.7">${tuHuyet}</ul>
+      </div>`;
+
+  } else if(isHung && nguHanhHung){
+    // ─── CASE 2: KÉP ĐẠI HUNG — Cộng hưởng ─────────────────
+    nhanh = entry
+      ? `<div style="margin:5px 0 4px;"><span style="color:${entry.color};font-weight:700;font-size:11.5px;">${entry.badge}</span></div>
+         <div style="color:var(--text);font-size:11px;line-height:1.6;">${entry.mo_ta}</div>`
+      : "";
+    const tuHuyet = anKhachDai.anList.map(a=>`<li style="margin-bottom:3px">${a}</li>`).join("");
+    anLenh = `
+      <div style="margin-top:7px;padding:10px 12px;background:rgba(255,68,85,.12);border:1px solid rgba(255,68,85,.5);border-radius:10px;">
+        <div style="color:var(--red);font-weight:700;font-size:12px;margin-bottom:5px;">
+          ⛔ [KÉP ĐẠI HUNG] — Địa hình XẤU + Tướng dính án: cộng hưởng hủy diệt!
+        </div>
+        <div style="font-size:11px;line-height:1.75;color:var(--text);">
+          Ngũ hành địa hình ${nguHanh} khắc phạt Kim, đồng thời Tướng đại diện dính <strong style="color:var(--red)">${tenAnHung.join(" + ")}</strong>.
+          Hai lực hung hội tụ — xác suất sập hầm / flash dump cực cao. Không vào lệnh mua, ưu tiên Short hoặc đứng ngoài.
+        </div>
+        <ul style="color:var(--text-dim);font-size:10.5px;padding-left:16px;margin-top:6px;line-height:1.7">${tuHuyet}</ul>
+      </div>`;
+
+  } else if(isHung){
+    // ─── CASE 3: Ngũ Hành trung tính + Án Lệnh hung ─────────
+    nhanh = entry
+      ? `<div style="margin:5px 0 4px;"><span style="color:${entry.color};font-weight:700;font-size:11.5px;">${entry.badge}</span></div>
+         <div style="color:var(--text-dim);font-size:11px;line-height:1.6;">${entry.mo_ta} — <strong style="color:var(--red)">NHƯNG đà tăng này không thực chất do dính Án lệnh.</strong> Giá lên chỉ để quét thanh khoản (quét râu) chứ không thể hình thành Uptrend.</div>`
+      : "";
+    const tuHuyet = anKhachDai.anList.map(a=>`<li style="margin-bottom:3px">${a}</li>`).join("");
+    anLenh = `
+      <div style="margin-top:7px;padding:9px 12px;background:rgba(255,68,85,.07);border-left:3px solid var(--red);border-radius:0 9px 9px 0;">
+        <div style="color:var(--red);font-weight:700;font-size:11.5px;margin-bottom:4px;">
+          ⛓️ Án lệnh: ${tenAnHung.join(" · ")} 🔴
+        </div>
+        <ul style="color:var(--text);font-size:11px;padding-left:16px;margin:0;line-height:1.7">${tuHuyet}</ul>
+        <div style="color:var(--red);font-size:12px;font-weight:700;margin-top:6px;">
+          ⚠️ Vàng có dấu hiệu kẹt thanh khoản hoặc hoảng loạn — nên cân nhắc đứng ngoài / canh Short.
+        </div>
+      </div>`;
+
+  } else if(isBinh){
+    // ─── CASE 4: Hưu Phế / Sideway ───────────────────────────
+    nhanh = entry
+      ? `<div style="margin:5px 0 4px;"><span style="color:${entry.color};font-weight:700;font-size:11.5px;">${entry.badge}</span></div>
+         <div style="color:var(--text);font-size:11px;line-height:1.6;">${entry.mo_ta}</div>`
+      : "";
+    anLenh = `
+      <div style="margin-top:6px;color:var(--yellow);font-weight:700;font-size:11.5px;">⏳ Án lệnh: HƯU PHẾ / SIDEWAY 🟡</div>
+      <div style="color:var(--text);font-size:11px;margin-top:3px;">Vàng có xu hướng đi ngang lình xình. Nên chờ tín hiệu rõ hơn, tránh vào lệnh vội.</div>`;
+
   } else {
-    anLenh = `<div style="margin-top:6px;color:var(--yellow);font-weight:700;font-size:11.5px;">⏳ Án lệnh: HƯU PHẾ / SIDEWAY 🟡</div>
-              <div style="color:var(--text);font-size:11px;">Vàng có xu hướng đi ngang lình xình. Nên chờ tín hiệu rõ hơn, tránh vào lệnh vội.</div>`;
+    // ─── CASE 5: Thuần Cát — không có án hung ────────────────
+    // mo_ta được bổ sung phần khuyến nghị vào lệnh
+    const moTaDay = entry
+      ? entry.mo_ta + " Tướng đại diện không dính án phạt — có thể canh Long theo tín hiệu kỹ thuật."
+      : "";
+    nhanh = entry
+      ? `<div style="margin:5px 0 4px;"><span style="color:${entry.color};font-weight:700;font-size:11.5px;">${entry.badge}</span></div>
+         <div style="color:var(--text);font-size:11px;line-height:1.6;">${moTaDay}</div>`
+      : `<div style="color:var(--text-dim);font-size:11px;">Cung ${cungVang} — Chưa có dữ liệu phân tích</div>`;
+    anLenh = `
+      <div style="margin-top:6px;color:var(--green);font-weight:700;font-size:11.5px;">⚔️ Án lệnh: PHÁT 🟢</div>
+      <div style="color:var(--text);font-size:11px;margin-top:3px;">Thiên thời địa lợi hội tụ — xác suất thuận lợi cao hơn, có thể canh Long theo tín hiệu kỹ thuật.</div>`;
   }
 
   return `${header}${nhanh}${anLenh}`;
@@ -2457,27 +2869,30 @@ function renderCuc(c,idx){
       ${d.thanCo?`<div class="shen-row"><span class="icon-col">👑</span><span class="key">Thần Cơ (Tiền to)</span><span class="val">${d.thanCo} · ${getNguHanh(d.thanCo)}</span></div>`:""}
       ${d.danCo?`<div class="shen-row"><span class="icon-col">🐑</span><span class="key">Dân Cơ (Đám đông)</span><span class="val">${d.danCo} · ${getNguHanh(d.danCo)}</span></div>`:""}
 
-      <div class="section-label">📊 Phân Tích Thanh Khoản (Volume)</div>
-      <div class="vol-label">📉 Lực Bán · Toán Chủ: <strong>${d.toanChu} quân</strong></div>
+      ${idx===0 && c.tamCo ? `
+      <div class="section-label" style="color:var(--gold)">⚔️ Bộ Ba Tam Cơ · Dòng tiền & Tâm lý</div>
+      ${tamCoGrid(c.tamCo, d.thaiAt)}` : ""}
+      <div class="section-label">📊 Toán Số · Nội Lực & Ngoại Lực (Volume)</div>
+      <div class="vol-label">⚖️ Nội Lực · Toán Chủ: <strong>${d.toanChu} quân</strong></div>
       <div class="vol-row ${volClass(d.labelToanChu)}">${d.labelToanChu}</div>
-      <div class="vol-label" style="margin-top:8px">📈 Lực Mua · Toán Khách: <strong>${d.toanKhach} quân</strong></div>
+      <div class="vol-label" style="margin-top:8px">🌐 Ngoại Lực · Toán Khách: <strong>${d.toanKhach} quân</strong></div>
       <div class="vol-row ${volClass(d.labelToanKhach)}">${d.labelToanKhach}</div>
 
       <div class="section-label">🎯 Tướng Tinh & Án Phạt</div>
-      ${d.doToanTapChu?`<div style="color:var(--red);font-size:12px;padding:6px 0;font-weight:600">☠️ PHE BÁN ĐỖ TOÀN TẬP — Phe Bán có dấu hiệu tê liệt hoàn toàn, thanh khoản cạn kiệt!</div>`:""}
+      ${d.doToanTapChu?`<div style="color:var(--red);font-size:12px;padding:6px 0;font-weight:600">☠️ NỘI LỰC ĐỖ TOÀN TẬP — Toán Chủ tê liệt hoàn toàn, cả Đại lẫn Tham đều lọt Lỗ Đen!</div>`:""}
       <div class="tuong-side ban">
-        <div class="tuong-side-title">🩸 PHE BÁN (SHORT / NHÀ CÁI)</div>
+        <div class="tuong-side-title">⚖️ TOÁN CHỦ · NỘI LỰC (Chủ trận · Nội sinh)</div>
         ${renderTuong("Đại Tướng",d.anChuDai)}
         ${renderTuong("Tham Tướng",d.anChuTham)}
       </div>
-      ${d.doToanTapKhach?`<div style="color:var(--red);font-size:12px;padding:6px 0;font-weight:600">☠️ PHE MUA ĐỖ TOÀN TẬP — Phe Mua có dấu hiệu tê liệt hoàn toàn, thanh khoản cạn kiệt!</div>`:""}
+      ${d.doToanTapKhach?`<div style="color:var(--red);font-size:12px;padding:6px 0;font-weight:600">☠️ NGOẠI LỰC ĐỖ TOÀN TẬP — Toán Khách tê liệt hoàn toàn, cả Đại lẫn Tham đều lọt Lỗ Đen!</div>`:""}
       <div class="tuong-side mua" style="margin-top:10px">
-        <div class="tuong-side-title">🚀 PHE MUA (LONG / ĐÁM ĐÔNG)</div>
+        <div class="tuong-side-title">🌐 TOÁN KHÁCH · NGOẠI LỰC (Khách trận · Ngoại lai)</div>
         ${renderTuong("Đại Tướng",d.anKhachDai)}
         ${renderTuong("Tham Tướng",d.anKhachTham)}
       </div>
       ${idx===0?`<div class="vang-badge">
-        <div class="vang-badge-title">🟡 VÀNG (Khách Đại Tướng · Phe Mua)</div>
+        <div class="vang-badge-title">🟡 VÀNG (Khách Đại Tướng · Ngoại Lực)</div>
         ${getVangBadge(d.khachDai, d.anKhachDai)}
       </div>`:""}
     </div>
@@ -2559,13 +2974,83 @@ function calculate(){
   }, 60);
 }
 
+// ═══════════════════════════════════════════════════════
+//  TAM CƠ GRID — hiển thị Quân Cơ / Thần Cơ / Dân Cơ với phân tích
+// ═══════════════════════════════════════════════════════
+function tamCoGrid(tamCo, thaiAtNam){
+  if(!tamCo) return "";
+
+  // Kiểm tra hội tụ với Thái Ất năm
+  const qcHoiTu = tamCo.quanCo.cung === thaiAtNam;
+  const tcHoiTu = tamCo.thanCo.cung  === thaiAtNam;
+  const dcHoiTu = tamCo.danCo.cung   === thaiAtNam;
+
+  // Kiểm tra đồng tọa Quân Cơ & Thần Cơ (cá mập + chính sách giao thoa)
+  const qtDongToa = tamCo.quanCo.cung === tamCo.thanCo.cung;
+  // Kiểm tra Dân Cơ kẹp giữa Quân + Thần (FOMO / sập hầm)
+  const dcKepGiua = tamCo.danCo.cung === tamCo.quanCo.cung || tamCo.danCo.cung === tamCo.thanCo.cung;
+
+  function cellStyle(hoiTu){
+    return hoiTu
+      ? "border-color:rgba(255,215,0,.55);background:rgba(255,215,0,.08);"
+      : "border-color:rgba(200,153,58,.22);background:rgba(200,153,58,.04);";
+  }
+  function nameColor(hoiTu){ return hoiTu ? "color:#ffd700;font-weight:700" : "color:var(--gold)"; }
+
+  const cells = [
+    {
+      icon:"🐉", name:"Quân Cơ", sub:"Cá mập · Dòng tiền lớn · Xu hướng dài hạn",
+      val: `Cung ${tamCo.quanCo.cung} · ${tamCo.quanCo.diaChi}`,
+      info: `${CUNG_NAME[tamCo.quanCo.cung]||""} · Đã ở ${tamCo.quanCo.soNamDaO}/30 năm · Còn ${tamCo.quanCo.conLai} năm`,
+      note: qcHoiTu ? "⭐ HỘI TỤ THÁI ẤT — Cá mập khai phá đúng cung Thái Ất: xu hướng dài hạn BỨT PHÁ!" : (qtDongToa ? "⚡ ĐỒNG TỌA THẦN CƠ — Cá mập & Chính sách đồng thuận, tín hiệu cực mạnh" : ""),
+      hoiTu: qcHoiTu
+    },
+    {
+      icon:"⚖️", name:"Thần Cơ", sub:"Thể chế · Chính sách · Phụ tướng",
+      val: `Cung ${tamCo.thanCo.cung} · ${tamCo.thanCo.diaChi}`,
+      info: `${CUNG_NAME[tamCo.thanCo.cung]||""} · Đã ở ${tamCo.thanCo.soNamDaO}/3 năm · Còn ${tamCo.thanCo.conLai} năm`,
+      note: tcHoiTu ? "⭐ HỘI TỤ THÁI ẤT — Chính sách hội tụ cung Thái Ất: chu kỳ chính sách thuận chiều" : (qtDongToa ? "⚡ ĐỒNG TỌA QUÂN CƠ — Cá mập & Chính sách cùng cung, cộng hưởng lực đẩy" : ""),
+      hoiTu: tcHoiTu
+    },
+    {
+      icon:"👥", name:"Dân Cơ", sub:"Đám đông · Nhỏ lẻ · FOMO",
+      val: `Cung ${tamCo.danCo.cung} · ${tamCo.danCo.diaChi}`,
+      info: `${CUNG_NAME[tamCo.danCo.cung]||""} · Đổi cung mỗi năm`,
+      note: dcHoiTu ? "⭐ HỘI TỤ THÁI ẤT — Đám đông FOMO vào cung Thái Ất: cảnh giác sập hầm quét thanh khoản!" : (dcKepGiua ? "⚠️ ĐỒNG TỌA QUÂN/THẦN — Đám đông bu vào cùng cung cá mập/chính sách: rủi ro quét stoploss!" : ""),
+      hoiTu: dcHoiTu
+    },
+  ].map(c => `
+    <div class="hung-tinh-cell" style="${cellStyle(c.hoiTu)}grid-column:span 1;">
+      <div class="ht-name" style="${nameColor(c.hoiTu)}">${c.icon} ${c.name}</div>
+      <div class="ht-val" style="${c.hoiTu?"color:#ffd700":"color:var(--gold-light)"}">${c.val}</div>
+      <div class="ht-sub">${c.info}</div>
+      <div class="ht-sub" style="color:var(--text-dim);font-size:9px;margin-top:1px;font-style:italic">${c.sub}</div>
+      ${c.note ? `<div style="margin-top:5px;font-size:10px;font-weight:700;color:${c.hoiTu?"#ffd700":"var(--yellow)"};line-height:1.5;">${c.note}</div>` : ""}
+    </div>`).join("");
+
+  // Tổng hợp cảnh báo tam cơ
+  const dsWarning = [];
+  if(qcHoiTu && tcHoiTu) dsWarning.push("🏆 QUÂN + THẦN đồng hội Thái Ất: Cực kỳ hiếm — sóng bứt phá lịch sử!");
+  if(dcHoiTu && (qcHoiTu || tcHoiTu)) dsWarning.push("⚠️ Dân Cơ chen vào cùng Thái Ất với Quân/Thần: thanh khoản dồi dào nhưng cực kỳ dễ bẫy đám đông!");
+  if(dcKepGiua && !qcHoiTu && !tcHoiTu) dsWarning.push("⚠️ Dân Cơ đồng tọa Cá Mập/Chính sách: nguy cơ distribution trap — cá mập phân phối cho đám đông");
+
+  const summaryHtml = dsWarning.length > 0
+    ? `<div style="margin-top:8px;padding:9px 11px;background:rgba(255,215,0,.05);border:1px solid rgba(255,215,0,.25);border-radius:9px;font-size:11px;line-height:1.7;color:var(--yellow)">${dsWarning.join("<br>")}</div>`
+    : "";
+
+  return `<div class="hung-tinh-grid" style="grid-template-columns:1fr 1fr 1fr;">${cells}</div>${summaryHtml}`;
+}
+
 function renderThamHoa(hungTinh, canhBao, meta){
-  const { tucThan, thienAt, diaAt, trucPhu, daiDu, danCo, diaChiDanCo, thaiAtNam, cungThuyKich } = hungTinh;
+  const { tucThan, thienAt, diaAt, trucPhu, daiDu, danCo, diaChiDanCo, thaiAtNam, cungThuyKich, nguPhuc, tamCo } = hungTinh;
   const namLabel = meta ? `Năm ${meta.nam}` : "Năm";
   const ngayLabel = meta ? `${String(meta.ngay).padStart(2,"0")}/${String(meta.thang).padStart(2,"0")}/${meta.nam}` : "";
 
+  // Màu ô Ngũ Phúc tùy trạng thái
+  const npHoiTu = nguPhuc && nguPhuc.cung === thaiAtNam;
+  const npCls = npHoiTu ? "ngu-phuc-hot" : "ngu-phuc-cell";
+
   const toaDo = [
-    { name:"Dân Cơ",          val:`Cung ${danCo} · ${diaChiDanCo}`,       sub:CUNG_NAME[danCo]||"Trung Cung",      cls:"dan-co" },
     { name:"Thái Ất Năm",     val:`Cung ${thaiAtNam}`,                     sub:CUNG_NAME[thaiAtNam]||"Trung Cung",  cls:"" },
     { name:"Thủy Kích Năm",   val:`Cung ${cungThuyKich??"-"}`,             sub:CUNG_NAME[cungThuyKich]||"",         cls:"" },
     { name:"Tứ Thần",         val:`Cung ${tucThan}`,                       sub:CUNG_NAME[tucThan]||"Trung Cung",    cls:"" },
@@ -2580,45 +3065,82 @@ function renderThamHoa(hungTinh, canhBao, meta){
       <div class="ht-sub">${r.sub}</div>
     </div>`).join("");
 
+  // Ô Ngũ Phúc riêng — chiếm full row, màu vàng-xanh nổi bật
+  const nguPhucRow = nguPhuc ? `
+    <div class="hung-tinh-cell ngu-phuc-cell ${npHoiTu?"ngu-phuc-hot":""}" style="grid-column:1/-1;${npHoiTu?"border-color:rgba(255,215,0,.6);background:rgba(255,215,0,.08);":"border-color:rgba(34,221,136,.25);background:rgba(34,221,136,.04);"}">
+      <div class="ht-name" style="${npHoiTu?"color:#ffd700":"color:var(--teal)"}">🌟 Ngũ Phúc Thái Ất${npHoiTu?" ✦ HỘI TỤ THÁI ẤT":""}</div>
+      <div class="ht-val" style="${npHoiTu?"color:#ffd700":"color:var(--green)"}">Cung ${nguPhuc.cung} · ${nguPhuc.tenVung}</div>
+      <div class="ht-sub">${nguPhuc.giaiDoan} · Đã ở ${nguPhuc.soNamDaO} năm · Còn ${nguPhuc.soNamConLai} năm</div>
+    </div>` : "";
+
   const tongDiem = canhBao.length > 0 ? (canhBao[0]._tongDiem || 0) : 0;
   const mucDoMau = tongDiem >= 6 ? "#cc1122" : tongDiem >= 4 ? "#ff4455" : "#ff8844";
   const mucDoNhan = tongDiem >= 6 ? "⛔ CỰC NGUY HIỂM" : tongDiem >= 4 ? "🔴 NGUY HIỂM CAO" : "🟠 CẢNH BÁO";
 
-  const noidung = canhBao.length === 0
-    ? `<div class="tham-hoa-binh-yen">🟢 ${namLabel} BÌNH YÊN — Cả 5 lưới lọc đều không đủ ngưỡng kích hoạt (cần ≥ 2 điểm). Vĩ mô ổn định, thời tiết điều hòa.</div>`
-    : `<div class="tham-hoa-canh-bao">${canhBao.map(c=>`
-        <div class="tham-hoa-item">
-          <span class="tham-hoa-icon">${c.icon}</span>
-          <div class="tham-hoa-body-inner">
-            <div style="font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--red);opacity:.7;margin-bottom:2px;text-transform:uppercase">${c.layer||""} · ${c.diem?"★".repeat(c.diem)+" "+c.diem+"đ · ":""}${namLabel}</div>
-            <div class="tham-hoa-ten">⚠️ ${c.ten}</div>
-            <div class="tham-hoa-mota">${c.mo_ta}</div>
-          </div>
-        </div>`).join("")}
-      </div>`;
+  // Tách mảng: Ngũ Phúc lên đầu (class riêng), hung tinh xuống dưới
+  const nguPhucItems = canhBao.filter(c=>c._isNguPhucHoaGiai);
+  const hungItems    = canhBao.filter(c=>!c._isNguPhucHoaGiai);
 
-  const tongKet = canhBao.length > 0
+  const renderNguPhucBanner = nguPhucItems.map(c=>`
+    <div class="tham-hoa-item" style="border-left-color:#ffd700;background:rgba(255,215,0,.06);border-color:rgba(255,215,0,.3);">
+      <span class="tham-hoa-icon">${c.icon}</span>
+      <div class="tham-hoa-body-inner">
+        <div style="font-size:9px;font-weight:700;letter-spacing:.14em;color:#c8a800;opacity:.9;margin-bottom:2px;text-transform:uppercase">${c.layer} · ${namLabel}</div>
+        <div class="tham-hoa-ten" style="color:#d4a800">✨ ${c.ten}</div>
+        <div class="tham-hoa-mota">${c.mo_ta}</div>
+      </div>
+    </div>`).join("");
+
+  const renderHungItems = hungItems.map(c=>`
+    <div class="tham-hoa-item">
+      <span class="tham-hoa-icon">${c.icon}</span>
+      <div class="tham-hoa-body-inner">
+        <div style="font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--red);opacity:.7;margin-bottom:2px;text-transform:uppercase">${c.layer||""} · ${c.diem?"★".repeat(c.diem)+" "+c.diem+"đ · ":""}${namLabel}</div>
+        <div class="tham-hoa-ten">⚠️ ${c.ten}</div>
+        <div class="tham-hoa-mota">${c.mo_ta}</div>
+      </div>
+    </div>`).join("");
+
+  const noidung = nguPhucItems.length > 0 && hungItems.length === 0
+    ? `<div class="tham-hoa-canh-bao">${renderNguPhucBanner}</div>`
+    : nguPhucItems.length > 0
+      ? `<div class="tham-hoa-canh-bao">${renderNguPhucBanner}${renderHungItems}</div>`
+      : canhBao.length === 0
+        ? `<div class="tham-hoa-binh-yen">🟢 ${namLabel} BÌNH YÊN — Cả 7 lưới lọc đều không đủ ngưỡng kích hoạt (cần ≥ 2 điểm). Vĩ mô ổn định, thời tiết điều hòa.</div>`
+        : `<div class="tham-hoa-canh-bao">${renderHungItems}</div>`;
+
+  const tongKet = hungItems.length > 0
     ? `<div style="margin-top:10px;padding:10px 12px;background:rgba(255,68,85,.06);border-radius:9px;font-size:11px;color:var(--text-dim);line-height:1.7">
         <span style="color:${mucDoMau};font-weight:700">${mucDoNhan}</span>
-        &nbsp;— <strong style="color:#ff6677">${namLabel}</strong> · Tổng điểm <strong style="color:${mucDoMau};font-size:13px">${tongDiem}đ</strong> · ${canhBao.length} cảnh báo qua 5 lưới lọc X-Quang Vĩ Mô.
+        &nbsp;— <strong style="color:#ff6677">${namLabel}</strong> · Tổng điểm <strong style="color:${mucDoMau};font-size:13px">${tongDiem}đ</strong> · ${hungItems.length} cảnh báo qua 7 lưới lọc X-Quang Vĩ Mô.
         Cần kết hợp phân tích kỹ thuật và quản trị rủi ro trước khi ra quyết định.
        </div>`
+    : nguPhucItems.length > 0
+      ? `<div style="margin-top:10px;padding:10px 12px;background:rgba(255,215,0,.06);border-radius:9px;font-size:11px;color:var(--text-dim);line-height:1.7">
+          <span style="color:#c8a800;font-weight:700">🌟 NGŨ PHÚC BẢO HỘ</span>
+          &nbsp;— <strong style="color:#d4a800">${namLabel}</strong> · Sa bàn được Ngũ Phúc hóa giải. Đây là năm hiếm có — phúc khí áp đảo sát khí.
+         </div>`
+      : "";
+
+  // Header badge: hiển thị Ngũ Phúc nếu có hóa giải
+  const headerExtra = nguPhucItems.length > 0
+    ? `🌟 Ngũ Phúc · ${nguPhuc.tenVung} · `
     : "";
 
   return `
-  <div class="tham-hoa-block open" id="block-tham-hoa">
+  <div class="tham-hoa-block" id="block-tham-hoa">
     <div class="tham-hoa-header" onclick="toggleThamHoa()">
       <span class="icon">☄️</span>
       <div class="info">
-        <h3>Scanner Thảm Họa Vĩ Mô <span style="font-size:10px;color:var(--text-dim);font-weight:400">5 Lưới Lọc · ${namLabel}</span></h3>
-        <p>Dân Cơ: Cung ${danCo} · ${diaChiDanCo} · ${canhBao.length > 0 ? canhBao.length+" Cảnh Báo · Tổng "+(canhBao[0]._tongDiem||"?")+"đ ("+namLabel+")":"Bình Yên · "+namLabel}</p>
+        <h3>Scanner Thảm Họa Vĩ Mô <span style="font-size:10px;color:var(--text-dim);font-weight:400">7 Lưới Lọc · ${namLabel}</span></h3>
+        <p>${headerExtra}Dân Cơ: Cung ${danCo} · ${diaChiDanCo} · ${canhBao.length > 0 ? (nguPhucItems.length>0&&hungItems.length===0?"🌟 Ngũ Phúc Bảo Hộ · "+namLabel:hungItems.length+" Cảnh Báo · Tổng "+(tongDiem||"?")+"đ ("+namLabel+")"):"Bình Yên · "+namLabel}</p>
       </div>
       <span class="chevron">▼</span>
     </div>
     <div class="tham-hoa-body">
-      <div class="section-label" style="margin-bottom:10px">📍 Tọa Độ Hung Tinh · ${namLabel}</div>
-      <div class="hung-tinh-grid">${toaDo}</div>
-      <div class="section-label" style="margin-bottom:10px">🔴 Quét Thảm Họa ${namLabel} — 5 Lưới Lọc X-Quang Vĩ Mô</div>
+      <div class="section-label" style="margin-bottom:10px">📍 Tọa Độ Tinh Tú · ${namLabel}</div>
+      <div class="hung-tinh-grid">${toaDo}${nguPhucRow}</div>
+      <div class="section-label" style="margin-bottom:10px">🔴 Quét Thảm Họa ${namLabel} — 7 Lưới Lọc X-Quang Vĩ Mô</div>
       ${noidung}
       ${tongKet}
     </div>
@@ -2635,8 +3157,11 @@ function renderResults(r){
     </div>`;
   // 1. Thảm họa lên đầu tiên — luôn mở
   html+=renderThamHoa(hungTinh, canhBaoThamHoa, meta);
-  // 2. Các cục — tất cả đóng, bấm mới mở
-  cucs.forEach((c,i)=>{ html+=renderCuc(c,i); });
+  // 2. Các cục — tất cả đóng, bấm mới mở; Tuế Cục (idx=0) nhận thêm tamCo
+  cucs.forEach((c,i)=>{
+    if(i===0) c.tamCo = hungTinh.tamCo;
+    html+=renderCuc(c,i);
+  });
   // 3. Bát Môn — đóng
   html+=renderBatMon(batMon);
   const el=document.getElementById("results");
