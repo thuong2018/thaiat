@@ -1798,7 +1798,8 @@ function tinhHungTinh(tichSoNam){
  *  Lưới 4   · Dân Cơ Đại Hung          → 2 điểm  (tucThan/daiDu/thienAt — ưu tiên)
  *             Dân Cơ Tiểu Hung         → 1 điểm  (diaAt/trucPhu)
  *  Lưới 4.2 · Thái Ất ∩ Thiên Ất/Tứ Thần → 2 điểm (sụp đổ thượng tầng)
- *             Thái Ất ∩ Trực Phù       → 1 điểm
+ *             Thái Ất tọa Ly (cung 2)    → 1 điểm (Trực Phù Hỏa khuếch đại)
+ *             Tam Trùng (ThaiAt+TuThan+ThienAt) → +2 điểm bổ sung
  *  Lưới 5   · Đại Du Xung Thái Ất      → 2 điểm  (Đại Du đối diện Thái Ất)
  *             Đại Du Kề Thái Ất        → 1 điểm
  *  Lưới 5.1 · Đại Du ∩ Tứ Thần/Trực Phù → 2 điểm (cộng hưởng hủy diệt)
@@ -2018,9 +2019,10 @@ function quetThamHoaDanCo(tichSoNam, extraAnChu, extraAnKhach){
   // 👑 LƯỚI 4.2 · THÁI ẤT ĐỤNG ĐỘ ÁC THẦN — Quốc Gia Lâm Nạn
   //    Thái Ất (Ngai vàng/Nền tảng Quốc gia) bị Ác Thần ập vào
   //    = Sụp đổ từ THƯỢNG TẦNG — khác với Lưới 4 (Dân Cơ bị tấn công)
-  //    Cổ thư: "Thái Ất cùng Thủy Kích... là tuyệt khí; hung họa khá nặng,
-  //    có biểu tượng diệt cũ thay mới... binh nổi dậy"
+  //    Cổ thư: "Tứ Thần chủ binh đao hạn lụt, nhân dân cấu xé lẫn nhau"
   //    "Thiên Ất là khí Nghịch Kim... chủ binh đao khởi lớn"
+  //    LƯU Ý: trucPhu === thaiAtNam LUÔN đúng (Trực Phù đồng hành Thái Ất),
+  //    nên không kiểm tra trucPhu riêng lẻ nữa — thay bằng các kịch bản có ý nghĩa hơn.
   // ══════════════════════════════════════════════════════
   if(thaiAtNam === thienAt){
     const d = 2;
@@ -2034,16 +2036,27 @@ function quetThamHoaDanCo(tichSoNam, extraAnChu, extraAnKhach){
     const d = 2;
     tongDiem += d;
     ung.push({ diem:d, icon:"🌊", layer:"LƯỚI 4.2 ★★",
-      ten:"[THÁI ẤT ∩ TỨ THẦN] ĐẠI HỒNG THỦY QUỐC GIA",
-      mo_ta:`Thái Ất (Cung ${thaiAtNam}) đồng cung Tứ Thần — nền tảng quốc gia chìm trong hồng thủy. Cổ thư: "Tứ Thần chủ lũ lụt đói rét lớn". Lũ lụt kinh hoàng, đói kém toàn diện, cơ sở hạ tầng nhà nước tê liệt.`,
+      ten:"[THÁI ẤT ∩ TỨ THẦN] ĐẠI HỒNG THỦY QUỐC GIA — SYSTEMIC COLLAPSE",
+      mo_ta:`Thái Ất (Cung ${thaiAtNam}·${CUNG_NAME[thaiAtNam]||thaiAtNam}) đồng cung Tứ Thần — Ác Thần bóp cổ Ngai Vàng. Cổ thư: "Tứ Thần lâm vào là binh đao hạn lụt, nhân dân cấu xé lẫn nhau". Nền tảng vĩ mô vỡ trận — khủng hoảng hệ thống, margin call diện rộng, chuỗi cung ứng và thanh khoản sụp đổ đồng loạt. Tuyệt đối không bắt đáy!`,
     });
   }
-  if(thaiAtNam === trucPhu){
+  // Kịch bản kép: Tứ Thần + Thiên Ất cùng cung Thái Ất — đại cộng hưởng tàn khốc
+  if(thaiAtNam === tucThan && thaiAtNam === thienAt){
+    const d = 2;
+    tongDiem += d;
+    ung.push({ diem:d, icon:"☠️", layer:"LƯỚI 4.2 ★★★",
+      ten:"[ĐẠI TAM TRÙNG] THÁI ẤT + TỨ THẦN + THIÊN ẤT — DIỆT VONG HỆ THỐNG",
+      mo_ta:`Ba hung thần tụ hội một cung: Ngai Vàng bị Tứ Thần và Thiên Ất cùng lúc đè bẹp. Tổ hợp cực hiếm — thiên tai + binh đao + khủng hoảng tài chính bùng nổ đồng thời. Mức độ tàn phá vượt ra ngoài mọi dự báo.`,
+    });
+  }
+  // Trực Phù đồng hành Thái Ất ở cung Hỏa (Ly·cung 2) = Trực Phù khuếch đại Hỏa độc
+  // Khi Thái Ất tọa Ly (Hỏa), Trực Phù là Hỏa thần thêm vào — thanh khoản bị đốt cháy hoàn toàn
+  if(thaiAtNam === 2){
     const d = 1;
     tongDiem += d;
     ung.push({ diem:d, icon:"🔥", layer:"LƯỚI 4.2 ★",
-      ten:"[THÁI ẤT ∩ TRỰC PHÙ] HẠN HÁN & QUAN LẠI BỨC DÂN",
-      mo_ta:`Thái Ất (Cung ${thaiAtNam}) đồng cung Trực Phù — quyền lực nhà nước bị đốt cháy nội bộ. Cổ thư: "Trực Phù chủ hạn hán, hỏa hoạn, quan lại bức bách dân". Hạn hán kéo dài, hỏa hoạn đô thị, bộ máy hành chính tham nhũng mất kiểm soát.`,
+      ten:"[TRỰC PHÙ KIM HỎA] THÁI ẤT TỌA LY — THANH KHOẢN BỊ THIÊU RỤI",
+      mo_ta:`Thái Ất tọa Cung 2 (Ly · Hỏa) — Trực Phù (Hỏa thần) khuếch đại cực đại. Cổ thư: "Trực Phù là Hỏa thần, lâm vào nước vô đạo thì hạn lụt đạo binh". Hỏa khắc Kim: thanh khoản tài chính bị đốt cháy, chính sách tiền tệ thất bại, ngân hàng trung ương mất kiểm soát.`,
     });
   }
 
@@ -2156,8 +2169,10 @@ function quetThamHoaDanCo(tichSoNam, extraAnChu, extraAnKhach){
     const idxDoi = (idxNP + 4) % 8;
     cungNguPhucBaoVe.add(VONG_BAT_QUAI_NP[idxDoi]);
   }
-  // Cung 5 (Trung Cung) — Ngũ Phúc ở Trung Cung thì bảo vệ tất cả
-  const nguPhucBaoVeToanBo = (nguPhucCung === 5);
+  // Cung 5 (Trung Cung) — Ngũ Phúc ở Trung Cung bị Đỗ (bế tắc), KHÔNG bảo vệ được bát phương
+  // Cổ thư: "khi đến cung nào thì ở cung đó mới có phúc" — Trung Cung là nhà tù, không chiếu ra ngoài
+  const nguPhucBaoVeToanBo = false; // Đã sửa: không có trường hợp nào Ngũ Phúc bảo vệ toàn bộ sa bàn
+  const nguPhucKetTrungCung = (nguPhucCung === 5); // Ngũ Phúc kẹt Trung Cung = cảnh báo đặc biệt
 
   // Xác định cung liên quan của từng cảnh báo để kiểm tra targeted heal
   function getCungCanhBao(cb){
@@ -2184,23 +2199,30 @@ function quetThamHoaDanCo(tichSoNam, extraAnChu, extraAnKhach){
   let diemHoaGiai = 0;
   let soHoaGiai = 0;
 
-  if(nguPhucBaoVeToanBo){
-    // Ngũ Phúc ở Trung Cung — bảo vệ toàn bộ (giống logic cũ)
-    tongDiem = 0;
-    ung.length = 0;
+  // Khi Ngũ Phúc kẹt Trung Cung — phát cảnh báo BẢO HIỂM TOÀN CẦU BỊ KHÓA
+  if(nguPhucKetTrungCung){
+    const d = 2;
+    tongDiem += d;
     ung.push({
-      diem: 0, icon:"🌟", layer:"NGŨ PHÚC ☆☆",
-      ten:"[NGŨ PHÚC HỘI TỤ TRUNG CUNG] ĐẠI THỊNH VƯỢNG TOÀN DIỆN",
-      mo_ta:`Ngũ Phúc Thái Ất (${nguPhuc.tenVung}) tọa Trung Cung — chiếu khắp bát phương. Cổ thư: "không có binh đao, hạn, lụt, ốm đau bệnh tật". Mọi án hung đều được hóa giải. Ngũ Phúc đã ở đây ${nguPhuc.soNamDaO} năm, còn ${nguPhuc.soNamConLai} năm nữa (${nguPhuc.giaiDoan}).`,
-      _isNguPhucHoaGiai: true,
+      diem: d, icon:"🔴", layer:"LƯỚI 0 ★★",
+      ten:"[MẤT BẢO HIỂM TOÀN CẦU] NGŨ PHÚC KẸT TRUNG CUNG — SA BÀN MẤT LÁ CHẮN",
+      mo_ta:`Ngũ Phúc Thái Ất (${nguPhuc.tenVung}) kẹt tại Trung Cung (Cung 5) — Đỗ vô môn, bế tắc tứ phía. Cổ thư định lý cục bộ: "khi đến cung nào thì ở cung đó mới có phúc" — Trung Cung là hầm giam, Ngũ Phúc hoàn toàn KHÔNG thể chiếu ra bát phương để hóa giải. Sa bàn mất toàn bộ lá chắn bảo vệ — mọi án hung sẽ phát huy 100% độc tính sát thương. Ngũ Phúc đã ở đây ${nguPhuc.soNamDaO} năm, còn ${nguPhuc.soNamConLai} năm nữa (${nguPhuc.giaiDoan}).`,
     });
-  } else {
+  }
+  if(!nguPhucKetTrungCung){
     // Targeted heal — chỉ hóa giải cảnh báo tại cung Ngũ Phúc bảo vệ
+    //
+    // NGOẠI LỆ BẤT KHẢ XÂM PHẠM: Lưới 4.2 (Vua Lâm Nạn) KHÔNG bao giờ được hóa giải
+    // Ngũ Phúc ở cung chiếu (đối xung) không thể cứu Vua khi Ác Thần đang kẹp trực tiếp tại cung Thái Ất.
+    // Cổ thư: "Đại Du mà cùng Ngũ Phúc thì tai họa giáng vào địa phận đối xung" —
+    // tức cung chiếu (nơi Ngũ Phúc bảo vệ) chính là nơi tai họa đổ xuống khi Vua lâm nạn.
     for(const cb of ung){
       const cungCB = getCungCanhBao(cb);
-      const baoVe  = cungCB !== null && cungNguPhucBaoVe.has(cungCB);
+      const isVuaLamNan = (cb.layer || "").includes("LƯỚI 4.2"); // Án Vua Lâm Nạn — bất khả xâm phạm
+      const baoVe  = !isVuaLamNan && cungCB !== null && cungNguPhucBaoVe.has(cungCB);
       // Trường hợp đặc biệt: Ngũ Phúc hội tụ Thái Ất → hóa giải mọi cảnh báo liên quan Thái Ất
-      const thaiAtBaoVe = nguPhucHoiTuThaiAt && (cungCB === thaiAtNam || cungCB === null);
+      // NHƯNG vẫn không hóa giải được Lưới 4.2 (Ác Thần đang ở CÙNG CUNG với Thái Ất)
+      const thaiAtBaoVe = !isVuaLamNan && nguPhucHoiTuThaiAt && (cungCB === thaiAtNam || cungCB === null);
       if(baoVe || thaiAtBaoVe){
         diemHoaGiai += cb.diem || 0;
         soHoaGiai++;
@@ -2326,12 +2348,114 @@ const VX_BDS_MAP = {
   },
 };
 
-function getVanXuongBDS(vanXuong, cungVX){
+function getVanXuongBDS(vanXuong, cungVX, anVanXuong){
+  // anVanXuong: mảng từ xacDinhAnVanXuong() — [{ten, mo_ta, level, ...}]
   const entry = VX_BDS_MAP[cungVX];
   if(!entry) return `<span style="color:var(--text-dim)">Cung ${cungVX} — Chưa có dữ liệu phân tích</span>`;
-  return `<span style="color:${entry.color};font-weight:700">${entry.badge}</span><br>
-    <span style="color:var(--text-dim);font-size:10px;">${entry.nhan}</span><br>
-    <span style="color:var(--text);font-size:11px;line-height:1.6;">${entry.mo_ta}</span>`;
+
+  // Phân loại án: "hung" (TÙ, ĐỐI) và "warn" (BÁCH, QUAN)
+  const anHungList  = (anVanXuong || []).filter(a => a.level === "hung");
+  const anWarnList  = (anVanXuong || []).filter(a => a.level === "warn");
+  const coAnHung    = anHungList.length > 0;
+  const coAnWarn    = anWarnList.length > 0;
+  const coAnPhat    = coAnHung || coAnWarn;
+
+  // Ngũ hành tốt: Hỏa sinh Thổ (2), Thổ tỷ hòa (3,7) → "địa hình thuận"
+  const NGU_HANH_TOT_BDS = [2, 3, 7];
+  const nguHanhTot = NGU_HANH_TOT_BDS.includes(cungVX);
+  const nguHanhHung = [4, 9].includes(cungVX); // Mộc khắc Thổ = Đại Hung BĐS
+
+  // Tên các án để hiển thị
+  const tenAnHung = anHungList.map(a => a.ten);
+  const tenAnWarn = anWarnList.map(a => a.ten);
+  const tatcaAnTen = [...tenAnHung, ...tenAnWarn];
+
+  // ═══════════════════════════════════════════════════════
+  //  LOGIC OVERRIDE — Án Lệnh Văn Xương ghi đè Ngũ Hành BĐS
+  //  Case A · BẪY LỒNG SON: Địa hình tốt + Án hung (TÙ/ĐỐI)
+  //  Case B · CẢNH BÁO NHẸ: Địa hình tốt + Án warn (BÁCH/QUAN)
+  //  Case C · KÉP ĐẠI HUNG: Địa hình xấu + Án hung
+  //  Case D · THUẦN CÁT: Không có án phạt
+  // ═══════════════════════════════════════════════════════
+
+  if(coAnHung && nguHanhTot){
+    // ─── CASE A: BẪY LỒNG SON BĐS ───────────────────────────
+    const tenBay = tenAnHung.includes("TÙ") ? "BẪY LỒNG SON" : "BẤT ĐỘNG SẢN BULL TRAP";
+    const tuHuyet = anHungList.map(a =>`<li style="margin-bottom:3px"><strong style="color:var(--red)">${a.ten}</strong> — ${a.mo_ta}</li>`).join("");
+    return `
+      <div style="margin-bottom:4px;">
+        <span style="color:#555e6e;font-weight:700;font-size:11px;text-decoration:line-through;opacity:.65;">${entry.badge}</span>
+        <span style="color:var(--text-dim);font-size:10px;margin-left:5px;">← bị vô hiệu bởi án lệnh</span>
+      </div>
+      <div style="padding:9px 12px;background:rgba(255,68,85,.08);border:1px solid rgba(255,68,85,.35);border-radius:10px;">
+        <div style="color:var(--red);font-weight:700;font-size:12px;margin-bottom:5px;">
+          🔴 [${tenBay}] — Địa hình đẹp nhưng Văn Xương bị trói!
+        </div>
+        <div style="font-size:11px;line-height:1.75;color:var(--text);">
+          <span style="color:var(--text-dim);font-weight:600;">▸ Địa hình:</span>
+          ${entry.mo_ta.split(".")[0]}. Bề ngoài môi trường BĐS thuận lợi.<br>
+          <span style="color:var(--red);font-weight:600;">▸ Tử huyệt:</span>
+          NHƯNG Văn Xương (mưu lược / Smart Money) dính án <strong style="color:var(--red)">${tenAnHung.join(" + ")}</strong>
+          — sự thuận lợi địa hình chỉ là "Lồng son" giam lỏng vốn.
+          Nhà cái tạo ảo giác thanh khoản tốt trước khi đóng băng hoặc flash dump.<br>
+          <span style="color:var(--yellow);font-weight:600;">▸ Hành động:</span>
+          Thận trọng cực độ — không xuống tiền lớn, chờ xác nhận. Nếu đã có BĐS thì ưu tiên thoát hàng khi giá rướn.
+        </div>
+        <ul style="color:var(--text-dim);font-size:10.5px;padding-left:16px;margin-top:6px;line-height:1.7">${tuHuyet}</ul>
+      </div>`;
+
+  } else if(coAnHung && nguHanhHung){
+    // ─── CASE C: KÉP ĐẠI HUNG BĐS ───────────────────────────
+    const tuHuyet = anHungList.map(a =>`<li style="margin-bottom:3px"><strong style="color:var(--red)">${a.ten}</strong> — ${a.mo_ta}</li>`).join("");
+    return `
+      <div style="margin-bottom:4px;"><span style="color:${entry.color};font-weight:700;font-size:11.5px;">${entry.badge}</span></div>
+      <div style="padding:9px 12px;background:rgba(255,68,85,.12);border:1px solid rgba(255,68,85,.5);border-radius:10px;">
+        <div style="color:var(--red);font-weight:700;font-size:12px;margin-bottom:5px;">
+          ⛔ [KÉP ĐẠI HUNG BĐS] — Địa hình xấu + Văn Xương bị ám: cộng hưởng hủy diệt!
+        </div>
+        <div style="font-size:11px;line-height:1.75;color:var(--text);">
+          Địa hình ${entry.nhan} đã bất lợi, đồng thời Văn Xương dính án <strong style="color:var(--red)">${tenAnHung.join(" + ")}</strong>.
+          Hai hung lực hội tụ — xác suất lỗ vốn / mất thanh khoản cực cao. Không xuống tiền.
+        </div>
+        <ul style="color:var(--text-dim);font-size:10.5px;padding-left:16px;margin-top:6px;line-height:1.7">${tuHuyet}</ul>
+      </div>`;
+
+  } else if(coAnWarn && nguHanhTot){
+    // ─── CASE B: CẢNH BÁO NHẸ — Địa hình tốt nhưng có án warn ──
+    const tuHuyet = anWarnList.map(a =>`<li style="margin-bottom:3px"><strong style="color:var(--yellow)">${a.ten}</strong> — ${a.mo_ta}</li>`).join("");
+    return `
+      <div style="margin-bottom:4px;"><span style="color:${entry.color};font-weight:700;font-size:11.5px;">${entry.badge}</span></div>
+      <div style="color:var(--text);font-size:11px;line-height:1.6;margin-bottom:6px;">${entry.mo_ta}</div>
+      <div style="padding:8px 12px;background:rgba(255,215,0,.07);border-left:3px solid var(--yellow);border-radius:0 9px 9px 0;">
+        <div style="color:var(--yellow);font-weight:700;font-size:11px;margin-bottom:4px;">
+          ⚠️ Án cảnh báo: ${tenAnWarn.join(" · ")} — Địa hình tốt nhưng cần thận trọng
+        </div>
+        <div style="color:var(--text);font-size:11px;line-height:1.6;margin-bottom:5px;">
+          Tiềm năng địa hình còn nguyên vẹn — nhưng Văn Xương bị áp lực từ bên ngoài.
+          Nên vào từng phần nhỏ, đặt stoploss chặt, tránh all-in một lần.
+        </div>
+        <ul style="color:var(--text-dim);font-size:10.5px;padding-left:16px;margin:0;line-height:1.7">${tuHuyet}</ul>
+      </div>`;
+
+  } else if(coAnHung){
+    // ─── Ngũ hành trung tính + Án hung ───────────────────────
+    const tuHuyet = anHungList.map(a =>`<li style="margin-bottom:3px"><strong style="color:var(--red)">${a.ten}</strong> — ${a.mo_ta}</li>`).join("");
+    return `
+      <div style="margin-bottom:4px;"><span style="color:${entry.color};font-weight:700;font-size:11.5px;">${entry.badge}</span></div>
+      <div style="color:var(--text-dim);font-size:11px;line-height:1.6;margin-bottom:6px;">${entry.mo_ta} — <strong style="color:var(--red)">NHƯNG Văn Xương dính án lệnh, thanh khoản BĐS có nguy cơ đóng băng.</strong></div>
+      <div style="padding:8px 12px;background:rgba(255,68,85,.07);border-left:3px solid var(--red);border-radius:0 9px 9px 0;">
+        <div style="color:var(--red);font-weight:700;font-size:11px;margin-bottom:4px;">⛓️ Án Văn Xương: ${tenAnHung.join(" · ")} 🔴</div>
+        <ul style="color:var(--text);font-size:11px;padding-left:16px;margin:0;line-height:1.7">${tuHuyet}</ul>
+        <div style="color:var(--red);font-size:11px;font-weight:700;margin-top:6px;">⚠️ BĐS có dấu hiệu kẹt thanh khoản — nên cân nhắc trì hoãn hoặc cơ cấu lại danh mục.</div>
+      </div>`;
+
+  } else {
+    // ─── CASE D: Thuần Cát — không có án phạt ─────────────────
+    const moTaDay = entry.mo_ta + " Văn Xương vận hành trơn tru — cơ hội BĐS không bị kẹt bởi bẫy không gian.";
+    return `<span style="color:${entry.color};font-weight:700">${entry.badge}</span><br>
+      <span style="color:var(--text-dim);font-size:10px;">${entry.nhan}</span><br>
+      <span style="color:var(--text);font-size:11px;line-height:1.6;">${moTaDay}</span>`;
+  }
 }
 
 // ── VÀNG (Kim) — Phân tích tương quan ngũ hành cung Khách Đại Tướng với Kim ──
@@ -2855,11 +2979,17 @@ function renderCuc(c,idx){
         <span class="val">${d.vanXuong} · Cung ${THAN_INFO[d.vanXuong][0]} · ${getNguHanh(d.vanXuong)}</span>
       </div>
       ${idx===0?renderAnVanXuong(d):""}
-      ${idx===0?`<div class="shen-row vx-bds-row">
-        <span class="icon-col">🏠</span>
-        <span class="key" style="color:var(--gold);font-size:10.5px;">└ BĐS / Thổ Địa</span>
-        <span class="val" style="font-size:11px;">${getVanXuongBDS(d.vanXuong, THAN_INFO[d.vanXuong][0])}</span>
-      </div>`:""}
+      ${idx===0?(()=>{
+        const _cungVX = THAN_INFO[d.vanXuong][0];
+        const _cungTA = d.thaiAt;
+        const _cungTK = THAN_INFO[d.thuyKich][0];
+        const _anVX   = xacDinhAnVanXuong(_cungVX, _cungTA, _cungTK);
+        return `<div class="shen-row vx-bds-row">
+          <span class="icon-col">🏠</span>
+          <span class="key" style="color:var(--gold);font-size:10.5px;">└ BĐS / Thổ Địa</span>
+          <span class="val" style="font-size:11px;">${getVanXuongBDS(d.vanXuong, _cungVX, _anVX)}</span>
+        </div>`;
+      })():""}
 
       <div class="shen-row">
         <span class="icon-col">⚔️</span>
@@ -3065,13 +3195,25 @@ function renderThamHoa(hungTinh, canhBao, meta){
       <div class="ht-sub">${r.sub}</div>
     </div>`).join("");
 
-  // Ô Ngũ Phúc riêng — chiếm full row, màu vàng-xanh nổi bật
-  const nguPhucRow = nguPhuc ? `
-    <div class="hung-tinh-cell ngu-phuc-cell ${npHoiTu?"ngu-phuc-hot":""}" style="grid-column:1/-1;${npHoiTu?"border-color:rgba(255,215,0,.6);background:rgba(255,215,0,.08);":"border-color:rgba(34,221,136,.25);background:rgba(34,221,136,.04);"}">
+  // Ô Ngũ Phúc riêng — chiếm full row, màu tùy trạng thái
+  const npKetTrungCung = nguPhuc && nguPhuc.cung === 5;
+  function renderNguPhucRow(){
+    if(!nguPhuc) return "";
+    if(npKetTrungCung){
+      return `<div class="hung-tinh-cell" style="grid-column:1/-1;border-color:rgba(255,68,85,.5);background:rgba(255,68,85,.06);">
+        <div class="ht-name" style="color:var(--red);font-weight:700">🔴 Ngũ Phúc Thái Ất · KẸT TRUNG CUNG — MẤT BẢO HIỂM</div>
+        <div class="ht-val" style="color:var(--red)">Cung 5 · ${nguPhuc.tenVung}</div>
+        <div class="ht-sub">${nguPhuc.giaiDoan} · Đã ở ${nguPhuc.soNamDaO} năm · Còn ${nguPhuc.soNamConLai} năm</div>
+        <div style="margin-top:4px;font-size:10px;color:var(--red);font-weight:700">⚠️ Đỗ vô môn — không thể chiếu ra bát phương. Mọi án hung phát huy 100% độc tính!</div>
+      </div>`;
+    }
+    return `<div class="hung-tinh-cell ngu-phuc-cell ${npHoiTu?"ngu-phuc-hot":""}" style="grid-column:1/-1;${npHoiTu?"border-color:rgba(255,215,0,.6);background:rgba(255,215,0,.08);":"border-color:rgba(34,221,136,.25);background:rgba(34,221,136,.04);"}">
       <div class="ht-name" style="${npHoiTu?"color:#ffd700":"color:var(--teal)"}">🌟 Ngũ Phúc Thái Ất${npHoiTu?" ✦ HỘI TỤ THÁI ẤT":""}</div>
       <div class="ht-val" style="${npHoiTu?"color:#ffd700":"color:var(--green)"}">Cung ${nguPhuc.cung} · ${nguPhuc.tenVung}</div>
       <div class="ht-sub">${nguPhuc.giaiDoan} · Đã ở ${nguPhuc.soNamDaO} năm · Còn ${nguPhuc.soNamConLai} năm</div>
-    </div>` : "";
+    </div>`;
+  }
+  const nguPhucRow = renderNguPhucRow();
 
   const tongDiem = canhBao.length > 0 ? (canhBao[0]._tongDiem || 0) : 0;
   const mucDoMau = tongDiem >= 6 ? "#cc1122" : tongDiem >= 4 ? "#ff4455" : "#ff8844";
