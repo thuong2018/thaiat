@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Bài Viết · Cổ Thư Bách Việt</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<div id="bg-canvas"></div>
+<div id="bg-vignette"></div>
+
+<div id="app">
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="header-logo-block">
+        <span class="header-symbol">☯</span>
+        <div>
+          <div class="header-title">Thái Ất Thần Kinh</div>
+          <div class="header-sub">Cổ Thư Bách Việt · Số Hóa Hiện Đại</div>
+        </div>
+      </a>
+      <nav class="site-nav">
+        <a href="index.html" class="nav-link">🏠 Trang Chủ</a>
+        <a href="index.html#blog" class="nav-link active">📜 Bài Viết</a>
+        <a href="tool.html" class="nav-link tool-btn">⚡ Tra Cứu</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- POST CONTENT -->
+  <main style="flex:1">
+    <div class="post-page" id="post-container">
+      <div class="spinner"></div>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-name"><strong>Cổ Thư Bách Việt</strong></div>
+    <div class="footer-sub">Huyền Học · Nghiên Cứu · Chia Sẻ</div>
+    <p class="footer-note">Thái Ất · Bát Môn · Tam Cơ — Thiên Thời · Địa Lợi · Nhân Hòa</p>
+  </footer>
+
+</div>
+
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.161/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.161/examples/jsm/"}}
+</script>
+<script type="module" src="assets/background.js"></script>
+
+<script>
+// ── Load post from posts.json ──
+async function loadPost(){
+  const params  = new URLSearchParams(location.search);
+  const postId  = params.get('id');
+  const container = document.getElementById('post-container');
+
+  if(!postId){
+    container.innerHTML = `<div class="empty-state"><div class="big">🌌</div><p>Không tìm thấy bài viết.<br><a href="index.html" style="color:var(--gold)">← Về trang chủ</a></p></div>`;
+    return;
+  }
+
+  try {
+    const res  = await fetch('data/posts.json?t=' + Date.now());
+    const data = await res.json();
+    const post = data.posts.find(p => p.id === postId || p.slug === postId);
+
+    if(!post){
+      container.innerHTML = `<div class="empty-state"><div class="big">🔍</div><p>Bài viết không tồn tại.<br><a href="index.html" style="color:var(--gold)">← Về trang chủ</a></p></div>`;
+      return;
+    }
+
+    document.title = post.title + ' · Cổ Thư Bách Việt';
+
+    const tagsHtml = (post.tags||[]).map(t=>`<span class="post-tag">${t}</span>`).join('');
+    const dateStr  = post.date ? new Date(post.date).toLocaleDateString('vi-VN',{year:'numeric',month:'long',day:'numeric'}) : '';
+
+    container.innerHTML = `
+      <a href="index.html#blog" class="post-back">← Quay lại danh sách bài</a>
+
+      <div class="post-header">
+        <span class="post-header-cat">${post.category||'Bài Viết'}</span>
+        <h1 class="post-header-title">${post.title}</h1>
+        <div class="post-header-meta">
+          <span>📅 ${dateStr}</span>
+        </div>
+        ${tagsHtml ? `<div class="post-header-tags">${tagsHtml}</div>` : ''}
+      </div>
+
+      <div class="post-body">
+        ${post.content || '<p>Nội dung đang được cập nhật.</p>'}
+      </div>
+
+      <div style="margin-top:40px;padding-top:20px;border-top:1px solid rgba(200,153,58,.15);text-align:center">
+        <a href="index.html#blog" class="post-back" style="display:inline-flex">← Xem thêm bài viết khác</a>
+      </div>
+    `;
+  } catch(e) {
+    container.innerHTML = `<div class="empty-state"><div class="big">⚠️</div>
+      <p>Không thể tải bài viết.<br>
+      <span style="font-size:11px;color:var(--text-dim)">Cần mở trên web server (không dùng file:// trực tiếp)</span><br>
+      <a href="index.html" style="color:var(--gold)">← Về trang chủ</a></p></div>`;
+    console.error(e);
+  }
+}
+loadPost();
+</script>
+</body>
+</html>
