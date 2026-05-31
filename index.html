@@ -5,10 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>☯ Cổ Thư Bách Việt · Thái Ất Thần Kinh</title>
+<title>☯ Thái Ất Thần Kinh</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css">
 <style>
 :root {
   --bg:         #030810;
@@ -120,12 +119,6 @@ html, body {
   .hung-tinh-grid { grid-template-columns: 1fr 1fr 1fr 1fr; }
   .hung-tinh-cell.dan-co { grid-column: 1 / -1; }
   .tham-hoa-canh-bao { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  /* Blog */
-  #blog { padding-left: 20px; padding-right: 20px; }
-  #blog .cat-bar { padding-left: 0; }
-  #blog > div:first-child { padding-left: 0; }
-  .blog-grid { grid-template-columns: 1fr 1fr 1fr; padding: 20px 0; }
-  .sam-banner { margin: 0 20px 0; }
 }
 
 /* ═══════════════════════════════
@@ -460,216 +453,6 @@ input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
   letter-spacing: .1em;
   margin-top: 4px;
   font-style: italic;
-}
-
-/* ══════════════════════════════════
-   SẤM TRẠNG TRÌNH BANNER
-   ══════════════════════════════════ */
-.sam-banner {
-  margin: 0 14px 0;
-  padding: 18px 18px 16px;
-  background: linear-gradient(135deg, rgba(10,22,52,0.94) 0%, rgba(5,14,35,0.97) 100%);
-  border: 1px solid rgba(200,153,58,.32);
-  border-radius: 20px;
-  position: relative;
-  overflow: hidden;
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  box-shadow: 0 0 50px rgba(200,153,58,.06), 0 8px 32px rgba(0,0,0,.55);
-  cursor: pointer;
-  transition: border-color .25s;
-}
-.sam-banner:hover { border-color: rgba(200,153,58,.55); }
-.sam-banner::before {
-  content:'';
-  position:absolute;
-  top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent 0%,rgba(200,153,58,.75) 40%,rgba(240,192,96,1) 50%,rgba(200,153,58,.75) 60%,transparent 100%);
-}
-.sam-banner::after {
-  content:'';
-  position:absolute;
-  bottom:0;left:15%;right:15%;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(200,153,58,.25),transparent);
-}
-
-/* Dòng tên tác giả */
-.sam-author-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-.sam-seal {
-  font-size: 26px;
-  flex-shrink: 0;
-  filter: drop-shadow(0 0 10px rgba(200,153,58,.6));
-}
-.sam-author-block { flex: 1; }
-.sam-author-name {
-  font-family: 'Cormorant Garamond', 'Noto Serif SC', serif;
-  font-size: 15px;
-  font-weight: 700;
-  font-style: italic;
-  background: linear-gradient(135deg, #c8993a 0%, #f5d680 40%, #fff0a0 50%, #f5d680 60%, #c8993a 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: .06em;
-  line-height: 1.2;
-}
-.sam-author-sub {
-  font-size: 9.5px;
-  color: rgba(200,153,58,.6);
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  margin-top: 2px;
-}
-
-/* Badge thái ất */
-.sam-thai-at-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 9px;
-  background: rgba(200,153,58,.1);
-  border: 1px solid rgba(200,153,58,.3);
-  border-radius: 50px;
-  font-size: 8.5px;
-  font-weight: 700;
-  color: var(--gold);
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  flex-shrink: 0;
-}
-
-/* Intro text */
-.sam-intro {
-  font-size: 11.5px;
-  color: rgba(216,238,255,.7);
-  line-height: 1.7;
-  margin-bottom: 12px;
-  font-style: italic;
-  border-left: 2px solid rgba(200,153,58,.3);
-  padding-left: 10px;
-}
-
-/* Câu sấm chính */
-.sam-verse {
-  background: rgba(200,153,58,.06);
-  border: 1px solid rgba(200,153,58,.2);
-  border-radius: 12px;
-  padding: 12px 14px;
-  margin-bottom: 10px;
-}
-.sam-verse-lines {
-  font-family: 'Noto Serif SC', serif;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--gold-light);
-  line-height: 2;
-  letter-spacing: .04em;
-  text-align: center;
-}
-
-/* Timeline pill */
-.sam-timeline {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 10px;
-}
-.sam-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 10px;
-  border-radius: 50px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: .04em;
-  border: 1px solid;
-}
-.sam-pill.hung  { background:rgba(255,68,85,.08);  border-color:rgba(255,68,85,.3);  color:var(--red); }
-.sam-pill.binh  { background:rgba(255,215,0,.06);  border-color:rgba(255,215,0,.28); color:var(--yellow); }
-.sam-pill.cat   { background:rgba(34,221,136,.07); border-color:rgba(34,221,136,.28);color:var(--green); }
-
-/* Expand/collapse */
-.sam-expand-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  width: 100%;
-  padding: 8px;
-  background: rgba(200,153,58,.06);
-  border: 1px solid rgba(200,153,58,.18);
-  border-radius: 10px;
-  color: rgba(200,153,58,.7);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: .1em;
-  cursor: pointer;
-  transition: background .2s;
-  margin-top: 6px;
-}
-.sam-expand-btn:hover { background: rgba(200,153,58,.12); }
-.sam-expand-chevron { transition: transform .3s; font-size: 9px; }
-.sam-banner.expanded .sam-expand-chevron { transform: rotate(180deg); }
-
-/* Full content - collapsed by default */
-.sam-full-content {
-  display: none;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(200,153,58,.12);
-}
-.sam-banner.expanded .sam-full-content { display: block; }
-
-.sam-section-title {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--cyan);
-  margin: 14px 0 8px;
-  padding-bottom: 5px;
-  border-bottom: 1px solid rgba(0,212,255,.1);
-}
-.sam-section-title:first-child { margin-top: 0; }
-
-.sam-text {
-  font-size: 11.5px;
-  color: rgba(216,238,255,.78);
-  line-height: 1.75;
-  margin-bottom: 8px;
-}
-.sam-quote {
-  background: rgba(200,153,58,.05);
-  border-left: 2px solid rgba(200,153,58,.4);
-  border-radius: 0 8px 8px 0;
-  padding: 8px 12px;
-  font-family: 'Noto Serif SC', serif;
-  font-size: 11px;
-  color: var(--gold-light);
-  font-style: italic;
-  line-height: 1.8;
-  margin: 8px 0;
-}
-.sam-highlight {
-  background: rgba(0,212,255,.06);
-  border: 1px solid rgba(0,212,255,.15);
-  border-radius: 10px;
-  padding: 10px 12px;
-  font-size: 11px;
-  color: var(--text);
-  line-height: 1.7;
-  margin: 8px 0;
-}
-.sam-highlight strong { color: var(--gold-light); }
-
-@media (min-width: 900px) {
-  .sam-banner { margin: 0 20px 0; }
 }
 
 /* ── TODAY BTN ── */
@@ -1903,6 +1686,334 @@ input[type=range]::-webkit-slider-thumb {
   50%      { box-shadow: 0 0 0 4px rgba(200,153,58,.25); }
 }
 .saban-cell.has-thai-at { animation: saban-pulse 2.5s ease-in-out infinite; }
+
+/* ══════════════════════════════════════
+   LUẬN GIẢI AI — Oracle Section
+   ══════════════════════════════════════ */
+.luan-giai-wrap {
+  margin: 14px 0 6px;
+  border-radius: 14px;
+  border: 1px solid rgba(200,153,58,.28);
+  background: linear-gradient(160deg, rgba(10,22,52,0.7) 0%, rgba(5,12,30,0.85) 100%);
+  overflow: hidden;
+  position: relative;
+}
+.luan-giai-wrap::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(200,153,58,.7), rgba(240,192,96,1), rgba(200,153,58,.7), transparent);
+}
+.luan-giai-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px 8px;
+  border-bottom: 1px solid rgba(200,153,58,.12);
+}
+.luan-giai-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 6px rgba(200,153,58,.6));
+}
+.luan-giai-title {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.luan-giai-subtitle {
+  font-size: 9px;
+  color: var(--text-dim);
+  letter-spacing: .06em;
+  margin-left: auto;
+  font-style: italic;
+}
+
+/* Loading state */
+.luan-giai-loading {
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.oracle-spinner {
+  width: 28px; height: 28px;
+  border: 2px solid rgba(200,153,58,.2);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin .9s linear infinite;
+}
+.luan-giai-loading-text {
+  font-size: 11px;
+  color: rgba(200,153,58,.6);
+  letter-spacing: .1em;
+  font-style: italic;
+  animation: pulse-text 1.5s ease-in-out infinite;
+}
+@keyframes pulse-text {
+  0%,100% { opacity: .5; }
+  50%      { opacity: 1; }
+}
+
+/* Content */
+.luan-giai-content {
+  padding: 14px 16px 16px;
+}
+.luan-giai-body {
+  font-family: 'Cormorant Garamond', 'Noto Serif SC', serif;
+  font-size: 13px;
+  font-style: italic;
+  color: rgba(240,200,120,.9);
+  line-height: 2;
+  letter-spacing: .03em;
+  white-space: pre-wrap;
+  border-left: 2px solid rgba(200,153,58,.3);
+  padding-left: 14px;
+  margin-bottom: 12px;
+}
+.luan-giai-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.luan-giai-tag {
+  padding: 3px 10px;
+  border-radius: 50px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  border: 1px solid;
+}
+.luan-giai-tag.cat  { color: var(--green);  border-color: rgba(34,221,136,.3); background: rgba(34,221,136,.06); }
+.luan-giai-tag.hung { color: var(--red);    border-color: rgba(255,68,85,.3);  background: rgba(255,68,85,.06); }
+.luan-giai-tag.warn { color: var(--yellow); border-color: rgba(255,215,0,.3);  background: rgba(255,215,0,.05); }
+.luan-giai-tag.info { color: var(--cyan);   border-color: rgba(0,212,255,.25); background: rgba(0,212,255,.04); }
+
+.luan-giai-error {
+  padding: 12px 16px;
+  color: rgba(255,100,80,.7);
+  font-size: 11px;
+  font-style: italic;
+  text-align: center;
+}
+
+/* Retry button */
+.luan-giai-retry {
+  display: block;
+  width: calc(100% - 32px);
+  margin: 0 16px 14px;
+  padding: 9px;
+  background: rgba(200,153,58,.06);
+  border: 1px solid rgba(200,153,58,.25);
+  border-radius: 10px;
+  color: rgba(200,153,58,.75);
+  font-size: 11px;
+  cursor: pointer;
+  letter-spacing: .06em;
+  transition: background .2s;
+}
+.luan-giai-retry:hover { background: rgba(200,153,58,.14); }
+
+/* Tổng kết toàn cục */
+.tong-luan-wrap {
+  margin: 0 0 12px 0;
+  border-radius: 16px;
+  border: 1px solid rgba(0,212,255,.25);
+  background: linear-gradient(160deg, rgba(0,20,50,0.85) 0%, rgba(0,10,30,0.92) 100%);
+  overflow: hidden;
+  position: relative;
+}
+.tong-luan-wrap::before {
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,212,255,.8),rgba(0,229,192,1),rgba(0,212,255,.8),transparent);
+}
+.tong-luan-header {
+  padding: 13px 16px 10px;
+  border-bottom: 1px solid rgba(0,212,255,.12);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tong-luan-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 11px;
+  letter-spacing: .1em;
+  color: var(--cyan);
+}
+.tong-luan-body {
+  padding: 16px;
+}
+.tong-luan-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  line-height: 2;
+  color: rgba(200,230,255,.88);
+  white-space: pre-wrap;
+  border-left: 2px solid rgba(0,212,255,.3);
+  padding-left: 14px;
+}
+.tong-luan-verdict {
+  margin-top: 14px;
+  padding: 11px 14px;
+  border-radius: 11px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.tong-luan-verdict.cat  { background: rgba(34,221,136,.08);  border: 1px solid rgba(34,221,136,.3); color: var(--green); }
+.tong-luan-verdict.hung { background: rgba(255,68,85,.09);   border: 1px solid rgba(255,68,85,.35); color: var(--red); }
+.tong-luan-verdict.warn { background: rgba(255,215,0,.07);   border: 1px solid rgba(255,215,0,.3);  color: var(--yellow); }
+
+/* ══════════════════════════════════════
+   DASHBOARD SUMMARY — Answer First UX
+   ══════════════════════════════════════ */
+.dashboard-card {
+  margin-bottom: 14px;
+  border-radius: 18px;
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(160deg, rgba(8,20,52,0.92) 0%, rgba(4,12,34,0.97) 100%);
+  border: 1px solid rgba(200,153,58,.3);
+  box-shadow: 0 0 40px rgba(200,153,58,.06), 0 8px 32px rgba(0,0,0,.5);
+  animation: fadeSlide .3s ease both;
+}
+.dashboard-card::before {
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent 0%,rgba(200,153,58,.6) 20%,rgba(240,192,96,1) 50%,rgba(200,153,58,.6) 80%,transparent 100%);
+}
+
+.dash-header {
+  padding: 14px 16px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.dash-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 10px;
+  letter-spacing: .12em;
+  color: var(--gold);
+}
+.dash-datetime {
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: .06em;
+}
+
+/* Verdict pill lớn */
+.verdict-pill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 16px 14px;
+  padding: 13px 16px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  border: 1px solid;
+}
+.verdict-pill.cat  { background: rgba(34,221,136,.09);  border-color: rgba(34,221,136,.35); color: var(--green); }
+.verdict-pill.hung { background: rgba(255,68,85,.1);    border-color: rgba(255,68,85,.4);   color: var(--red); }
+.verdict-pill.warn { background: rgba(255,215,0,.08);   border-color: rgba(255,215,0,.35);  color: var(--yellow); }
+.verdict-pill-icon { font-size: 26px; flex-shrink: 0; }
+.verdict-pill-text { flex: 1; }
+.verdict-pill-label { font-size: 10px; font-weight: 400; opacity: .75; display: block; margin-bottom: 2px; letter-spacing: .1em; text-transform: uppercase; }
+.verdict-pill-main  { font-size: 14px; font-weight: 700; line-height: 1.3; }
+
+/* 2-cục nhanh */
+.dash-cucs-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 0 16px 14px;
+}
+.dash-cuc-mini {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background .2s, border-color .2s;
+}
+.dash-cuc-mini:hover { background: rgba(0,212,255,.05); border-color: rgba(0,212,255,.2); }
+.dash-cuc-mini .dc-label { font-size: 9px; color: var(--text-dim); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 4px; }
+.dash-cuc-mini .dc-thai-at { font-size: 15px; font-weight: 700; color: var(--gold-light); margin-bottom: 2px; font-family: 'Noto Serif SC', serif; }
+.dash-cuc-mini .dc-desc { font-size: 10px; color: var(--text-dim); line-height: 1.5; }
+.dash-cuc-mini .dc-status { font-size: 10px; font-weight: 700; margin-top: 4px; }
+.dash-cuc-mini .dc-status.cat  { color: var(--green); }
+.dash-cuc-mini .dc-status.hung { color: var(--red); }
+.dash-cuc-mini .dc-status.warn { color: var(--yellow); }
+
+/* Key insight row */
+.dash-insight {
+  margin: 0 16px 14px;
+  padding: 10px 13px;
+  background: rgba(0,212,255,.04);
+  border: 1px solid rgba(0,212,255,.15);
+  border-left: 3px solid var(--cyan);
+  border-radius: 0 10px 10px 0;
+  font-size: 11px;
+  color: var(--text);
+  line-height: 1.7;
+}
+.dash-insight strong { color: var(--cyan); }
+
+/* Cục importance badge */
+.cuc-importance {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 50px;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+.cuc-importance.primary { background: rgba(200,153,58,.15); border: 1px solid rgba(200,153,58,.4); color: var(--gold); }
+.cuc-importance.secondary { background: rgba(0,212,255,.08); border: 1px solid rgba(0,212,255,.2); color: var(--cyan); }
+.cuc-importance.extra { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); color: var(--text-dim); }
+
+/* Collapsible group cho Nguyệt + Thời */
+.cucs-extra-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  margin-bottom: 12px;
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: .06em;
+  transition: background .2s, color .2s;
+  user-select: none;
+}
+.cucs-extra-toggle:hover { background: rgba(0,212,255,.05); color: var(--cyan); border-color: rgba(0,212,255,.2); }
+.cucs-extra-toggle .toggle-icon { font-size: 12px; transition: transform .25s; }
+.cucs-extra-toggle.open .toggle-icon { transform: rotate(180deg); }
+#cucs-extra-group { display: none; }
+#cucs-extra-group.open { display: block; }
 </style>
 </head>
 <body>
@@ -2052,175 +2163,8 @@ input[type=range]::-webkit-slider-thumb {
     <div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;">
       <span class="header-badge">11 Lưới Lọc Vĩ Mô</span>
       <span class="header-about-btn" onclick="document.getElementById('about-modal').classList.add('open')">🪷 Về Phần Mềm</span>
-      <a href="#blog" style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:50px;font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(200,153,58,.7);border:1px solid rgba(200,153,58,.2);background:rgba(200,153,58,.05);text-decoration:none;transition:all .2s"
-         onmouseover="this.style.color='var(--gold-light)';this.style.borderColor='rgba(200,153,58,.4)'"
-         onmouseout="this.style.color='rgba(200,153,58,.7)';this.style.borderColor='rgba(200,153,58,.2)'">
-        📜 Bài Viết
-      </a>
-      <a href="admin.html" style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:50px;font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(90,122,154,.5);border:1px solid rgba(90,122,154,.15);background:transparent;text-decoration:none;transition:all .2s"
-         onmouseover="this.style.color='var(--text-dim)';this.style.borderColor='rgba(90,122,154,.3)'"
-         onmouseout="this.style.color='rgba(90,122,154,.5)';this.style.borderColor='rgba(90,122,154,.15)'">
-        🔒 Admin
-      </a>
     </div>
   </header>
-
-  <!-- SẤM TRẠNG TRÌNH BANNER -->
-  <div class="sam-banner" id="sam-banner" onclick="toggleSamBanner()">
-
-    <!-- Tên tác giả -->
-    <div class="sam-author-row">
-      <span class="sam-seal">📜</span>
-      <div class="sam-author-block">
-        <div class="sam-author-name">Trạng Trình Nguyễn Bỉnh Khiêm</div>
-        <div class="sam-author-sub">1491 – 1585 · Đại Việt</div>
-      </div>
-      <span class="sam-thai-at-badge">☯ Thái Ất</span>
-    </div>
-
-    <!-- Giới thiệu ngắn -->
-    <p class="sam-intro">
-      Bậc kỳ tài Thái Ất – Lý Số của nước Việt, tinh thông thiên văn và chu kỳ vận hành vũ trụ. 
-      Sấm Ký của cụ Trạng là sự đúc kết quy luật hưng suy của lịch sử — không phải bói toán, mà là
-      <em>khoa học về thời thế</em>.
-    </p>
-
-    <!-- Câu sấm chính -->
-    <div class="sam-verse">
-      <div class="sam-verse-lines">
-        Long vĩ xà đầu khởi chiến tranh<br>
-        Can qua xứ xứ khổ đao binh<br>
-        Mã đề dương cước anh hùng tận<br>
-        <span style="color:var(--green)">Thân Dậu niên lai kiến thái bình</span>
-      </div>
-    </div>
-
-    <!-- Timeline pills -->
-    <div class="sam-timeline">
-      <span class="sam-pill hung">⚡ 2024–2025 · Khởi phát</span>
-      <span class="sam-pill hung">🌪 2026–2027 · Tâm bão</span>
-      <span class="sam-pill cat">🌅 2028–2029 · Thái bình</span>
-    </div>
-
-    <!-- Nút mở rộng -->
-    <div class="sam-expand-btn">
-      <span>CẢNH BÁO & CHIẾN LƯỢC SINH TỒN 2024–2027</span>
-      <span class="sam-expand-chevron">▼</span>
-    </div>
-
-    <!-- NỘI DUNG ĐẦY ĐỦ — đóng mặc định -->
-    <div class="sam-full-content">
-
-      <div class="sam-section-title">📅 Dòng Thời Gian Của Sự Điên Đảo</div>
-      <p class="sam-text">
-        Sấm Trạng Trình vạch rõ quỹ đạo khủng hoảng qua 4 câu thơ kinh điển, ấn định theo dòng can chi 12 con giáp:
-      </p>
-      <div class="sam-highlight">
-        <strong>「Long vĩ · Xà đầu」(Cuối Thìn 2024 – Đầu Tỵ 2025):</strong> Điểm khởi phát. 
-        Xung đột địa chính trị leo thang, chuỗi cung ứng toàn cầu rạn nứt, bất ổn kinh tế nhen nhóm.
-      </div>
-      <div class="sam-highlight">
-        <strong>「Mã đề · Dương cước · Anh hùng tận」(Ngọ 2026 – Mùi 2027):</strong> Tâm bão. 
-        Chữ <em>"tận"</em> mang nghĩa cạn kiệt, đứt gãy — các cường quốc và tập đoàn lớn lao vào xoáy tranh giành, 
-        vắt kiệt sinh lực xã hội. Kinh tế thế giới đối mặt trì trệ nặng nề, lạm phát phi mã.
-      </div>
-
-      <div class="sam-section-title">🏚 Thảm Cảnh Đời Sống · Bách Tính Lầm Than</div>
-      <div class="sam-quote">
-        "Chợ đen vốn một lời mười<br>
-        Gạo châu củi quế lời người than van<br>
-        Vải bô giá sánh bằng vàng<br>
-        Kẻ đói người rách lan tràn chợ quê"
-      </div>
-      <p class="sam-text">
-        Siêu lạm phát và đứt gãy hàng hóa thiết yếu — những thứ vốn bình thường như cái ăn, cái mặc sẽ trở nên xa xỉ. 
-        Đồng tiền mất giá nghiêm trọng: <em>"Ba con đổi lấy một cha — Làm cho thiên hạ xót xa vì tiền".</em> 
-        Ngay cả tài sản vật chất khổng lồ cũng không bảo toàn được nếu nằm trong vùng bong bóng.
-      </p>
-
-      <div class="sam-section-title">🛡 Cẩm Nang Sinh Tồn · Con Đường Rút Lui</div>
-      <div class="sam-highlight">
-        <strong>① Quay về giá trị cốt lõi, tự cung tự cấp:</strong> Nắm giữ nguồn lương thực, duy trì công việc 
-        thiết yếu. <em>"Thương những kẻ ăn rau ăn rới / Gặp nước bung con cái ẩn đâu."</em>
-      </div>
-      <div class="sam-highlight">
-        <strong>② Lánh xa tâm bão:</strong> <em>"Lánh cho xa kẻo phải đao binh · Tìm non có rẫy chưng sau mới toàn."</em> 
-        Tránh xa đầu tư phù phiếm, tranh giành quyền lực. Một mảnh đất ngoại ô, một khu rẫy để ẩn nhẫn qua giông bão 
-        chính là pháo đài vững chắc nhất.
-      </div>
-      <div class="sam-highlight">
-        <strong>③ Lấy "Tĩnh" chế "Động":</strong> <em>"Trí thời giả điếc giả ngu."</em> 
-        Đôi khi hành động tốt nhất là <strong>không làm gì cả</strong> — bảo vệ dòng tiền, 
-        chi tiêu tiết kiệm, tuyệt đối không vay mượn nợ nần.
-      </div>
-
-      <div class="sam-section-title">🌅 Ánh Sáng Cuối Đường Hầm · 2028–2029</div>
-      <p class="sam-text">
-        Vũ trụ vận hành: có suy ắt có thịnh, có tàn lụi ắt có tái sinh. Chịu đựng qua tâm bão Ngọ–Mùi 
-        (2026–2027), thế giới sẽ rũ bỏ ung nhọt của trật tự cũ để bước vào kỷ nguyên tái thiết.
-      </p>
-      <div class="sam-quote" style="text-align:center;font-size:13px;letter-spacing:.06em;">
-        "Thân Dậu niên lai kiến thái bình"
-      </div>
-      <p class="sam-text" style="color:rgba(34,221,136,.8)">
-        Từ năm Thân (2028) và Dậu (2029), trật tự kinh tế mới mở ra. Những ai đã 
-        dũng cảm thu mình phòng thủ, bảo toàn sinh lực qua cơn đại hồng thủy — sẽ là người 
-        đầu tiên vươn lên mạnh mẽ nhất trong chu kỳ mới.
-      </p>
-
-    </div><!-- /.sam-full-content -->
-  </div><!-- /.sam-banner -->
-
-  <!-- ═══════════════════════════════════════════
-       BLOG SECTION
-  ═══════════════════════════════════════════ -->
-  <section id="blog" style="padding: 28px 0 10px">
-
-    <!-- Section header -->
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:0 16px;margin-bottom:4px">
-      <div>
-        <div style="font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:4px">
-          📜 Cổ Thư · Nghiên Cứu · Kiến Thức
-        </div>
-        <h2 style="font-family:'Noto Serif SC',serif;font-size:20px;font-weight:700;color:var(--gold-light);letter-spacing:.04em">
-          Bài Viết Mới Nhất
-        </h2>
-      </div>
-      <a href="admin.html" style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:10px;font-size:10px;font-weight:700;letter-spacing:.08em;color:rgba(90,122,154,.6);border:1px solid rgba(90,122,154,.18);background:transparent;text-decoration:none;transition:all .2s"
-         onmouseover="this.style.color='var(--text-dim)';this.style.borderColor='rgba(90,122,154,.35)'"
-         onmouseout="this.style.color='rgba(90,122,154,.6)';this.style.borderColor='rgba(90,122,154,.18)'">
-        ✍️ Đăng Bài
-      </a>
-    </div>
-
-    <!-- Category filter -->
-    <div class="cat-bar" id="cat-bar">
-      <button class="cat-btn active" onclick="filterCat('all',this)">Tất Cả</button>
-    </div>
-
-    <!-- Post grid -->
-    <div id="blog-grid-wrap">
-      <div class="blog-grid" id="blog-grid">
-        <!-- Posts loaded here by JS -->
-        <div style="grid-column:1/-1;text-align:center;padding:40px 20px">
-          <div class="spinner"></div>
-        </div>
-      </div>
-    </div>
-
-  </section>
-
-  <!-- ═══════════════════════════════════════════
-       DESKTOP 2-COLUMN BODY (TOOL)
-  ═══════════════════════════════════════════ -->
-  <div style="padding:0 16px;margin-bottom:4px;margin-top:8px">
-    <div style="font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--cyan);margin-bottom:4px">
-      ⚡ Công Cụ Tra Cứu
-    </div>
-    <h2 style="font-family:'Noto Serif SC',serif;font-size:20px;font-weight:700;color:var(--text);letter-spacing:.04em">
-      Thái Ất Thần Kinh
-    </h2>
-  </div>
 
   <!-- DESKTOP 2-COLUMN BODY -->
   <div id="desktop-body">
@@ -3047,15 +2991,15 @@ function quetThamHoaDanCo(tichSoNam, extraAnChu, extraAnKhach){
     if(isThuanDuong){
       ung.push({ diem:d, icon:"☠️", layer:"LƯỚI 2 ★",
         ten:`[THUẦN DƯƠNG HUNG] ${label}: ${toan} quân`,
-        mo_ta:`Toán ${label} đạt mức Thuần Dương (${v} quân) — dương khí cực thịnh, vật cùng tắc biến, cục thế dễ đảo ngược bất ngờ. Nạn đói, hạn hán khốc liệt, xung đột xã hội leo thang.` });
+        mo_ta:`Toán ${label} đạt mức Thuần Dương (${v} quân) — FOMO cực đoan, thanh khoản có nguy cơ vỡ trận đột ngột. Nạn đói, hạn hán khốc liệt, xung đột xã hội leo thang.` });
     } else if(isThuanAm){
       ung.push({ diem:d, icon:"☠️", layer:"LƯỚI 2 ★",
         ten:`[THUẦN ÂM HUNG] ${label}: ${toan} quân`,
-        mo_ta:`Toán ${label} đạt mức Thuần Âm (${v} quân) — âm khí tràn ngập, khủng hoảng tột độ, loạn lạc hỗn mang. Dịch bệnh lan diện rộng, lũ lụt tàn phá, cộng đồng kiệt sức.` });
+        mo_ta:`Toán ${label} đạt mức Thuần Âm (${v} quân) — khủng hoảng tột độ, bán tháo hỗn loạn. Dịch bệnh lan diện rộng, lũ lụt tàn phá, cộng đồng kiệt sức.` });
     } else if(isCo){
       ung.push({ diem:d, icon:"☠️", layer:"LƯỚI 2 ★",
         ten:`[CÔ DƯƠNG/ÂM · VÔ NHÂN] ${label}: ${toan} quân`,
-        mo_ta:`Toán ${label} rơi vào Cô Dương/Cô Âm (${v} quân) — Vô Nhân, khí lực đơn độc, sự thế trì trệ bế tắc. Trái luân thường đạo lý, nông nghiệp thất thu, chuỗi cung ứng đứt gãy.` });
+        mo_ta:`Toán ${label} rơi vào Cô Dương/Cô Âm (${v} quân) — Vô Nhân, thanh khoản tắt, sideway chôn vốn. Trái luân thường đạo lý, nông nghiệp thất thu, chuỗi cung ứng đứt gãy.` });
     } else if(voDia){
       ung.push({ diem:d, icon:"🌋", layer:"LƯỚI 2 ★",
         ten:`[VÔ ĐỊA] NỀN TẢNG LUNG LAY — ${label}: ${toan} quân`,
@@ -3944,25 +3888,25 @@ function getNguHanh(s){
 
 function danhGiaVolume(toanSo){
   let val=toanSo%40; if(val===0) val=40;
-  if([33,39].includes(val)) return "⚠️ THUẦN DƯƠNG [ĐẠI HUNG] — Dương khí cực thịnh, vật cùng tắc biến, cục thế dễ đảo ngược bất ngờ";
-  if([22,26].includes(val)) return "⚠️ THUẦN ÂM [ĐẠI HUNG] — Âm khí tràn ngập, khủng hoảng tột độ, loạn lạc hỗn mang";
-  if([10,30].includes(val)) return "🚫 CÔ DƯƠNG [HUNG] — Vô nhân, khí lực đơn độc, sự thế trì trệ bế tắc";
-  if([20,40].includes(val)) return "🚫 CÔ ÂM [HUNG] — Vô nhân, âm khí cô lập, sự thế trì trệ bế tắc";
+  if([33,39].includes(val)) return "⚠️ THUẦN DƯƠNG [ĐẠI HUNG] — FOMO cực đoan, thị trường có dấu hiệu sắp vỡ trận";
+  if([22,26].includes(val)) return "⚠️ THUẦN ÂM [ĐẠI HUNG] — Khủng hoảng tột độ, xác suất bán tháo hỗn loạn cao";
+  if([10,30].includes(val)) return "🚫 CÔ DƯƠNG [HUNG] — Vô nhân, thanh khoản có xu hướng tắt, sideway hẹp, nguy cơ chôn vốn";
+  if([20,40].includes(val)) return "🚫 CÔ ÂM [HUNG] — Vô nhân, thanh khoản có xu hướng tắt, sideway hẹp, nguy cơ chôn vốn";
   const nhan=[];
-  if([1,3,5,7,9].includes(val))   nhan.push("⚡ ĐƠN DƯƠNG [HUNG] — Vô thiên, khí lực đơn bạc mỏng manh, thế dễ bị bức phá");
-  if([2,4,6,8].includes(val))     nhan.push("⚡ ĐƠN ÂM [HUNG] — Vô địa, mất nền tảng, khí lực mỏng manh, thế đứng không vững");
+  if([1,3,5,7,9].includes(val))   nhan.push("⚡ ĐƠN DƯƠNG [HUNG] — Vô thiên, lực có xu hướng mỏng manh, dễ bị cá mập quét stoploss");
+  if([2,4,6,8].includes(val))     nhan.push("⚡ ĐƠN ÂM [HUNG] — Vô địa, mất nền tảng, lực có xu hướng mỏng manh, dễ bị quét stoploss");
   const HOA_EXEMPT=[14,18,23];
   const last=val%10;
   if([1,2,3,4].includes(last)&&![1,2,3,4,10,20,30,40].includes(val)&&!HOA_EXEMPT.includes(val))
-    nhan.push("🕳️ VÔ ĐỊA [HUNG] — Mất chỗ dựa bên dưới, khí mạch có nguy cơ đứt gãy");
-  if([13,19,31,37].includes(val)) nhan.push("🌵 TẠP TRÙNG DƯƠNG [HUNG] — Khô khan thiếu nhuận, phần phát tạm thời rồi suy");
-  if([24,28].includes(val))       nhan.push("🌧️ TẠP TRÙNG ÂM [HUNG] — Âm khí ứ đọng nặng nề, khí thế hanh thông bị vùi lấp");
-  if([11,17].includes(val))       nhan.push("🎭 DƯƠNG TRONG ÂM [CẢNH BÁO] — Hào quang bề ngoài che giấu âm mưu bên trong, cần đề phòng");
-  if([14,18,23].includes(val))    nhan.push("✅ THƯỢNG HÒA [ĐẠI CÁT] — Khí lực dồi dào, thiên thời địa lợi tương đối vững chắc");
-  if([29,36].includes(val))       nhan.push("✅ THỨ HÒA [CÁT] — Thế cục có khả năng duy trì ổn định đều đặn");
-  if([12,16,27,34,38].includes(val)) nhan.push("✅ HẠ HÒA [CÁT] — Lực đẩy vừa đủ, thế cục tương đối bình yên hanh thông");
+    nhan.push("🕳️ VÔ ĐỊA [HUNG] — Mất vùng hỗ trợ bên dưới, đà tăng có nguy cơ sập gãy");
+  if([13,19,31,37].includes(val)) nhan.push("🌵 TẠP TRÙNG DƯƠNG [HUNG] — Khô khan, có FOMO nhưng thiếu đà đẩy, tăng rướn rồi dễ gãy");
+  if([24,28].includes(val))       nhan.push("🌧️ TẠP TRÙNG ÂM [HUNG] — Cung dư thừa, áp lực bán ứ đọng, có xu hướng chôn vùi đà tăng");
+  if([11,17].includes(val))       nhan.push("🎭 DƯƠNG TRONG ÂM [CẢNH BÁO] — Có dấu hiệu nhà cái đang âm thầm phân phối/gom hàng");
+  if([14,18,23].includes(val))    nhan.push("✅ THƯỢNG HÒA [ĐẠI CÁT] — Thanh khoản có xu hướng dồi dào, lực đẩy tương đối vững");
+  if([29,36].includes(val))       nhan.push("✅ THỨ HÒA [CÁT] — Xu hướng có khả năng duy trì đều đặn");
+  if([12,16,27,34,38].includes(val)) nhan.push("✅ HẠ HÒA [CÁT] — Lực đẩy vừa đủ, tương đối bình yên, có thể cân nhắc chốt lời dần");
   if([16,17,18,19,26,27,28,29,36,37,38,39].includes(val))
-    nhan.push("⭐ TAM TÀI ĐỀU ĐỦ — Hội tụ Thiên-Địa-Nhân, tam tài viên mãn, thời vận hanh thông");
+    nhan.push("⭐ TAM TÀI ĐỀU ĐỦ — Hội tụ Thiên-Địa-Nhân, xác suất thắng cao hơn trung bình");
   if(nhan.length) return nhan.join(" | ");
   return `⬜ BÌNH THƯỜNG (${val}) — Không có tín hiệu đặc biệt`;
 }
@@ -4035,7 +3979,7 @@ function xacDinhAnVanXuong(cungVanXuong, cungThaiAt, cungThuyKich){
   else if(cungVanXuong === timCungTruoc(cungThaiAt)){
     anPhat.push({
       icon:"🗜️", ten:"NGOẠI BÁCH",
-      mo_ta:"Bức bách bên ngoài. Áp lực từ ngoại cảnh dồn ép, thế cục bị rung chuyển chưa thể yên.",
+      mo_ta:"Bức bách bên ngoài. Áp lực từ macro / tin tức bên ngoài rung lắc, dọa stoploss.",
       color:"var(--yellow)", level:"warn"
     });
   }
@@ -4051,7 +3995,7 @@ function xacDinhAnVanXuong(cungVanXuong, cungThaiAt, cungThuyKich){
   if(cungVanXuong === cungThuyKich){
     anPhat.push({
       icon:"👁️", ten:"QUAN",
-      mo_ta:"Nhị mục tương quan. Văn Xương & Thủy Kích hội tụ — kìm kẹp lẫn nhau, mưu đồ bị dập tắt, sát khí ám tàng.",
+      mo_ta:"Nhị mục tương quan. Văn Xương & Thủy Kích hội tụ — kìm kẹp lẫn nhau, mưu đồ bị dập tắt, nguy cơ flash dump.",
       color:"#ff8c00", level:"warn"
     });
   }
@@ -4060,7 +4004,7 @@ function xacDinhAnVanXuong(cungVanXuong, cungThaiAt, cungThuyKich){
   if(anPhat.length === 0){
     anPhat.push({
       icon:"🟢", ten:"BÌNH YÊN",
-      mo_ta:"Văn Xương vận hành trơn tru. Không dính bẫy không gian — mưu kế thông suốt hanh lợi.",
+      mo_ta:"Văn Xương vận hành trơn tru. Không dính bẫy không gian — mưu kế Smart Money thông suốt.",
       color:"var(--green)", level:"cat"
     });
   }
@@ -4072,28 +4016,28 @@ function giaiPhauAnTuong(cungTuong,thaiAt,vanXuong,thuyKich,dichDai,dichTham,toa
   const cungVX=THAN_INFO[vanXuong][0], cungTK=THAN_INFO[thuyKich][0];
   const tinhChat=layTinhChatToanSo(toanSo);
   const anHung=[];
-  if(cungTuong===5) anHung.push("⛓️ ĐỖ (Lọt hố Trung Cung, tàng hình ẩn nấp, khí tắc không thông)");
+  if(cungTuong===5) anHung.push("⛓️ ĐỖ (Lọt hố Lỗ Đen Trung Cung, tàng hình, kẹt cứng thanh khoản)");
   if(cungTuong===thaiAt) anHung.push("⛓️ TÙ (Bị Thái Ất trói buộc, giam lỏng)");
   if(cungTuong===cungVX) anHung.push("⚖️ QUAN (Bị Văn Xương kìm kẹp, hành chính rườm rà)");
-  if(cungTuong===cungTK) anHung.push("🩸 YỂM (Bị Thủy Kích ám sát, sát khí bất ngờ đột phát)");
+  if(cungTuong===cungTK) anHung.push("🩸 YỂM (Bị Thủy Kích ám sát, thị trường sập gãy/flash dump đột ngột)");
   const kcTA=khoangCachKhongGian(cungTuong,thaiAt);
-  if(kcTA===4) anHung.push("↔️ CÁCH (Nằm ở cực đối diện Thái Ất, âm dương cách tuyệt, khí mạch đứt đoạn)");
-  else if(kcTA===1) anHung.push("🗜️ BÁCH (Nằm sát vách Thái Ất, bị dồn bức ép ngặt)");
+  if(kcTA===4) anHung.push("↔️ CÁCH (Nằm ở cực đối diện Thái Ất, đứt gãy cấu trúc xu hướng)");
+  else if(kcTA===1) anHung.push("🗜️ BÁCH (Nằm sát vách Thái Ất, dồn ép hoảng loạn, quét stoploss)");
   const kcDichDai=khoangCachKhongGian(cungTuong,dichDai);
   const kcDichTham=khoangCachKhongGian(cungTuong,dichTham);
   if(kcDichDai===1&&kcDichTham===1&&khoangCachKhongGian(dichDai,dichTham)===2)
-    anHung.push("⚔️ HIỆP (Lọt ổ phục kích, bị 2 tướng địch kẹp chặt hai bên)");
+    anHung.push("⚔️ HIỆP (Lọt ổ phục kích, bị 2 tướng địch kẹp chặt úp sọt)");
   if(kcDichDai===1&&kcTA===1&&khoangCachKhongGian(dichDai,thaiAt)===2)
-    anHung.push("⚔️ ĐỀ (Bị địch mượn thế Thái Ất ép giữa, tiến thoái lưỡng nan)");
+    anHung.push("⚔️ ĐỀ (Bị địch mượn sức Thái Ất ép chết ở giữa)");
   if(anHung.length)
-    return {status:"hung",label:"🔴 ĐẠI HUNG (XẤU)",mota:"Tướng dính án hung không gian. Thế cục bất lợi, khí mạch bị cản phá — cần thận trọng, chưa nên động.",anList:anHung};
+    return {status:"hung",label:"🔴 ĐẠI HUNG (XẤU)",mota:"Tướng có dấu hiệu dính bẫy không gian. Cấu trúc có thể bị phá vỡ — xác suất thua lỗ cao hơn đáng kể, cần thận trọng.",anList:anHung};
   const YEU_KEM=["DON","CO","VO_DIA"];
   const CUC_DOAN=["THUAN_DUONG","THUAN_AM"];
   if(YEU_KEM.some(k=>tinhChat.includes(k)))
-    return {status:"binh",label:"🟡 BÌNH HÒA / HƯU PHẾ",mota:"Tướng tương đối an toàn nhưng binh lực suy yếu, khí thế chưa đủ mạnh. Thế cục có xu hướng trì trệ, khó phát động.",anList:["⏳ HƯU / PHẾ (Thủ thế phòng ngự ổn, song thiếu lực bứt phá, khí cơ chưa chín)"]};
+    return {status:"binh",label:"🟡 BÌNH HÒA / HƯU PHẾ",mota:"Tướng tương đối an toàn nhưng lính có xu hướng yếu / hết xăng. Thị trường dễ đi ngang (Sideway), khó khai thác.",anList:["⏳ HƯU / PHẾ (Phòng ngự tương đối ổn, thiếu lực đẩy, dòng tiền có xu hướng ru ngủ)"]};
   if(CUC_DOAN.some(k=>tinhChat.includes(k)))
-    return {status:"binh",label:"🟡 CẢNH BÁO BONG BÓNG",mota:"Tướng tương đối an toàn nhưng khí thế hưng phấn thái quá, dễ đảo chiều bất ngờ.",anList:["⚠️ BÌNH HÒA ẢO — Vượng khí tạm thời, cần quan sát thêm trước khi hành động"]};
-  return {status:"cat",label:"🟢 ĐẠI CÁT (TỐT)",mota:"Thiên thời địa lợi nhân hòa hội tụ. Thế cục thuận lợi — vẫn cần cẩn trọng, không nên khinh suất.",anList:["🔥 PHÁT (Binh hùng tướng mạnh, khí thế xung thiên, thời cơ hanh thông)","🌟 VƯỢNG TƯỚNG (Đắc lệnh Không-Thời gian, sinh khí sung mãn, vạn sự hanh lợi)"]};
+    return {status:"binh",label:"🟡 CẢNH BÁO BONG BÓNG",mota:"Tướng tương đối an toàn nhưng FOMO có thể mù quáng. Tăng dễ ảo, xác suất đảo chiều cao hơn bình thường.",anList:["⚠️ BÌNH HÒA ẢO — Kéo rướn nhờ hưng phấn, cần xác nhận thêm"]};
+  return {status:"cat",label:"🟢 ĐẠI CÁT (TỐT)",mota:"Thiên thời địa lợi có xu hướng hội tụ. Xác suất thuận lợi cao — nhưng vẫn cần quản trị rủi ro.",anList:["🔥 PHÁT (Quân mạnh tướng khỏe, xu hướng bứt phá kháng cự, xác suất thắng cao hơn)","🌟 VƯỢNG TƯỚNG (Đắc lệnh Không-Thời gian, sinh khí có xu hướng đẩy giá đi lên)"]};
 }
 
 function tinhCuc(tichSo,cucSo,donHe,tichSoNam){
@@ -4118,8 +4062,8 @@ function tinhCuc(tichSo,cucSo,donHe,tichSoNam){
   const [khachDai,khachTham]=tinhTuong(toanKhach);
   const doToanTapChu=(chuDai===5&&chuTham===5);
   const doToanTapKhach=(khachDai===5&&khachTham===5);
-  const labelToanChu=doToanTapChu?"☠️ ĐỖ TOÀN TẬP (Khí lực kiệt tận — cả Đại lẫn Tham đều lọt Trung Cung)":danhGiaVolume(toanChu);
-  const labelToanKhach=doToanTapKhach?"☠️ ĐỖ TOÀN TẬP (Khí lực kiệt tận — cả Đại lẫn Tham đều lọt Trung Cung)":danhGiaVolume(toanKhach);
+  const labelToanChu=doToanTapChu?"☠️ ĐỖ TOÀN TẬP (Kẹt thanh khoản toàn tập — cả Đại lẫn Tham đều lọt Lỗ Đen)":danhGiaVolume(toanChu);
+  const labelToanKhach=doToanTapKhach?"☠️ ĐỖ TOÀN TẬP (Kẹt thanh khoản toàn tập — cả Đại lẫn Tham đều lọt Lỗ Đen)":danhGiaVolume(toanKhach);
   const anChuDai=giaiPhauAnTuong(chuDai,thaiAt,vanXuong,thuyKich,khachDai,khachTham,toanChu);
   const anChuTham=giaiPhauAnTuong(chuTham,thaiAt,vanXuong,thuyKich,khachDai,khachTham,toanChu);
   const anKhachDai=giaiPhauAnTuong(khachDai,thaiAt,vanXuong,thuyKich,chuDai,chuTham,toanKhach);
@@ -4199,8 +4143,269 @@ function compute(nam,thang,ngay,gio){
 }
 
 // ═══════════════════════════════════════════════════════
+//  LUẬN GIẢI AI — Oracle Engine (Claude API)
+// ═══════════════════════════════════════════════════════
+
+// Cache để tránh gọi API lại nếu đã có kết quả
+const _luanGiaiCache = {};
+
+/**
+ * Gọi Claude API để luận giải một cục
+ * @param {string} cucTen  — "Tuế Cục", "Nguyệt Cục", v.v.
+ * @param {object} d       — data từ tinhCuc()
+ * @param {object} meta    — {nam, thang, ngay, gio}
+ * @param {object} hungTinh — kết quả tinhHungTinh() (chỉ truyền cho Tuế Cục)
+ * @param {Array}  canhBao — mảng cảnh báo thảm họa (chỉ Tuế Cục)
+ */
+async function fetchLuanGiai(cucTen, d, meta, hungTinh, canhBao) {
+  const key = `${cucTen}_${meta.nam}_${meta.thang}_${meta.ngay}_${meta.gio}`;
+  if (_luanGiaiCache[key]) return _luanGiaiCache[key];
+
+  const cungTenTA  = CUNG_NAME[d.thaiAt] || ("Cung "+d.thaiAt);
+  const anChuLabel = d.anChuDai  ? d.anChuDai.label  : "";
+  const anKhLabel  = d.anKhachDai ? d.anKhachDai.label : "";
+  const nhChieuTA  = getNguHanh(String(d.thaiAt));
+
+  // Xây dựng context cho từng cục
+  let context = `Bạn là một vị Thầy Thái Ất Thần Kinh uyên bác, đã nghiên cứu cổ thư Bách Việt qua nhiều thập kỷ. Bạn dùng ngôn ngữ cổ kính nhưng dễ hiểu, có chiều sâu và tính thực tiễn. Không dùng bullet point — hãy viết thành đoạn văn liên mạch.
+
+Nhiệm vụ: Luận giải ${cucTen} cho thời điểm ${d.donHe==="am"?"Âm Độn":"Dương Độn"}, ngày ${meta.ngay}/${meta.thang}/${meta.nam} giờ ${meta.gio}H.
+
+Dữ liệu tính toán:
+- Thái Ất: Cung ${d.thaiAt} (${cungTenTA} · ${nhChieuTA})
+- Văn Xương: ${d.vanXuong} → Cung ${THAN_INFO[d.vanXuong]?.[0] || "?"} 
+- Kế Thần: ${d.keThan}
+- Thủy Kích: ${d.thuyKich} → Cung ${THAN_INFO[d.thuyKich]?.[0] || "?"}
+- Toán Chủ: ${d.toanChu} quân → ${d.labelToanChu?.replace(/<[^>]*>/g,'').substring(0,80)}
+- Toán Khách: ${d.toanKhach} quân → ${d.labelToanKhach?.replace(/<[^>]*>/g,'').substring(0,80)}
+- Án Chủ Đại Tướng: ${anChuLabel}
+- Án Khách Đại Tướng: ${anKhLabel}`;
+
+  // Thêm context Hung Tinh cho Tuế Cục
+  if (hungTinh && cucTen === "Tuế Cục") {
+    const np = hungTinh.nguPhuc;
+    const tc = hungTinh.tamCo;
+    context += `
+- Ngũ Phúc: Cung ${np.cung} (${np.tenVung}) · ${np.giaiDoan}
+- Quân Cơ: Cung ${tc.quanCo.cung} (${tc.quanCo.diaChi}) 
+- Thần Cơ: Cung ${tc.thanCo.cung} (${tc.thanCo.diaChi})
+- Dân Cơ: Cung ${hungTinh.danCo} (${hungTinh.diaChiDanCo})
+- Đại Du Thái Ất: Cung ${hungTinh.daiDu}
+- Cảnh báo thảm họa: ${canhBao && canhBao.length > 0 ? canhBao.filter(c=>!c._isNguPhucHoaGiai).map(c=>c.ten).join("; ") : "Bình yên — không có cảnh báo"}`;
+  }
+
+  const prompt = context + `
+
+Hãy viết đoạn luận giải khoảng 120-180 chữ tiếng Việt theo phong cách cổ thư Thái Ất. Luận giải nên:
+1. Mở đầu bằng nhận định tổng thể về khí tượng (Thái Ất ở đâu, khí thế ra sao)
+2. Phân tích thế Chủ-Khách (nội lực vs ngoại lực)
+3. Kết luận thực tiễn ngắn gọn cho người giao dịch/ra quyết định
+Viết liên tục, không dùng bullet, không dùng số thứ tự, không dùng markdown. Giọng văn uyên thâm nhưng thực chiến.
+
+Cuối luận giải, trên một dòng riêng, viết JSON: {"verdict":"cat|hung|warn","tags":["tag1","tag2","tag3"]}
+(verdict: cat=thuận lợi, hung=nguy hiểm, warn=cần thận trọng; tags: 3 nhãn ngắn 2-4 từ tóm tắt tình thế)`;
+
+  try {
+    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+    const data = await resp.json();
+    const fullText = (data.content || []).map(b => b.text || "").join("").trim();
+
+    // Tách phần JSON ra khỏi văn bản
+    const jsonMatch = fullText.match(/\{[^{}]*"verdict"[^{}]*\}/);
+    let verdict = "warn", tags = [];
+    let bodyText = fullText;
+    if (jsonMatch) {
+      try {
+        const parsed = JSON.parse(jsonMatch[0]);
+        verdict = parsed.verdict || "warn";
+        tags = parsed.tags || [];
+        bodyText = fullText.replace(jsonMatch[0], "").trim();
+      } catch(e) {}
+    }
+
+    const result = { body: bodyText, verdict, tags };
+    _luanGiaiCache[key] = result;
+    return result;
+  } catch(e) {
+    throw new Error("Không kết nối được Oracle: " + e.message);
+  }
+}
+
+/**
+ * Luận giải tổng hợp toàn bộ 4 cục
+ */
+async function fetchTongLuan(cucs, meta, hungTinh, canhBao) {
+  const key = `tong_${meta.nam}_${meta.thang}_${meta.ngay}_${meta.gio}`;
+  if (_luanGiaiCache[key]) return _luanGiaiCache[key];
+
+  const np = hungTinh.nguPhuc;
+  const tc = hungTinh.tamCo;
+  const hungItems = canhBao ? canhBao.filter(c=>!c._isNguPhucHoaGiai) : [];
+
+  const cucSummary = cucs.map(c => {
+    const d = c.data;
+    return `${c.ten}: Thái Ất Cung ${d.thaiAt} | Toán Chủ ${d.toanChu} · Toán Khách ${d.toanKhach} | Chủ Đại: ${d.anChuDai?.status} | Khách Đại: ${d.anKhachDai?.status}`;
+  }).join("\n");
+
+  const prompt = `Bạn là Thầy Thái Ất Thần Kinh uyên bác. Hãy viết Tổng Luận tích hợp (150-200 chữ tiếng Việt) cho thời điểm ${meta.ngay}/${meta.thang}/${meta.nam} giờ ${meta.gio}H, dựa trên dữ liệu:
+
+${cucSummary}
+
+Ngũ Phúc: Cung ${np.cung} (${np.tenVung}) · ${np.giaiDoan}
+Tam Cơ: Quân Cơ Cung ${tc.quanCo.cung} | Thần Cơ Cung ${tc.thanCo.cung} | Dân Cơ Cung ${hungTinh.danCo}
+Cảnh báo vĩ mô: ${hungItems.length > 0 ? hungItems.map(c=>c.ten).join("; ") : "Không có — bình yên"}
+
+Tổng luận phải: (1) nhận định khí tượng tổng thể qua 4 cục (năm→tháng→ngày→giờ), (2) chỉ ra điểm then chốt quan trọng nhất của thời điểm này, (3) lời khuyên thực chiến 1-2 câu. Viết liên mạch, không bullet, ngôn ngữ cổ phong thực chiến.
+
+Cuối: {"verdict":"cat|hung|warn","tags":["tag1","tag2","tag3"]}`;
+
+  try {
+    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+    const data = await resp.json();
+    const fullText = (data.content || []).map(b => b.text || "").join("").trim();
+    const jsonMatch = fullText.match(/\{[^{}]*"verdict"[^{}]*\}/);
+    let verdict = "warn", tags = [];
+    let bodyText = fullText;
+    if (jsonMatch) {
+      try {
+        const parsed = JSON.parse(jsonMatch[0]);
+        verdict = parsed.verdict || "warn";
+        tags = parsed.tags || [];
+        bodyText = fullText.replace(jsonMatch[0], "").trim();
+      } catch(e) {}
+    }
+    const result = { body: bodyText, verdict, tags };
+    _luanGiaiCache[key] = result;
+    return result;
+  } catch(e) {
+    throw new Error(e.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
 //  SECTION 3 — RENDER
 // ═══════════════════════════════════════════════════════
+
+// ─── RENDER LUẬN GIẢI placeholder + load async ────────────────────────────
+function renderLuanGiaiSection(cucTen, d, meta, hungTinh, canhBao, elementId) {
+  return `<div class="luan-giai-wrap" id="${elementId}">
+    <div class="luan-giai-header">
+      <span class="luan-giai-icon">🔮</span>
+      <span class="luan-giai-title">Luận Giải Cổ Thư · ${cucTen}</span>
+      <span class="luan-giai-subtitle">AI Oracle · Thái Ất Thần Kinh</span>
+    </div>
+    <div class="luan-giai-loading" id="${elementId}-loading">
+      <div class="oracle-spinner"></div>
+      <div class="luan-giai-loading-text">Thỉnh cầu cổ thư luận giải...</div>
+    </div>
+    <div class="luan-giai-content" id="${elementId}-content" style="display:none"></div>
+  </div>`;
+}
+
+async function loadLuanGiai(cucTen, d, meta, hungTinh, canhBao, elementId) {
+  const loadingEl = document.getElementById(elementId+"-loading");
+  const contentEl = document.getElementById(elementId+"-content");
+  if (!loadingEl || !contentEl) return;
+
+  try {
+    const result = await fetchLuanGiai(cucTen, d, meta, hungTinh, canhBao);
+    loadingEl.style.display = "none";
+    contentEl.style.display = "block";
+
+    const tagHtml = (result.tags || []).map(t => {
+      const cls = result.verdict === "cat" ? "cat" : result.verdict === "hung" ? "hung" : "warn";
+      return `<span class="luan-giai-tag ${cls}">${t}</span>`;
+    }).join("");
+
+    const verdictIcon = result.verdict === "cat" ? "🟢" : result.verdict === "hung" ? "🔴" : "🟡";
+    const verdictTxt  = result.verdict === "cat" ? "Thuận" : result.verdict === "hung" ? "Hung" : "Cảnh Báo";
+
+    contentEl.innerHTML = `
+      <div class="luan-giai-body">${result.body}</div>
+      ${tagHtml ? `<div class="luan-giai-tags">
+        <span class="luan-giai-tag info">${verdictIcon} ${verdictTxt}</span>
+        ${tagHtml}
+      </div>` : ""}`;
+  } catch(e) {
+    loadingEl.style.display = "none";
+    contentEl.style.display = "block";
+    contentEl.innerHTML = `<div class="luan-giai-error">⚠️ Chưa thể kết nối Oracle. Thử lại sau.</div>
+      <button class="luan-giai-retry" onclick="retryLuanGiai('${cucTen}','${elementId}')">↺ Thử lại</button>`;
+  }
+}
+
+// Store data for retry
+const _luanGiaiData = {};
+function retryLuanGiai(cucTen, elementId) {
+  const stored = _luanGiaiData[elementId];
+  if (!stored) return;
+  const { d, meta, hungTinh, canhBao } = stored;
+  const loadingEl = document.getElementById(elementId+"-loading");
+  const contentEl = document.getElementById(elementId+"-content");
+  if (loadingEl) loadingEl.style.display = "flex";
+  if (contentEl) contentEl.style.display = "none";
+  // Remove from cache to force retry
+  const key = `${cucTen}_${meta.nam}_${meta.thang}_${meta.ngay}_${meta.gio}`;
+  delete _luanGiaiCache[key];
+  loadLuanGiai(cucTen, d, meta, hungTinh, canhBao, elementId);
+}
+
+// ─── TỔNG LUẬN ────────────────────────────────────────────────────────────
+function renderTongLuanSection() {
+  return `<div class="tong-luan-wrap" id="tong-luan-block">
+    <div class="tong-luan-header">
+      <span style="font-size:22px;filter:drop-shadow(0 0 8px rgba(0,212,255,.6))">🌌</span>
+      <div>
+        <div class="tong-luan-title">Tổng Luận · Tích Hợp 4 Cục</div>
+        <div style="font-size:9px;color:var(--text-dim);margin-top:2px;letter-spacing:.06em">Thiên Thời · Địa Lợi · Nhân Hòa — Thái Ất Oracle</div>
+      </div>
+    </div>
+    <div class="tong-luan-body" id="tong-luan-inner">
+      <div class="luan-giai-loading">
+        <div class="oracle-spinner" style="width:32px;height:32px;border-color:rgba(0,212,255,.2);border-top-color:var(--cyan)"></div>
+        <div class="luan-giai-loading-text" style="color:rgba(0,212,255,.6)">Tổng hợp thiên thời địa lợi...</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function loadTongLuan(cucs, meta, hungTinh, canhBao) {
+  const el = document.getElementById("tong-luan-inner");
+  if (!el) return;
+  try {
+    const result = await fetchTongLuan(cucs, meta, hungTinh, canhBao);
+    const verdictIcon = result.verdict === "cat" ? "🟢" : result.verdict === "hung" ? "🔴" : "🟡";
+    const verdictTxt  = result.verdict === "cat" ? "Thiên Thời Thuận Lợi — Thời cơ tốt để hành động" :
+                        result.verdict === "hung" ? "Hung Tướng Lâm Cung — Cẩn trọng, bảo toàn vốn" :
+                                                    "Khí Tượng Hỗn Mang — Nửa thuận nửa nghịch, cần linh hoạt";
+    const tagHtml = (result.tags || []).map(t =>
+      `<span class="luan-giai-tag ${result.verdict}">${t}</span>`
+    ).join("");
+    el.innerHTML = `
+      <div class="tong-luan-text">${result.body}</div>
+      <div class="tong-luan-verdict ${result.verdict}">${verdictIcon} ${verdictTxt}</div>
+      ${tagHtml ? `<div class="luan-giai-tags" style="margin-top:10px">${tagHtml}</div>` : ""}`;
+  } catch(e) {
+    el.innerHTML = `<div class="luan-giai-error">⚠️ Không thể tổng luận lúc này.</div>
+      <button class="luan-giai-retry" onclick="loadTongLuan(window.__lastResult.cucs,window.__lastResult.meta,window.__lastResult.hungTinh,window.__lastResult.canhBaoThamHoa)">↺ Thử lại</button>`;
+  }
+}
 
 function volClass(label){
   if(label.includes("ĐẠI CÁT")||label.includes("HÒA")||label.includes("TAM TÀI")) return "cat";
@@ -4475,7 +4680,7 @@ function renderCuc(c,idx){
     <div class="cuc-header" onclick="toggleCuc(${idx})">
       <span class="icon">${c.icon}</span>
       <div class="info">
-        <h3>${c.ten} <span style="font-size:10px;color:var(--text-dim);font-weight:400">${c.phu}</span></h3>
+        <h3>${c.ten} <span style="font-size:10px;color:var(--text-dim);font-weight:400">${c.phu}</span>${idx===0?'<span class="cuc-importance primary">★ Chính</span>':idx===2?'<span class="cuc-importance secondary">☆ Quan trọng</span>':'<span class="cuc-importance extra">Tham khảo</span>'}</h3>
         <p>${donHeLabel} · Cục ${c.cucSo} · Thái Ất: Cung ${d.thaiAt} (${CUNG_NAME[d.thaiAt]||d.thaiAt})</p>
       </div>
       <span class="chevron">▼</span>
@@ -4531,13 +4736,13 @@ function renderCuc(c,idx){
       <div class="vol-row ${volClass(d.labelToanKhach)}">${d.labelToanKhach}</div>
 
       <div class="section-label">🎯 Tướng Tinh & Án Phạt</div>
-      ${d.doToanTapChu?`<div style="color:var(--red);font-size:12px;padding:6px 0;font-weight:600">☠️ NỘI LỰC ĐỖ TOÀN TẬP — Toán Chủ tê liệt hoàn toàn, cả Đại lẫn Tham đều lọt Trung Cung!</div>`:""}
+      ${d.doToanTapChu?`<div style="color:var(--red);font-size:12px;padding:6px 0;font-weight:600">☠️ NỘI LỰC ĐỖ TOÀN TẬP — Toán Chủ tê liệt hoàn toàn, cả Đại lẫn Tham đều lọt Lỗ Đen!</div>`:""}
       <div class="tuong-side ban">
         <div class="tuong-side-title">⚖️ TOÁN CHỦ · NỘI LỰC (Chủ trận · Nội sinh)</div>
         ${renderTuong("Đại Tướng",d.anChuDai)}
         ${renderTuong("Tham Tướng",d.anChuTham)}
       </div>
-      ${d.doToanTapKhach?`<div style="color:var(--red);font-size:12px;padding:6px 0;font-weight:600">☠️ NGOẠI LỰC ĐỖ TOÀN TẬP — Toán Khách tê liệt hoàn toàn, cả Đại lẫn Tham đều lọt Trung Cung!</div>`:""}
+      ${d.doToanTapKhach?`<div style="color:var(--red);font-size:12px;padding:6px 0;font-weight:600">☠️ NGOẠI LỰC ĐỖ TOÀN TẬP — Toán Khách tê liệt hoàn toàn, cả Đại lẫn Tham đều lọt Lỗ Đen!</div>`:""}
       <div class="tuong-side mua" style="margin-top:10px">
         <div class="tuong-side-title">🌐 TOÁN KHÁCH · NGOẠI LỰC (Khách trận · Ngoại lai)</div>
         ${renderTuong("Đại Tướng",d.anKhachDai)}
@@ -4549,6 +4754,8 @@ function renderCuc(c,idx){
       </div>`:""}
 
       ${renderRadarChart(d, c.ten)}
+
+      ${renderLuanGiaiSection(c.ten, d, null, null, null, `lg-cuc-${idx}`)}
     </div>
   </div>`;
 }
@@ -4583,13 +4790,136 @@ function renderBatMon(batMon){
   </div>`;
 }
 
-function toggleSamBanner(){
-  document.getElementById("sam-banner").classList.toggle("expanded");
+
+function toggleExtraCucs() {
+  const btn = document.getElementById("extra-toggle-btn");
+  const grp = document.getElementById("cucs-extra-group");
+  if (!btn || !grp) return;
+  const isOpen = grp.classList.toggle("open");
+  btn.classList.toggle("open", isOpen);
+  btn.querySelector(".toggle-label").textContent = isOpen ? "Ẩn bớt" : "Xem Nguyệt Cục & Thời Cục";
+  if (isOpen) {
+    setTimeout(drawAllRadars, 50);
+    const r = window.__lastResult;
+    if (r) {
+      [1, 3].forEach(i => {
+        const id = "lg-cuc-"+i;
+        const loadingEl = document.getElementById(id+"-loading");
+        if (loadingEl && loadingEl.style.display !== "none") {
+          const c = r.cucs[i];
+          loadLuanGiai(c.ten, c.data, r.meta, null, null, id);
+        }
+      });
+    }
+  }
+}
+
+function renderDashboard(cucs, meta, hungTinh, canhBaoThamHoa) {
+  const tueCuc  = cucs[0].data;
+  const nhatCuc = cucs[2].data;
+  const { nam, thang, ngay, gio } = meta;
+  function cucStatus(d) {
+    const chuS = d.anChuDai.status, khS = d.anKhachDai.status;
+    if (chuS==="hung"&&khS==="hung") return "hung";
+    if (chuS==="cat"&&khS==="cat")   return "cat";
+    if (chuS==="hung"||khS==="hung") return "warn";
+    if (chuS==="cat"||khS==="cat")   return "cat";
+    return "warn";
+  }
+  const tueStatus  = cucStatus(tueCuc);
+  const nhatStatus = cucStatus(nhatCuc);
+  const hungCount = canhBaoThamHoa ? canhBaoThamHoa.filter(c=>!c._isNguPhucHoaGiai).length : 0;
+  const npBaoHo   = canhBaoThamHoa && canhBaoThamHoa.some(c=>c._isNguPhucHoaGiai && c.diem>=0);
+  let overallVerdict, verdictIcon, verdictMain;
+  if (hungCount>=3||tueStatus==="hung") {
+    overallVerdict="hung"; verdictIcon="🔴"; verdictMain="Vĩ mô bất lợi — Ưu tiên bảo toàn vốn";
+  } else if (hungCount===0&&nhatStatus==="cat"&&tueStatus!=="hung") {
+    overallVerdict="cat"; verdictIcon="🟢"; verdictMain="Thiên thời thuận — Có thể tham gia thận trọng";
+  } else {
+    overallVerdict="warn"; verdictIcon="🟡"; verdictMain="Khí tượng hỗn mang — Linh hoạt, quản trị rủi ro chặt";
+  }
+  const np=hungTinh.nguPhuc, ta=hungTinh.thaiAtNam;
+  const npMsg=npBaoHo?`Ngũ Phúc (${np.tenVung}) đang bảo hộ — giảm nhẹ cảnh báo vĩ mô.`
+    :np.cung===5?`⚠️ Ngũ Phúc kẹt Trung Cung — mất lá chắn, mọi án hung phát huy tối đa.`
+    :`Ngũ Phúc tại Cung ${np.cung} (${np.tenVung}), còn ${np.soNamConLai} năm.`;
+  const nS=nhatStatus, tS=tueStatus;
+  const nLbl=nS==="cat"?"Thuận":nS==="hung"?"Hung":"Hỗn mang";
+  const tLbl=tS==="cat"?"Thuận":tS==="hung"?"Hung":"Hỗn mang";
+  const nIco=nS==="cat"?"✅":nS==="hung"?"⛔":"⚠️";
+  const tIco=tS==="cat"?"✅":tS==="hung"?"⛔":"⚠️";
+  const scanResult=hungCount===0?(npBaoHo?"🌟 Ngũ Phúc bảo hộ":"🟢 Bình yên"):`🔴 ${hungCount} cảnh báo`;
+  return `<div class="dashboard-card">
+    <div class="dash-header">
+      <span class="dash-title">☯ Tổng Quan Tình Thế</span>
+      <span class="dash-datetime">${String(ngay).padStart(2,"0")}/${String(thang).padStart(2,"0")}/${nam} · ${gio}H</span>
+    </div>
+    <div class="verdict-pill ${overallVerdict}">
+      <span class="verdict-pill-icon">${verdictIcon}</span>
+      <div class="verdict-pill-text">
+        <span class="verdict-pill-label">Phán quyết tổng hợp Năm + Ngày</span>
+        <span class="verdict-pill-main">${verdictMain}</span>
+      </div>
+      <span style="font-size:10px;opacity:.6;text-align:right;flex-shrink:0">Scanner<br>${scanResult}</span>
+    </div>
+    <div class="dash-cucs-row">
+      <div class="dash-cuc-mini" onclick="scrollToCuc(0)">
+        <div class="dc-label">🌍 Tuế Cục · Vĩ mô Năm</div>
+        <div class="dc-thai-at">Cung ${tueCuc.thaiAt} · ${CUNG_NAME[tueCuc.thaiAt]||""}</div>
+        <div class="dc-desc">Chủ ${tueCuc.toanChu}q · Khách ${tueCuc.toanKhach}q</div>
+        <div class="dc-status ${tS}">${tIco} ${tLbl}</div>
+      </div>
+      <div class="dash-cuc-mini" onclick="scrollToCuc(2)">
+        <div class="dc-label">☀️ Nhật Cục · Biến động Ngày</div>
+        <div class="dc-thai-at">Cung ${nhatCuc.thaiAt} · ${CUNG_NAME[nhatCuc.thaiAt]||""}</div>
+        <div class="dc-desc">Chủ ${nhatCuc.toanChu}q · Khách ${nhatCuc.toanKhach}q</div>
+        <div class="dc-status ${nS}">${nIco} ${nLbl}</div>
+      </div>
+    </div>
+    <div class="dash-insight">
+      <strong>💡 Điểm mấu chốt:</strong> ${npMsg}${hungCount>0?` Scanner phát hiện <strong style="color:var(--red)">${hungCount} cảnh báo vĩ mô</strong> — xem chi tiết bên dưới.`:""}
+    </div>
+  </div>`;
+}
+
+function scrollToCuc(idx) {
+  const el=document.getElementById("cuc-"+idx);
+  if(!el) return;
+  if(!el.classList.contains("open")) {
+    el.classList.add("open");
+    setTimeout(drawAllRadars,50);
+    const id="lg-cuc-"+idx;
+    const r=window.__lastResult;
+    const loadingEl=document.getElementById(id+"-loading");
+    if(r&&loadingEl&&loadingEl.style.display!=="none"){
+      const c=r.cucs[idx];
+      loadLuanGiai(c.ten,c.data,r.meta,idx===0?r.hungTinh:null,idx===0?r.canhBaoThamHoa:null,id);
+    }
+  }
+  setTimeout(()=>el.scrollIntoView({behavior:"smooth",block:"start"}),80);
 }
 
 function toggleCuc(idx){
   document.getElementById(`cuc-${idx}`).classList.toggle("open");
   setTimeout(drawAllRadars, 50);
+  // Lazy load luận giải khi mở lần đầu
+  const id = `lg-cuc-${idx}`;
+  const stored = _luanGiaiData[id];
+  const contentEl = document.getElementById(id+"-content");
+  const loadingEl = document.getElementById(id+"-loading");
+  // Chỉ load nếu chưa có nội dung (loading vẫn hiển thị)
+  if (stored && loadingEl && loadingEl.style.display !== "none") {
+    const r = window.__lastResult;
+    if (r) {
+      const c = r.cucs[idx];
+      const isOpen = document.getElementById(`cuc-${idx}`).classList.contains("open");
+      if (isOpen) {
+        loadLuanGiai(c.ten, c.data, r.meta,
+          idx === 0 ? r.hungTinh : null,
+          idx === 0 ? r.canhBaoThamHoa : null,
+          id);
+      }
+    }
+  }
 }
 
 function toggleBatMon(){
@@ -4882,13 +5212,26 @@ function renderResults(r){
       <h2>☯ Tọa Độ Vũ Trụ</h2>
       <p>${meta.gio}H · ${String(meta.ngay).padStart(2,"0")}/${String(meta.thang).padStart(2,"0")}/${meta.nam} · ${donHeLabel}</p>
     </div>`;
-  // 1. Thảm họa lên đầu tiên — luôn mở
+  // 0. Dashboard summary — Answer First
+  html+=renderDashboard(cucs, meta, hungTinh, canhBaoThamHoa);
+  // 1. Thảm họa — luôn mở
   html+=renderThamHoa(hungTinh, canhBaoThamHoa, meta);
-  // 2. Các cục — tất cả đóng, bấm mới mở; Tuế Cục (idx=0) nhận thêm tamCo
-  cucs.forEach((c,i)=>{
-    if(i===0) c.tamCo = hungTinh.tamCo;
-    html+=renderCuc(c,i);
-  });
+  // 1.5 Tổng Luận AI
+  html+=renderTongLuanSection();
+  // 2a. PRIMARY: Tuế Cục (năm) + Nhật Cục (ngày) — quan trọng nhất
+  if(cucs[0]) { cucs[0].tamCo = hungTinh.tamCo; html+=renderCuc(cucs[0],0); }
+  if(cucs[2]) html+=renderCuc(cucs[2],2);
+  // 2b. EXTRA: Nguyệt + Thời — ẩn mặc định
+  html+=`<div class="cucs-extra-toggle" id="extra-toggle-btn" onclick="toggleExtraCucs()">
+    <span style="font-size:14px">📅</span>
+    <span class="toggle-label">Xem Nguyệt Cục &amp; Thời Cục</span>
+    <span class="toggle-icon">▼</span>
+    <span style="font-size:9px;opacity:.5;margin-left:auto">Tham khảo thêm</span>
+  </div>
+  <div id="cucs-extra-group">`;
+  if(cucs[1]) html+=renderCuc(cucs[1],1);
+  if(cucs[3]) html+=renderCuc(cucs[3],3);
+  html+=`</div>`;
   // 3. Bát Môn — đóng
   html+=renderBatMon(batMon);
   // 4. Nút xuất báo cáo
@@ -4908,6 +5251,21 @@ function renderResults(r){
   const el=document.getElementById("results");
   el.innerHTML=html;
   setTimeout(drawAllRadars, 0); // draw canvas after DOM paint
+
+  // ── Kích hoạt async loading ──
+  setTimeout(() => {
+    // Tổng luận
+    loadTongLuan(cucs, meta, hungTinh, canhBaoThamHoa);
+    // Store data cho tất cả cục
+    cucs.forEach((c,i) => {
+      const id = `lg-cuc-${i}`;
+      _luanGiaiData[id] = { d:c.data, meta, hungTinh:i===0?hungTinh:null, canhBao:i===0?canhBaoThamHoa:null };
+    });
+    // Auto-load luận giải cho Tuế Cục (0) + Nhật Cục (2) — hai cục primary
+    loadLuanGiai(cucs[0].ten, cucs[0].data, meta, hungTinh, canhBaoThamHoa, "lg-cuc-0");
+    loadLuanGiai(cucs[2].ten, cucs[2].data, meta, null, null, "lg-cuc-2");
+    // Nguyệt (1) + Thời (3) — lazy load khi user mở extra group
+  }, 100);
   const isDesktop = window.innerWidth >= 900;
   if(isDesktop){
     document.getElementById("right-panel").scrollIntoView({behavior:"smooth",block:"start"});
@@ -5064,82 +5422,6 @@ fillToday();
     <div id="baocao-text"></div>
   </div>
 </div>
-
-<!-- ═══ BLOG ENGINE ═══ -->
-<script>
-(function BlogEngine(){
-  let allPosts = [], currentCat = 'all';
-
-  async function loadBlog(){
-    try {
-      const res  = await fetch('data/posts.json?t=' + Date.now());
-      const data = await res.json();
-      allPosts   = data.posts || [];
-      buildCatBar();
-      renderGrid('all');
-    } catch(e) {
-      document.getElementById('blog-grid').innerHTML = `
-        <div style="grid-column:1/-1;text-align:center;padding:30px 20px;color:var(--text-dim)">
-          <div style="font-size:32px;margin-bottom:12px">📝</div>
-          <p style="font-size:12px;line-height:1.7">Chưa có bài viết nào.<br>
-          <a href="admin.html" style="color:var(--gold)">→ Đăng bài đầu tiên</a></p>
-        </div>`;
-    }
-  }
-
-  function buildCatBar(){
-    const cats = ['all', ...new Set(allPosts.map(p => p.category).filter(Boolean))];
-    const bar  = document.getElementById('cat-bar');
-    bar.innerHTML = cats.map(c =>
-      `<button class="cat-btn${c==='all'?' active':''}" onclick="window.__blog.filter('${c}',this)">
-        ${c === 'all' ? 'Tất Cả' : c}
-      </button>`
-    ).join('');
-  }
-
-  function renderGrid(cat){
-    currentCat = cat;
-    const list = cat === 'all' ? allPosts : allPosts.filter(p => p.category === cat);
-    const grid = document.getElementById('blog-grid');
-
-    if(!list.length){
-      grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--text-dim);font-size:12px">Không có bài viết nào trong danh mục này.</div>`;
-      return;
-    }
-
-    grid.innerHTML = list.map((p, i) => {
-      const dateStr = p.date ? new Date(p.date).toLocaleDateString('vi-VN',{year:'numeric',month:'short',day:'numeric'}) : '';
-      return `
-        <a class="post-card${p.featured?' featured':''}" href="post.html?id=${p.id}"
-           style="animation-delay:${i*0.06}s">
-          <div class="post-card-cat">${p.category || 'Bài Viết'}</div>
-          <div class="post-card-title">${p.title}</div>
-          <div class="post-card-excerpt">${p.excerpt || ''}</div>
-          <div class="post-card-meta">
-            <span class="post-card-date">${dateStr}</span>
-            ${(p.tags||[]).slice(0,2).map(t=>`<span style="background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.12);border-radius:50px;padding:1px 7px;font-size:9px;color:var(--cyan)">${t}</span>`).join('')}
-            <span class="post-card-read">Đọc →</span>
-          </div>
-        </a>`;
-    }).join('');
-  }
-
-  function filterCat(cat, btn){
-    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    renderGrid(cat);
-  }
-
-  // Expose
-  window.__blog = { filter: filterCat };
-
-  // Init on DOM ready
-  if(document.readyState === 'loading')
-    document.addEventListener('DOMContentLoaded', loadBlog);
-  else
-    loadBlog();
-})();
-</script>
 
 </body>
 </html>
