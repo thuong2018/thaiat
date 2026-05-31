@@ -86,6 +86,7 @@ html, body {
     display: flex;
     flex-direction: column;
   }
+  #khay-panel { margin: 0 14px 20px; }
   #left-panel .calc-btn { width: calc(100% - 28px); margin: 12px 14px 0; }
   #right-panel #results { padding: 14px 14px calc(var(--safe-bot) + 20px); }
 }
@@ -97,16 +98,29 @@ html, body {
   #desktop-body {
     display: grid;
     grid-template-columns: 380px 1fr;
+    grid-template-rows: auto auto;
     gap: 24px;
     padding: 0 20px 40px;
     align-items: start;
   }
   #left-panel {
+    grid-column: 1;
+    grid-row: 1;
     position: sticky;
     top: 90px;
     display: flex;
     flex-direction: column;
     gap: 0;
+  }
+  #right-panel {
+    grid-column: 2;
+    grid-row: 1 / 3;
+  }
+  #khay-panel {
+    grid-column: 1;
+    grid-row: 2;
+    position: sticky;
+    top: calc(90px + 520px);
   }
   #left-panel .card { margin-left: 0; margin-right: 0; }
   #left-panel .calc-btn { width: 100%; margin-left: 0; margin-right: 0; }
@@ -1877,6 +1891,27 @@ input[type=range]::-webkit-slider-thumb {
 /* ══════════════════════════════════════
    KHẦY CHAT BOX
    ══════════════════════════════════════ */
+/* ── KHẦY PANEL cố định ─────────────────────────────── */
+#khay-panel {
+  grid-column: 1;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+#khay-panel .khay-chat-wrap {
+  margin: 0 !important;
+  border-radius: 16px !important;
+  border: 1px solid rgba(200,153,58,.28) !important;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+#khay-panel .khay-messages {
+  flex: 1;
+  max-height: 340px;
+}
+
 .khay-chat-wrap {
   margin: 14px 0 0;
   background: linear-gradient(160deg, rgba(8,18,46,0.95) 0%, rgba(4,10,28,0.98) 100%);
@@ -2407,6 +2442,31 @@ input[type=range]::-webkit-slider-thumb {
       </div>
 
     </div><!-- /#left-panel -->
+
+    <!-- KHẦY CHAT CỐ ĐỊNH -->
+    <div id="khay-panel">
+      <div class="khay-chat-wrap" id="khay-chat-wrap" style="margin:0;border-radius:0;border-left:none;border-right:none;border-bottom:none;">
+        <div class="khay-chat-header">
+          <div class="khay-avatar">☯</div>
+          <div>
+            <div class="khay-chat-title">Hỏi Khầy Trực Tiếp</div>
+            <div class="khay-chat-sub">Nhập ngày/giờ để tính · hoặc hỏi về tọa độ đang xem</div>
+          </div>
+        </div>
+        <div class="khay-messages" id="khay-messages">
+          <div class="chat-msg khay">
+            <div class="chat-msg-avatar">☯</div>
+            <div class="chat-bubble">Khầy đây! Gõ ngày giờ vào là Khầy tính và luận liền — ví dụ "31/05/2026 giờ 9" hoặc "năm 2027 tháng 6". Hoặc hỏi bất cứ điều gì sau khi quét tọa độ.</div>
+          </div>
+        </div>
+        <div class="khay-input-row">
+          <textarea class="khay-input" id="khay-input" placeholder="Nhập ngày/giờ hoặc hỏi Khầy... (vd: 31/05/2026 giờ 9)" rows="1"
+            onkeydown="khayInputKeydown(event)"
+            oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+          <button class="khay-send-btn" id="khay-send-btn" onclick="khaySend()" title="Gửi">➤</button>
+        </div>
+      </div>
+    </div><!-- /#khay-panel -->
 
     <!-- CỘT PHẢI: Results -->
     <div id="right-panel">
@@ -4689,18 +4749,15 @@ async function khaySend() {
   khayShowTyping();
 
   // ── Tự động tính tọa độ nếu câu hỏi có chứa thời gian ──
+  let autoComputed = false;
   try {
     const parsed = khayParseTime(text);
     if (parsed) {
       const r = compute(parsed.nam, parsed.thang, parsed.ngay, parsed.gio);
       _khayChatContext = r;
-      // Thông báo nhỏ cho user biết Khầy đã tính xong
-      const timeStr = `${parsed.ngay}/${parsed.thang}/${parsed.nam} giờ ${parsed.gio}H`;
-      khayAppendMsg("khay", `Khầy tính xong tọa độ ${timeStr} rồi, để Khầy luận nhé...`);
+      autoComputed = true;
     }
-  } catch(e) {
-    // Bỏ qua nếu parse lỗi
-  }
+  } catch(e) { /* bỏ qua nếu parse lỗi */ }
 
   try {
     const reply = await khayFetch();
@@ -4716,8 +4773,21 @@ async function khaySend() {
 }
 
 async function khayFetch() {
-  // Xây context tọa độ từ kết quả tính toán gần nhất
-  let systemContext = `Mày là Khầy — vị thầy Thái Ất huyền bí, uyên thâm nhưng gần gũi. Mày tự xưng là 'Khầy', gọi người dùng là 'em' hoặc 'các em'. Giọng pha trộn cổ phong và thực chiến, đôi khi dí dỏm. Không dùng bullet point — viết thành đoạn văn tự nhiên.`;
+  let systemContext = `Mày là Khầy — vị thầy Thái Ất Thần Kinh uyên thâm, học trò dòng Trạng Trình Nguyễn Bỉnh Khiêm. Mày tự xưng "Khầy", gọi người dùng là "em" hoặc "các em". Giọng cổ phong nhưng thực chiến, đôi khi dí dỏm. TUYỆT ĐỐI không dùng markdown bold/italic/bullet — chỉ viết đoạn văn xuôi tự nhiên.
+
+QUAN TRỌNG: App này KHÔNG dùng vị trí địa lý. Chỉ cần ngày/tháng/năm và giờ là đủ để tính — ĐỪNG BAO GIỜ hỏi địa điểm hay kinh độ vĩ độ.
+
+Nếu em hỏi về một thời điểm cụ thể (năm/tháng/ngày/giờ), hệ thống đã tự tính tọa độ rồi — dữ liệu sẽ có sẵn trong context bên dưới. Khầy chỉ cần luận giải dựa trên đó, không hỏi thêm.
+
+Nếu chưa có dữ liệu tọa độ, chỉ cần hỏi thêm giờ (nếu thiếu) — không hỏi gì khác.
+
+KIẾN THỨC CỐT LÕI:
+9 cung: 1-Càn(Kim,TâyBắc), 2-Ly(Hỏa,Nam), 3-Cấn(Thổ,ĐôngBắc), 4-Chấn(Mộc,Đông), 5-Trung(hung nhất), 6-Đoài(Kim,Tây), 7-Khôn(Thổ,TâyNam), 8-Khảm(Thủy,Bắc), 9-Tốn(Mộc,ĐôngNam).
+Cung Dương(1,3,4,9): trợ Chủ. Cung Âm(2,6,7,8): trợ Khách.
+Toán Chủ > Khách: nội lực mạnh, xu hướng tăng. Khách > Chủ: ngoại lực áp đảo, nên thủ.
+"cat"=TỐT(Phát/Vượng). "hung"=XẤU(Tù/Cách/Tử). "warn"=CẢNH BÁO.
+Thủy Kích lâm cung = nguy cơ flash crash. Ngũ Phúc bảo hộ = hung hóa cát.
+Quy tắc sách: "Toán nhiều thắng, Toán ít thua. Vượng Tướng thắng, Tù Phế thua."`;
 
   if (_khayChatContext) {
     const { meta, cucs, hungTinh, canhBaoThamHoa } = _khayChatContext;
@@ -5587,6 +5657,16 @@ function renderResults(r){
   // Reset chat mỗi lần tính mới
   _khayChatHistory = [];
   _khayChatContext = r;
+  // Reset UI chat về lời chào + thông báo tọa độ mới
+  const msgEl = document.getElementById("khay-messages");
+  if (msgEl) {
+    const {meta} = r;
+    msgEl.innerHTML = `
+      <div class="chat-msg khay">
+        <div class="chat-msg-avatar">☯</div>
+        <div class="chat-bubble">Khầy đây! Vừa quét xong tọa độ ${meta.ngay}/${meta.thang}/${meta.nam} giờ ${meta.gio}H. Hỏi Khầy bất cứ điều gì về tọa độ này nhé.</div>
+      </div>`;
+  }
   const {meta,cucs,batMon,hungTinh,canhBaoThamHoa}=r;
   const donHeLabel=meta.donHe==="am"?"🌙 Âm Độn":"☀️ Dương Độn";
   let html=`
@@ -5600,8 +5680,7 @@ function renderResults(r){
   html+=renderThamHoa(hungTinh, canhBaoThamHoa, meta);
   // 1.5 Tổng Luận AI
   html+=renderTongLuanSection();
-  // 1.6 Khầy Chat
-  html+=renderKhayChatSection();
+  // chat Khầy đã cố định bên trái, không render ở đây nữa
   // 2a. PRIMARY: Tuế Cục (năm) + Nhật Cục (ngày) — quan trọng nhất
   if(cucs[0]) { cucs[0].tamCo = hungTinh.tamCo; html+=renderCuc(cucs[0],0); }
   if(cucs[2]) html+=renderCuc(cucs[2],2);
