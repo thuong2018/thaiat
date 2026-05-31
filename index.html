@@ -4157,6 +4157,12 @@ const _luanGiaiCache = {};
  * @param {object} hungTinh — kết quả tinhHungTinh() (chỉ truyền cho Tuế Cục)
  * @param {Array}  canhBao — mảng cảnh báo thảm họa (chỉ Tuế Cục)
  */
+// ── CẤU HÌNH PROXY ─────────────────────────────────────────────────────────
+// Sau khi deploy Cloudflare Worker, thay URL bên dưới bằng URL worker của bạn
+// Ví dụ: "https://thai-at.ten-ban.workers.dev"
+const PROXY_URL = "https://TEN-WORKER-CUA-BAN.workers.dev";
+// ───────────────────────────────────────────────────────────────────────────
+
 async function fetchLuanGiai(cucTen, d, meta, hungTinh, canhBao) {
   const key = `${cucTen}_${meta.nam}_${meta.thang}_${meta.ngay}_${meta.gio}`;
   if (_luanGiaiCache[key]) return _luanGiaiCache[key];
@@ -4206,7 +4212,7 @@ Cuối luận giải, trên một dòng riêng, viết JSON: {"verdict":"cat|hun
 (verdict: cat=thuận lợi, hung=nguy hiểm, warn=cần thận trọng; tags: 3 nhãn ngắn 2-4 từ tóm tắt tình thế)`;
 
   try {
-    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+    const resp = await fetch(PROXY_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -4268,7 +4274,7 @@ Tổng luận phải: (1) nhận định khí tượng tổng thể qua 4 cục 
 Cuối: {"verdict":"cat|hung|warn","tags":["tag1","tag2","tag3"]}`;
 
   try {
-    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+    const resp = await fetch(PROXY_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
