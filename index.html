@@ -4614,7 +4614,7 @@ function renderKhayChatSection() {
       </div>
     </div>
     <div class="khay-input-row">
-      <textarea class="khay-input" id="khay-input" placeholder="Hỏi Khầy bất cứ điều gì về tọa độ này..." rows="1"
+      <textarea class="khay-input" id="khay-input" placeholder="Hỏi Khầy · hoặc nhập thời gian để tính (vd: năm 2027, 15/6/2027 giờ 9)..." rows="1"
         onkeydown="khayInputKeydown(event)"
         oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
       <button class="khay-send-btn" id="khay-send-btn" onclick="khaySend()" title="Gửi">➤</button>
@@ -4627,6 +4627,47 @@ function khayInputKeydown(e) {
     e.preventDefault();
     khaySend();
   }
+}
+
+// Detect và parse thời gian từ câu chat
+// Hỗ trợ: "năm 2027", "ngày 15/6/2027", "15/6/2027 giờ 9", "2027 tháng 3 ngày 10 giờ 14"
+function khayParseTime(text) {
+  const t = text.toLowerCase();
+
+  // Pattern: dd/mm/yyyy hoặc d/m/yyyy
+  const fullDate = t.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+  // Pattern: năm YYYY
+  const yearOnly = t.match(/năm\s+(\d{4})/);
+  // Pattern: tháng MM
+  const monthMatch = t.match(/tháng\s+(\d{1,2})/);
+  // Pattern: ngày DD
+  const dayMatch = t.match(/ngày\s+(\d{1,2})/);
+  // Pattern: giờ HH hoặc HH giờ hoặc HHh
+  const hourMatch = t.match(/giờ\s+(\d{1,2})|(\d{1,2})\s*giờ|(\d{1,2})h\b/);
+
+  let nam, thang, ngay, gio;
+
+  if (fullDate) {
+    ngay  = parseInt(fullDate[1]);
+    thang = parseInt(fullDate[2]);
+    nam   = parseInt(fullDate[3]);
+  } else if (yearOnly) {
+    nam   = parseInt(yearOnly[1]);
+    thang = monthMatch ? parseInt(monthMatch[1]) : 1;
+    ngay  = dayMatch  ? parseInt(dayMatch[1])   : 1;
+  } else {
+    return null; // không tìm thấy thời gian
+  }
+
+  gio = hourMatch ? parseInt(hourMatch[1] || hourMatch[2] || hourMatch[3]) : 0;
+
+  // Validate
+  if (nam < 1000 || nam > 3000) return null;
+  if (thang < 1 || thang > 12)  return null;
+  if (ngay  < 1 || ngay  > 31)  return null;
+  if (gio   < 0 || gio   > 23)  gio = 0;
+
+  return { nam, thang, ngay, gio };
 }
 
 async function khaySend() {
@@ -4646,6 +4687,20 @@ async function khaySend() {
   _khayTyping = true;
   document.getElementById("khay-send-btn").disabled = true;
   khayShowTyping();
+
+  // ── Tự động tính tọa độ nếu câu hỏi có chứa thời gian ──
+  try {
+    const parsed = khayParseTime(text);
+    if (parsed) {
+      const r = compute(parsed.nam, parsed.thang, parsed.ngay, parsed.gio);
+      _khayChatContext = r;
+      // Thông báo nhỏ cho user biết Khầy đã tính xong
+      const timeStr = `${parsed.ngay}/${parsed.thang}/${parsed.nam} giờ ${parsed.gio}H`;
+      khayAppendMsg("khay", `Khầy tính xong tọa độ ${timeStr} rồi, để Khầy luận nhé...`);
+    }
+  } catch(e) {
+    // Bỏ qua nếu parse lỗi
+  }
 
   try {
     const reply = await khayFetch();
