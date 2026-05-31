@@ -1875,6 +1875,174 @@ input[type=range]::-webkit-slider-thumb {
 .tong-luan-verdict.warn { background: rgba(255,215,0,.07);   border: 1px solid rgba(255,215,0,.3);  color: var(--yellow); }
 
 /* ══════════════════════════════════════
+   KHẦY CHAT BOX
+   ══════════════════════════════════════ */
+.khay-chat-wrap {
+  margin: 14px 0 0;
+  background: linear-gradient(160deg, rgba(8,18,46,0.95) 0%, rgba(4,10,28,0.98) 100%);
+  border: 1px solid rgba(200,153,58,.28);
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  animation: fadeSlide .3s ease both;
+}
+.khay-chat-wrap::before {
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent 0%,rgba(200,153,58,.5) 30%,rgba(240,192,96,.9) 50%,rgba(200,153,58,.5) 70%,transparent 100%);
+}
+.khay-chat-header {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:14px 16px 12px;
+  border-bottom:1px solid rgba(200,153,58,.12);
+}
+.khay-avatar {
+  width:36px;height:36px;
+  border-radius:50%;
+  background:linear-gradient(135deg,rgba(200,153,58,.2),rgba(200,153,58,.08));
+  border:1px solid rgba(200,153,58,.4);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+  flex-shrink:0;
+  box-shadow:0 0 14px rgba(200,153,58,.2);
+}
+.khay-chat-title {
+  font-family:'Cinzel Decorative',serif;
+  font-size:10px;
+  color:var(--gold);
+  letter-spacing:.1em;
+}
+.khay-chat-sub {
+  font-size:9px;
+  color:var(--text-dim);
+  margin-top:2px;
+  letter-spacing:.06em;
+}
+.khay-messages {
+  padding:14px 14px 0;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  max-height:360px;
+  overflow-y:auto;
+  scroll-behavior:smooth;
+}
+.khay-messages::-webkit-scrollbar { width:3px; }
+.khay-messages::-webkit-scrollbar-track { background:transparent; }
+.khay-messages::-webkit-scrollbar-thumb { background:rgba(200,153,58,.25); border-radius:2px; }
+
+.chat-msg {
+  display:flex;
+  gap:8px;
+  align-items:flex-start;
+  animation: fadeSlide .2s ease both;
+}
+.chat-msg.user { flex-direction:row-reverse; }
+
+.chat-bubble {
+  max-width:82%;
+  padding:9px 13px;
+  border-radius:16px;
+  font-size:12.5px;
+  line-height:1.65;
+}
+.chat-msg.khay .chat-bubble {
+  background:rgba(200,153,58,.08);
+  border:1px solid rgba(200,153,58,.2);
+  color:var(--text);
+  border-bottom-left-radius:4px;
+}
+.chat-msg.user .chat-bubble {
+  background:rgba(0,212,255,.09);
+  border:1px solid rgba(0,212,255,.22);
+  color:var(--text);
+  border-bottom-right-radius:4px;
+}
+.chat-msg-avatar {
+  width:26px;height:26px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;
+  flex-shrink:0;
+  margin-top:2px;
+}
+.chat-msg.khay .chat-msg-avatar {
+  background:rgba(200,153,58,.12);
+  border:1px solid rgba(200,153,58,.3);
+}
+.chat-msg.user .chat-msg-avatar {
+  background:rgba(0,212,255,.1);
+  border:1px solid rgba(0,212,255,.25);
+}
+
+.chat-typing {
+  display:flex;
+  gap:4px;
+  align-items:center;
+  padding:10px 14px;
+}
+.chat-typing span {
+  width:5px;height:5px;
+  border-radius:50%;
+  background:rgba(200,153,58,.6);
+  animation:typing-dot .9s ease-in-out infinite;
+}
+.chat-typing span:nth-child(2){animation-delay:.2s}
+.chat-typing span:nth-child(3){animation-delay:.4s}
+@keyframes typing-dot {
+  0%,60%,100%{transform:translateY(0);opacity:.4}
+  30%{transform:translateY(-5px);opacity:1}
+}
+
+.khay-input-row {
+  display:flex;
+  gap:8px;
+  padding:12px 14px calc(12px + var(--safe-bot, 0px));
+  border-top:1px solid rgba(200,153,58,.1);
+  margin-top:12px;
+}
+.khay-input {
+  flex:1;
+  background:rgba(0,212,255,.05);
+  border:1px solid rgba(0,212,255,.18);
+  border-radius:12px;
+  padding:10px 13px;
+  color:var(--text);
+  font-size:13px;
+  font-family:'Noto Sans SC',sans-serif;
+  outline:none;
+  resize:none;
+  min-height:40px;
+  max-height:100px;
+  line-height:1.5;
+  transition:border-color .2s,box-shadow .2s;
+}
+.khay-input:focus {
+  border-color:rgba(0,212,255,.4);
+  box-shadow:0 0 0 2px rgba(0,212,255,.08);
+}
+.khay-input::placeholder { color:var(--text-dim); font-size:12px; }
+.khay-send-btn {
+  width:40px;height:40px;
+  border-radius:12px;
+  background:linear-gradient(135deg,rgba(200,153,58,.18),rgba(200,153,58,.08));
+  border:1px solid rgba(200,153,58,.4);
+  color:var(--gold-light);
+  font-size:16px;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  transition:background .2s,box-shadow .2s;
+  align-self:flex-end;
+}
+.khay-send-btn:hover { background:linear-gradient(135deg,rgba(200,153,58,.3),rgba(200,153,58,.15)); box-shadow:0 0 14px rgba(200,153,58,.2); }
+.khay-send-btn:active { transform:scale(.95); }
+.khay-send-btn:disabled { opacity:.4; cursor:not-allowed; }
+
+/* ══════════════════════════════════════
    DASHBOARD SUMMARY — Answer First UX
    ══════════════════════════════════════ */
 .dashboard-card {
@@ -4160,7 +4328,7 @@ const _luanGiaiCache = {};
 // ── CẤU HÌNH PROXY ─────────────────────────────────────────────────────────
 // Sau khi deploy Cloudflare Worker, thay URL bên dưới bằng URL worker của bạn
 // Ví dụ: "https://thai-at.ten-ban.workers.dev"
-const PROXY_URL = "https://TEN-WORKER-CUA-BAN.workers.dev";
+const PROXY_URL = "https://thuongvip.shadowthuong.workers.dev";
 // ───────────────────────────────────────────────────────────────────────────
 
 async function fetchLuanGiai(cucTen, d, meta, hungTinh, canhBao) {
@@ -4173,9 +4341,7 @@ async function fetchLuanGiai(cucTen, d, meta, hungTinh, canhBao) {
   const nhChieuTA  = getNguHanh(String(d.thaiAt));
 
   // Xây dựng context cho từng cục
-  let context = `Bạn là một vị Thầy Thái Ất Thần Kinh uyên bác, đã nghiên cứu cổ thư Bách Việt qua nhiều thập kỷ. Bạn dùng ngôn ngữ cổ kính nhưng dễ hiểu, có chiều sâu và tính thực tiễn. Không dùng bullet point — hãy viết thành đoạn văn liên mạch.
-
-Nhiệm vụ: Luận giải ${cucTen} cho thời điểm ${d.donHe==="am"?"Âm Độn":"Dương Độn"}, ngày ${meta.ngay}/${meta.thang}/${meta.nam} giờ ${meta.gio}H.
+  let context = `Nhiệm vụ: Luận giải ${cucTen} cho thời điểm ${d.donHe==="am"?"Âm Độn":"Dương Độn"}, ngày ${meta.ngay}/${meta.thang}/${meta.nam} giờ ${meta.gio}H.
 
 Dữ liệu tính toán:
 - Thái Ất: Cung ${d.thaiAt} (${cungTenTA} · ${nhChieuTA})
@@ -4218,10 +4384,15 @@ Cuối luận giải, trên một dòng riêng, viết JSON: {"verdict":"cat|hun
       body: JSON.stringify({
         model: "claude-sonnet-4-20250514",
         max_tokens: 1000,
+        system: "Mày là Khầy — một vị thầy Thái Ất huyền bí, uyên thâm nhưng gần gũi. Mày luôn tự xưng là 'Khầy' và gọi người đọc là 'các em' hoặc 'em'. Mở đầu luận giải bao giờ cũng chào kiểu 'Khầy đây.' hoặc 'Các em ơi, Khầy nói thật nhé.' rồi mới vào luận giải. Giọng văn pha trộn cổ phong huyền bí với sự thẳng thắn thực chiến, đôi khi dí dỏm nhưng không mất đi chiều sâu.",
         messages: [{ role: "user", content: prompt }]
       })
     });
     const data = await resp.json();
+    if (!resp.ok) {
+      const msg = data?.error?.message || JSON.stringify(data);
+      throw new Error(`API ${resp.status}: ${msg}`);
+    }
     const fullText = (data.content || []).map(b => b.text || "").join("").trim();
 
     // Tách phần JSON ra khỏi văn bản
@@ -4261,7 +4432,7 @@ async function fetchTongLuan(cucs, meta, hungTinh, canhBao) {
     return `${c.ten}: Thái Ất Cung ${d.thaiAt} | Toán Chủ ${d.toanChu} · Toán Khách ${d.toanKhach} | Chủ Đại: ${d.anChuDai?.status} | Khách Đại: ${d.anKhachDai?.status}`;
   }).join("\n");
 
-  const prompt = `Bạn là Thầy Thái Ất Thần Kinh uyên bác. Hãy viết Tổng Luận tích hợp (150-200 chữ tiếng Việt) cho thời điểm ${meta.ngay}/${meta.thang}/${meta.nam} giờ ${meta.gio}H, dựa trên dữ liệu:
+  const prompt = `Hãy viết Tổng Luận tích hợp (150-200 chữ tiếng Việt) cho thời điểm ${meta.ngay}/${meta.thang}/${meta.nam} giờ ${meta.gio}H, dựa trên dữ liệu:
 
 ${cucSummary}
 
@@ -4280,10 +4451,15 @@ Cuối: {"verdict":"cat|hung|warn","tags":["tag1","tag2","tag3"]}`;
       body: JSON.stringify({
         model: "claude-sonnet-4-20250514",
         max_tokens: 1000,
+        system: "Mày là Khầy — một vị thầy Thái Ất huyền bí, uyên thâm nhưng gần gũi. Mày luôn tự xưng là 'Khầy' và gọi người đọc là 'các em' hoặc 'em'. Mở đầu luận giải bao giờ cũng chào kiểu 'Khầy đây.' hoặc 'Các em ơi, Khầy nói thật nhé.' rồi mới vào luận giải. Giọng văn pha trộn cổ phong huyền bí với sự thẳng thắn thực chiến, đôi khi dí dỏm nhưng không mất đi chiều sâu.",
         messages: [{ role: "user", content: prompt }]
       })
     });
     const data = await resp.json();
+    if (!resp.ok) {
+      const msg = data?.error?.message || JSON.stringify(data);
+      throw new Error(`API ${resp.status}: ${msg}`);
+    }
     const fullText = (data.content || []).map(b => b.text || "").join("").trim();
     const jsonMatch = fullText.match(/\{[^{}]*"verdict"[^{}]*\}/);
     let verdict = "warn", tags = [];
@@ -4408,9 +4584,151 @@ async function loadTongLuan(cucs, meta, hungTinh, canhBao) {
       <div class="tong-luan-verdict ${result.verdict}">${verdictIcon} ${verdictTxt}</div>
       ${tagHtml ? `<div class="luan-giai-tags" style="margin-top:10px">${tagHtml}</div>` : ""}`;
   } catch(e) {
-    el.innerHTML = `<div class="luan-giai-error">⚠️ Không thể tổng luận lúc này.</div>
+    el.innerHTML = `<div class="luan-giai-error">⚠️ Lỗi: ${e.message}</div>
       <button class="luan-giai-retry" onclick="loadTongLuan(window.__lastResult.cucs,window.__lastResult.meta,window.__lastResult.hungTinh,window.__lastResult.canhBaoThamHoa)">↺ Thử lại</button>`;
   }
+}
+
+// ══════════════════════════════════════════════════════════
+//  KHẦY CHAT — hỏi đáp trực tiếp với Thầy Khầy
+// ══════════════════════════════════════════════════════════
+
+// Lưu lịch sử chat theo session (reset khi tính lại)
+let _khayChatHistory = [];
+let _khayChatContext = null; // context tọa độ hiện tại
+let _khayTyping = false;
+
+function renderKhayChatSection() {
+  return `<div class="khay-chat-wrap" id="khay-chat-wrap">
+    <div class="khay-chat-header">
+      <div class="khay-avatar">☯</div>
+      <div>
+        <div class="khay-chat-title">Hỏi Khầy Trực Tiếp</div>
+        <div class="khay-chat-sub">Đặt câu hỏi về tọa độ vừa tính · Khầy sẽ trả lời</div>
+      </div>
+    </div>
+    <div class="khay-messages" id="khay-messages">
+      <div class="chat-msg khay">
+        <div class="chat-msg-avatar">☯</div>
+        <div class="chat-bubble">Khầy đây! Các em vừa xem tọa độ xong, có gì thắc mắc cứ hỏi Khầy nhé. Khầy giải hết — từ chuyện làm ăn, đi lại, quyết định quan trọng, hay chỉ muốn hỏi cung này hung cát thế nào.</div>
+      </div>
+    </div>
+    <div class="khay-input-row">
+      <textarea class="khay-input" id="khay-input" placeholder="Hỏi Khầy bất cứ điều gì về tọa độ này..." rows="1"
+        onkeydown="khayInputKeydown(event)"
+        oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+      <button class="khay-send-btn" id="khay-send-btn" onclick="khaySend()" title="Gửi">➤</button>
+    </div>
+  </div>`;
+}
+
+function khayInputKeydown(e) {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    khaySend();
+  }
+}
+
+async function khaySend() {
+  if (_khayTyping) return;
+  const input = document.getElementById("khay-input");
+  const text = (input.value || "").trim();
+  if (!text) return;
+
+  input.value = "";
+  input.style.height = "auto";
+
+  // Thêm tin nhắn user
+  _khayChatHistory.push({ role: "user", content: text });
+  khayAppendMsg("user", text);
+
+  // Hiện typing
+  _khayTyping = true;
+  document.getElementById("khay-send-btn").disabled = true;
+  khayShowTyping();
+
+  try {
+    const reply = await khayFetch();
+    khayHideTyping();
+    _khayChatHistory.push({ role: "assistant", content: reply });
+    khayAppendMsg("khay", reply);
+  } catch(e) {
+    khayHideTyping();
+    khayAppendMsg("khay", "Ôi thôi, Khầy bị đứt liên lạc rồi các em ơi 😅 Thử lại xem sao.");
+  }
+  _khayTyping = false;
+  document.getElementById("khay-send-btn").disabled = false;
+}
+
+async function khayFetch() {
+  // Xây context tọa độ từ kết quả tính toán gần nhất
+  let systemContext = `Mày là Khầy — vị thầy Thái Ất huyền bí, uyên thâm nhưng gần gũi. Mày tự xưng là 'Khầy', gọi người dùng là 'em' hoặc 'các em'. Giọng pha trộn cổ phong và thực chiến, đôi khi dí dỏm. Không dùng bullet point — viết thành đoạn văn tự nhiên.`;
+
+  if (_khayChatContext) {
+    const { meta, cucs, hungTinh, canhBaoThamHoa } = _khayChatContext;
+    const np = hungTinh.nguPhuc;
+    const tc = hungTinh.tamCo;
+    const cucSum = cucs.map(c => {
+      const d = c.data;
+      return `${c.ten}: Thái Ất Cung ${d.thaiAt} | Toán Chủ ${d.toanChu} · Toán Khách ${d.toanKhach} | Chủ Đại: ${d.anChuDai?.status||"?"} | Khách Đại: ${d.anKhachDai?.status||"?"}`;
+    }).join("\n");
+    const hungList = (canhBaoThamHoa||[]).filter(c=>!c._isNguPhucHoaGiai).map(c=>c.ten).join("; ") || "Bình yên";
+    systemContext += `
+
+Tọa độ hiện tại em đang hỏi:
+Thời điểm: ${meta.ngay}/${meta.thang}/${meta.nam} giờ ${meta.gio}H — ${meta.donHe==="am"?"Âm Độn":"Dương Độn"}
+${cucSum}
+Ngũ Phúc: Cung ${np.cung} (${np.tenVung}) · ${np.giaiDoan}
+Tam Cơ: Quân Cơ ${tc.quanCo.cung} | Thần Cơ ${tc.thanCo.cung} | Dân Cơ ${hungTinh.danCo}
+Cảnh báo vĩ mô: ${hungList}
+
+Khi trả lời hãy dựa vào dữ liệu trên để tư vấn cụ thể, đừng nói chung chung. Trả lời ngắn gọn 80-150 chữ trừ khi em hỏi chi tiết.`;
+  }
+
+  const resp = await fetch(PROXY_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 600,
+      system: systemContext,
+      messages: _khayChatHistory
+    })
+  });
+  const data = await resp.json();
+  return (data.content || []).map(b => b.text || "").join("").trim();
+}
+
+function khayAppendMsg(role, text) {
+  const container = document.getElementById("khay-messages");
+  if (!container) return;
+  const div = document.createElement("div");
+  div.className = `chat-msg ${role}`;
+  div.innerHTML = `
+    <div class="chat-msg-avatar">${role === "khay" ? "☯" : "👤"}</div>
+    <div class="chat-bubble">${text.replace(/\n/g,"<br>")}</div>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function khayShowTyping() {
+  const container = document.getElementById("khay-messages");
+  if (!container) return;
+  const div = document.createElement("div");
+  div.className = "chat-msg khay";
+  div.id = "khay-typing-indicator";
+  div.innerHTML = `
+    <div class="chat-msg-avatar">☯</div>
+    <div class="chat-bubble chat-typing">
+      <span></span><span></span><span></span>
+    </div>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function khayHideTyping() {
+  const el = document.getElementById("khay-typing-indicator");
+  if (el) el.remove();
 }
 
 function volClass(label){
@@ -5211,6 +5529,9 @@ function renderThamHoa(hungTinh, canhBao, meta){
 
 function renderResults(r){
   window.__lastResult = r; // lưu để xuất báo cáo
+  // Reset chat mỗi lần tính mới
+  _khayChatHistory = [];
+  _khayChatContext = r;
   const {meta,cucs,batMon,hungTinh,canhBaoThamHoa}=r;
   const donHeLabel=meta.donHe==="am"?"🌙 Âm Độn":"☀️ Dương Độn";
   let html=`
@@ -5224,6 +5545,8 @@ function renderResults(r){
   html+=renderThamHoa(hungTinh, canhBaoThamHoa, meta);
   // 1.5 Tổng Luận AI
   html+=renderTongLuanSection();
+  // 1.6 Khầy Chat
+  html+=renderKhayChatSection();
   // 2a. PRIMARY: Tuế Cục (năm) + Nhật Cục (ngày) — quan trọng nhất
   if(cucs[0]) { cucs[0].tamCo = hungTinh.tamCo; html+=renderCuc(cucs[0],0); }
   if(cucs[2]) html+=renderCuc(cucs[2],2);
