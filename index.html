@@ -92,14 +92,12 @@ html, body {
 }
 
 @media (min-width: 900px) {
-  #app {
-    max-width: 1200px;
-  }
+  #app { max-width: 1400px; }
   #desktop-body {
     display: grid;
-    grid-template-columns: 380px 1fr;
-    grid-template-rows: auto auto;
-    gap: 24px;
+    grid-template-columns: 320px 1fr 420px;
+    grid-template-rows: 1fr;
+    gap: 20px;
     padding: 0 20px 40px;
     align-items: start;
   }
@@ -108,19 +106,16 @@ html, body {
     grid-row: 1;
     position: sticky;
     top: 90px;
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-  }
-  #right-panel {
-    grid-column: 2;
-    grid-row: 1 / 3;
   }
   #khay-panel {
-    grid-column: 1;
-    grid-row: 2;
+    grid-column: 2;
+    grid-row: 1;
     position: sticky;
-    top: calc(90px + 520px);
+    top: 90px;
+  }
+  #right-panel {
+    grid-column: 3;
+    grid-row: 1;
   }
   #left-panel .card { margin-left: 0; margin-right: 0; }
   #left-panel .calc-btn { width: 100%; margin-left: 0; margin-right: 0; }
@@ -1126,7 +1121,7 @@ input[type=range]::-webkit-slider-thumb {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  display: flex;
+  display: none;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -1139,6 +1134,7 @@ input[type=range]::-webkit-slider-thumb {
   transition: opacity .8s ease, transform .8s ease;
   overflow: hidden;
 }
+#intro-screen.open { display: flex; }
 #intro-screen.fade-out {
   opacity: 0;
   transform: scale(1.04);
@@ -1893,23 +1889,24 @@ input[type=range]::-webkit-slider-thumb {
    ══════════════════════════════════════ */
 /* ── KHẦY PANEL cố định ─────────────────────────────── */
 #khay-panel {
-  grid-column: 1;
-  grid-row: 2;
   display: flex;
   flex-direction: column;
   min-height: 0;
 }
 #khay-panel .khay-chat-wrap {
   margin: 0 !important;
-  border-radius: 16px !important;
-  border: 1px solid rgba(200,153,58,.28) !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(200,153,58,.4) !important;
+  box-shadow: 0 0 40px rgba(200,153,58,.12), 0 0 80px rgba(200,153,58,.06) !important;
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 520px;
 }
 #khay-panel .khay-messages {
   flex: 1;
-  max-height: 340px;
+  max-height: calc(100vh - 380px);
+  min-height: 300px;
 }
 
 .khay-chat-wrap {
@@ -1930,30 +1927,32 @@ input[type=range]::-webkit-slider-thumb {
 .khay-chat-header {
   display:flex;
   align-items:center;
-  gap:10px;
-  padding:14px 16px 12px;
-  border-bottom:1px solid rgba(200,153,58,.12);
+  gap:14px;
+  padding:18px 20px 16px;
+  border-bottom:1px solid rgba(200,153,58,.18);
+  background:linear-gradient(135deg,rgba(200,153,58,.06),transparent);
 }
 .khay-avatar {
-  width:36px;height:36px;
+  width:48px;height:48px;
   border-radius:50%;
-  background:linear-gradient(135deg,rgba(200,153,58,.2),rgba(200,153,58,.08));
-  border:1px solid rgba(200,153,58,.4);
+  background:linear-gradient(135deg,rgba(200,153,58,.25),rgba(200,153,58,.08));
+  border:1px solid rgba(200,153,58,.6);
   display:flex;align-items:center;justify-content:center;
-  font-size:18px;
+  font-size:24px;
   flex-shrink:0;
-  box-shadow:0 0 14px rgba(200,153,58,.2);
+  box-shadow:0 0 20px rgba(200,153,58,.3),0 0 40px rgba(200,153,58,.1);
 }
 .khay-chat-title {
   font-family:'Cinzel Decorative',serif;
-  font-size:10px;
-  color:var(--gold);
-  letter-spacing:.1em;
+  font-size:16px;
+  color:#f0c060;
+  letter-spacing:.12em;
+  text-shadow:0 0 20px rgba(240,192,96,.5),0 0 40px rgba(240,192,96,.2);
 }
 .khay-chat-sub {
-  font-size:9px;
-  color:var(--text-dim);
-  margin-top:2px;
+  font-size:11px;
+  color:rgba(200,180,120,.7);
+  margin-top:4px;
   letter-spacing:.06em;
 }
 .khay-messages {
@@ -2366,6 +2365,7 @@ input[type=range]::-webkit-slider-thumb {
     <div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;">
       <span class="header-badge">11 Lưới Lọc Vĩ Mô</span>
       <span class="header-about-btn" onclick="document.getElementById('about-modal').classList.add('open')">🪷 Về Phần Mềm</span>
+      <span class="header-about-btn" onclick="openIntro()">☯ Giới Thiệu</span>
     </div>
   </header>
 
@@ -2403,8 +2403,8 @@ input[type=range]::-webkit-slider-thumb {
         <span id="btn-text">⚡ Quét Tọa Độ Vũ Trụ</span>
       </button>
 
-      <!-- DISCLAIMER -->
-      <div class="disclaimer">
+      <!-- DISCLAIMER ẩn vào nút -->
+      <div class="disclaimer" id="disclaimer-panel" style="display:none;">
         <div class="disclaimer-title">⚠️ Lời Cảnh Báo Thực Chiến</div>
         <p style="color:var(--text-dim);font-size:11px;margin-bottom:10px;">
           Hệ thống đo lường <strong style="color:var(--text)">Tâm lý đám đông</strong> và định vị
@@ -2422,6 +2422,7 @@ input[type=range]::-webkit-slider-thumb {
           💡 Thái Ất trao "Thiên Thời – Địa Lợi". Quản trị rủi ro là <strong>Nhân Hòa</strong> của bạn!
         </div>
       </div>
+      <span class="header-about-btn" style="display:block;text-align:center;margin:8px 0 0;" onclick="const d=document.getElementById('disclaimer-panel');d.style.display=d.style.display==='none'?'block':'none'">⚠️ Lời Cảnh Báo</span>
 
       <!-- XAU/USD CHART CARD -->
       <div class="card" style="padding:14px 14px 10px;">
@@ -2430,7 +2431,7 @@ input[type=range]::-webkit-slider-thumb {
           <iframe
             id="xauusd-iframe"
             src="https://s.tradingview.com/widgetembed/?frameElementId=xauusd-iframe&symbol=OANDA%3AXAUUSD&interval=60&hidesidetoolbar=0&hidetoptoolbar=0&symboledit=0&saveimage=0&toolbarbg=030810&studies=RSI%40tv-basicstudies&theme=dark&style=1&timezone=Asia%2FHo_Chi_Minh&studies_overrides=%7B%7D&overrides=%7B%22paneProperties.background%22%3A%22%23030810%22%2C%22mainSeriesProperties.candleStyle.upColor%22%3A%22%2322dd88%22%2C%22mainSeriesProperties.candleStyle.downColor%22%3A%22%23ff4455%22%7D&locale=vi_VN&utm_source=localhost&utm_medium=widget"
-            style="width:100%;height:320px;border:none;display:block;background:#030810;"
+            style="width:100%;height:280px;border:none;display:block;background:#030810;"
             allowtransparency="true"
             scrolling="no"
           ></iframe>
@@ -2445,7 +2446,7 @@ input[type=range]::-webkit-slider-thumb {
 
     <!-- KHẦY CHAT CỐ ĐỊNH -->
     <div id="khay-panel">
-      <div class="khay-chat-wrap" id="khay-chat-wrap" style="margin:0;border-radius:0;border-left:none;border-right:none;border-bottom:none;">
+      <div class="khay-chat-wrap" id="khay-chat-wrap">
         <div class="khay-chat-header">
           <div class="khay-avatar">☯</div>
           <div>
@@ -2524,12 +2525,18 @@ input[type=range]::-webkit-slider-thumb {
   }
 })();
 
+function openIntro() {
+  const el = document.getElementById('intro-screen');
+  if (!el) return;
+  el.classList.remove('fade-out');
+  el.classList.add('open');
+}
 function closeIntro(e){
   if(e) e.stopPropagation();
   const el = document.getElementById('intro-screen');
   if(!el) return;
   el.classList.add('fade-out');
-  setTimeout(() => { el.style.display = 'none'; }, 820);
+  setTimeout(() => { el.classList.remove('open','fade-out'); }, 820);
 }
 
 // ═══════════════════════════════════════════════════════
