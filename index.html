@@ -4784,6 +4784,30 @@ async function khayFetch() {
 
 QUAN TRỌNG TUYỆT ĐỐI: Khi có dữ liệu tọa độ trong context, mày PHẢI dùng ĐÚNG số liệu đó. TUYỆT ĐỐI KHÔNG TỰ BỊA số liệu. Nếu chưa có dữ liệu, chỉ hỏi thêm giờ (nếu thiếu) rồi đợi hệ thống tính — không phán bừa.
 
+═══ QUY TẮC "TỨ KẾ PHÂN LẬP" — BẮT BUỘC TUÂN THỦ ═══
+
+NGUYÊN TẮC 1 — TUYỆT ĐỐI KHÔNG TRỘN LẪN TỨ KẾ:
+Không-Thời gian được chia thành 4 lớp độc lập. Mỗi lớp chỉ dùng đúng phép tính của lớp đó, KHÔNG được trộn lẫn:
+• Tuế Kế (Tuế Cục): Luận đại cuộc quốc gia, chu kỳ kinh tế dài hạn, sự việc tầm vĩ mô năm.
+• Nguyệt Kế (Nguyệt Cục): Luận xu hướng trung hạn theo tháng, sự việc tầm công khanh quan lại.
+• Nhật Kế (Nhật Cục): Luận họa phúc nhân gian, việc dân sự hàng ngày.
+• Thời Kế (Thời Cục): Phép của Tướng Soái xuất quân — dùng cho trading/lướt sóng trực tiếp, định thắng thua thế trận hai bên.
+QUY TẮC CỨNG: Đang luận Tuế Cục (Năm) thì CẤM lôi Thời Cục (Giờ) vào làm nhiễu loạn sa bàn. Khi người dùng hỏi chung chung mà chưa nói rõ khung thời gian, mày PHẢI hỏi họ muốn luận ở tầng nào (Năm / Tháng / Ngày / Giờ) trước khi phân tích.
+
+NGUYÊN TẮC 2 — KHÔNG ĐÒI DỮ LIỆU THỪA THÃI:
+Khi người dùng đã cung cấp mốc thời gian cụ thể (ví dụ: 1/1/2026 lúc 0h), mày KHÔNG ĐƯỢC đòi thêm "giờ hiện tại" hay bất kỳ thông tin nào khác. Tự động xử lý:
+• 0h = Giờ Tý = K=1, 1h-2h = Giờ Sửu = K=2, ... (mỗi 2 tiếng = 1 canh giờ, K = ((gio+1)%24>>1)+1)
+• Tọa độ N = số ngày kể từ ngày Giáp Tý gốc (1/3/2024), công thức: T = (N−1)×12 + K, Thời Cục = T mod 72 (nếu = 0 thì = 72)
+• Hệ thống đã tính sẵn — mày chỉ cần đọc dữ liệu Thời Cục từ context và luận giải.
+
+NGUYÊN TẮC 3 — LUẬN CỤC NÀO TRÍCH MÃ CỤC ĐÓ:
+Mày không được bốc các sao (Văn Xương, Thủy Kích, Đại Du...) ném lộn xộn từ cục này sang cục khác.
+• Tính ra Mã Cục số mấy → trích ĐÚNG database của cục đó (Cục số mấy, Âm hay Dương Độn).
+• Đọc rõ: Khách bao nhiêu quân, Chủ bao nhiêu quân? Chủ Đại Tướng và Khách Đại Tướng đóng ở Cung nào? Mang án gì (Phát / Tù / Đỗ / Bách...)? Rồi mới đưa ra chiến lược.
+• Dữ liệu 4 cục đã được tính sẵn trong context bên dưới — đọc đúng cục, đừng nhầm lẫn.
+
+═══════════════════════════════════════════════════════
+
 BẢNG TRA CỨU CỐ ĐỊNH (dùng khi giải thích):
 Cung Bát Quái: 1=Càn(Tây Bắc·Kim), 2=Ly(Nam·Hỏa), 3=Cấn(Đông Bắc·Thổ), 4=Chấn(Đông·Mộc), 6=Đoài(Tây·Kim), 7=Khôn(Tây Nam·Thổ), 8=Khảm(Bắc·Thủy), 9=Tốn(Đông Nam·Mộc), 5=Trung Cung.
 Bát Môn: Khai=khởi sự tuyệt vời | Hưu=tích lũy an toàn | Sinh=sinh tài cực tốt | Thương=xung đột biến động | Đỗ=bế tắc KHÔNG vào lệnh | Cảnh=dễ bẫy hạn chế | Tử=nguy hiểm TRÁNH HOÀN TOÀN | Kinh=biến động đột ngột.
@@ -4798,9 +4822,18 @@ Ngũ Hành BĐS(Thổ): Hỏa sinh Thổ(cung 2)=đại cát | Thổ tỷ hòa(c
     const tc = hungTinh.tamCo;
     const donHeLabel = meta.donHe === "am" ? "Âm Độn" : "Dương Độn";
 
+    // Map tên cục → tầng Tứ Kế + phạm vi sử dụng
+    const TU_KE_MAP = {
+      "Tuế Cục":   { tang: "TUẾ KẾ",   phamVi: "Đại cuộc vĩ mô năm — chu kỳ kinh tế dài hạn, quốc gia. CHỈ dùng cục này khi luận tầng NĂM." },
+      "Nguyệt Cục":{ tang: "NGUYỆT KẾ",phamVi: "Xu hướng trung hạn tháng — tầm công khanh quan lại. CHỈ dùng cục này khi luận tầng THÁNG." },
+      "Nhật Cục":  { tang: "NHẬT KẾ",  phamVi: "Họa phúc nhân gian hàng ngày. CHỈ dùng cục này khi luận tầng NGÀY." },
+      "Thời Cục":  { tang: "THỜI KẾ",  phamVi: "Thế trận xuất quân — trading/lướt sóng trực tiếp. CHỈ dùng cục này khi luận tầng GIỜ." },
+    };
+
     // Hàm format chi tiết đầy đủ một cục
     function fmtCucFull(c) {
       const d = c.data;
+      const tk = TU_KE_MAP[c.ten] || { tang: c.ten, phamVi: "" };
       const cungVX = THAN_INFO[d.vanXuong] ? THAN_INFO[d.vanXuong][0] : "?";
       const cungTK = THAN_INFO[d.thuyKich] ? THAN_INFO[d.thuyKich][0] : "?";
       const cungKT = THAN_INFO[d.keThan]   ? THAN_INFO[d.keThan][0]   : "?";
@@ -4811,10 +4844,10 @@ Ngũ Hành BĐS(Thổ): Hỏa sinh Thổ(cung 2)=đại cát | Thổ tỷ hòa(c
       const cungTA  = CUNG_NAME[d.thaiAt]  || d.thaiAt;
       const cungVXn = CUNG_NAME[cungVX]    || cungVX;
       const cungTKn = CUNG_NAME[cungTK]    || cungTK;
-      // Văn Xương BĐS & Vàng
       const vxBdsEntry = VX_BDS_MAP ? VX_BDS_MAP[cungVX] : null;
       const vangEntry  = VANG_CUNG_MAP ? VANG_CUNG_MAP[d.khachDai] : null;
-      return `▸ ${c.ten} (Cục ${c.cucSo}, ${donHeLabel}):
+      return `▸ [${tk.tang}] ${c.ten} — Mã Cục: ${c.cucSo} | ${donHeLabel}
+  ⚠ Phạm vi: ${tk.phamVi}
   Thái Ất: Cung ${d.thaiAt} (${cungTA})
   Văn Xương: ${d.vanXuong} → Cung ${cungVX} (${cungVXn})
   Kế Thần: ${d.keThan} → Cung ${cungKT}
@@ -4824,7 +4857,7 @@ Ngũ Hành BĐS(Thổ): Hỏa sinh Thổ(cung 2)=đại cát | Thổ tỷ hòa(c
   Chủ Đại Tướng (Cung ${d.chuDai}): ${anChuDaiStr}
   Chủ Tham Tướng (Cung ${d.chuTham}): ${anChuThamStr}
   Khách Đại Tướng (Cung ${d.khachDai}): ${anKhDaiStr}
-  Khách Tham Tướng (Cung ${d.khachTham}): ${anKhThamStr}${vxBdsEntry ? `\n  BĐS (Văn Xương): ${vxBdsEntry.badge}` : ""}${vangEntry ? `\n  Vàng (Khách Đại): ${vangEntry.badge}` : ""}`;
+  Khách Tham Tướng (Cung ${d.khachTham}): ${anKhThamStr}${vxBdsEntry ? `\n  BĐS (Văn Xương-${tk.tang}): ${vxBdsEntry.badge}` : ""}${vangEntry ? `\n  Vàng (Khách Đại-${tk.tang}): ${vangEntry.badge}` : ""}`;
     }
 
     const cucFull = cucs.map(fmtCucFull).join("\n\n");
@@ -4843,6 +4876,7 @@ Ngũ Hành BĐS(Thổ): Hỏa sinh Thổ(cung 2)=đại cát | Thổ tỷ hòa(c
 
 ══════ TỌA ĐỘ VŨ TRỤ ĐẦY ĐỦ ══════
 Thời điểm: ${meta.ngay}/${meta.thang}/${meta.nam} giờ ${meta.gio}H — ${donHeLabel}
+⚠ NHẮC NHỞ TỨ KẾ PHÂN LẬP: Mỗi cục bên dưới CHỈ dùng đúng tầng của nó. Khi luận giải PHẢI hỏi người dùng muốn đánh ở tầng nào (Năm/Tháng/Ngày/Giờ) rồi chỉ đọc đúng cục đó. Mỗi cục có MÃ CỤC riêng — đọc đúng mã, trích đúng sao của cục đó, không pha trộn.
 
 ${cucFull}
 
@@ -4866,7 +4900,7 @@ ${hungList.length > 0
   : "🟢 Tất cả 11 lưới lọc bình yên — vĩ mô ổn định"}
 ══════════════════════════════════════
 
-Khi trả lời hãy dựa vào đúng số liệu trên, đừng nói chung chung. Trả lời ngắn gọn 80-150 chữ trừ khi em hỏi chi tiết.`;
+Khi trả lời: (1) Xác định rõ người dùng hỏi ở tầng nào (Năm/Tháng/Ngày/Giờ) — nếu chưa rõ thì HỎI trước. (2) Chỉ đọc và trích dẫn đúng cục của tầng đó. (3) Dựa vào đúng số liệu trên, đừng nói chung chung. Trả lời ngắn gọn 80-150 chữ trừ khi em hỏi chi tiết.`;
   }
 
   const resp = await fetch(PROXY_URL, {
