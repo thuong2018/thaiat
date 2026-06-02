@@ -4251,13 +4251,41 @@ function giaiPhauAnTuong(cungTuong,thaiAt,vanXuong,thuyKich,dichDai,dichTham,toa
   const cungVX=THAN_INFO[vanXuong][0], cungTK=THAN_INFO[thuyKich][0];
   const tinhChat=layTinhChatToanSo(toanSo);
   const anHung=[];
-  if(cungTuong===5) anHung.push("⛓️ ĐỖ (Lọt hố Lỗ Đen Trung Cung, tàng hình, kẹt cứng thanh khoản)");
-  if(cungTuong===thaiAt) anHung.push("⛓️ TÙ (Bị Thái Ất trói buộc, giam lỏng)");
-  if(cungTuong===cungVX) anHung.push("⚖️ QUAN (Bị Văn Xương kìm kẹp, hành chính rườm rà)");
-  if(cungTuong===cungTK) anHung.push("🩸 YỂM (Bị Thủy Kích ám sát, thị trường sập gãy/flash dump đột ngột)");
+
+  // ── Án ĐỖ CỐ (Đặc biệt — nặng nhất, check trước) ──
+  // Tướng lọt Trung Cung (Đỗ) VÀ đồng thời bị Văn Xương (Quan tinh) trùng cung
+  // Cổ thư: "Đỗ Cố gian truân với cùng" — bế tắc tứ thành + bị giam chặt
+  if(cungTuong===5 && cungTuong===cungVX)
+    anHung.push("🏚️ ĐỖ CỐ (Trung Cung bế tắc + Quan tinh đóng chặt — tứ thành vây kín, đại hung cực độ)");
+  else if(cungTuong===5)
+    anHung.push("⛓️ ĐỖ (Lọt hố Lỗ Đen Trung Cung, tàng hình, kẹt cứng thanh khoản)");
+
+  // ── Án TỨ QUÁCH CỐ ──
+  // Tướng trùng Văn Xương (Quan tinh) VÀ nằm sát vách Thái Ất (kcTA===1)
+  // Cổ thư: "Cố là giam chặt trong bốn bức thành" — Quan kẹp + Thái Ất ép sát = tứ phía bít kín
+  // (Không áp dụng khi đã là ĐỖ CỐ)
   const kcTA=khoangCachKhongGian(cungTuong,thaiAt);
+  if(cungTuong!==5 && cungTuong===cungVX && kcTA===1)
+    anHung.push("🏰 TỨ QUÁCH CỐ (Quan tinh + Thái Ất bủa vây tứ phía — không còn đường lui, xuất chinh ắt diệt)");
+
+  if(cungTuong===thaiAt) anHung.push("⛓️ TÙ (Bị Thái Ất trói buộc, giam lỏng)");
+  if(cungTuong===cungVX && cungTuong!==5 && kcTA!==1)
+    anHung.push("⚖️ QUAN (Bị Văn Xương kìm kẹp, hành chính rườm rà)");
+  if(cungTuong===cungTK) anHung.push("🩸 YỂM (Bị Thủy Kích ám sát, thị trường sập gãy/flash dump đột ngột)");
+
+  // ── Án CÁCH / BÁCH ──
   if(kcTA===4) anHung.push("↔️ CÁCH (Nằm ở cực đối diện Thái Ất, đứt gãy cấu trúc xu hướng)");
-  else if(kcTA===1) anHung.push("🗜️ BÁCH (Nằm sát vách Thái Ất, dồn ép hoảng loạn, quét stoploss)");
+  else if(kcTA===1){
+    // BÁCH đúng nghĩa cổ thư: "tả hữu Thái Ất gặp hai Mục" — check xem cả hai phía Thái Ất đều có quân địch
+    const cungTruocTA=timCungTruoc(thaiAt), cungSauTA=timCungSau(thaiAt);
+    const dichBachTa =(dichDai===cungTruocTA||dichTham===cungTruocTA);
+    const dichBachHuu=(dichDai===cungSauTA ||dichTham===cungSauTA );
+    if(dichBachTa && dichBachHuu)
+      anHung.push("🗜️ BÁCH (Thái Ất bị địch kẹp tả hữu — dồn ép hoảng loạn, quét stoploss toàn diện)");
+    else
+      anHung.push("🗜️ BÁCH ĐƠN (Nằm sát vách Thái Ất, áp lực một chiều, cẩn trọng stoploss bị quét)");
+  }
+
   const kcDichDai=khoangCachKhongGian(cungTuong,dichDai);
   const kcDichTham=khoangCachKhongGian(cungTuong,dichTham);
   if(kcDichDai===1&&kcDichTham===1&&khoangCachKhongGian(dichDai,dichTham)===2)
@@ -4811,7 +4839,7 @@ Mày không được bốc các sao (Văn Xương, Thủy Kích, Đại Du...) n
 BẢNG TRA CỨU CỐ ĐỊNH (dùng khi giải thích):
 Cung Bát Quái: 1=Càn(Tây Bắc·Kim), 2=Ly(Nam·Hỏa), 3=Cấn(Đông Bắc·Thổ), 4=Chấn(Đông·Mộc), 6=Đoài(Tây·Kim), 7=Khôn(Tây Nam·Thổ), 8=Khảm(Bắc·Thủy), 9=Tốn(Đông Nam·Mộc), 5=Trung Cung.
 Bát Môn: Khai=khởi sự tuyệt vời | Hưu=tích lũy an toàn | Sinh=sinh tài cực tốt | Thương=xung đột biến động | Đỗ=bế tắc KHÔNG vào lệnh | Cảnh=dễ bẫy hạn chế | Tử=nguy hiểm TRÁNH HOÀN TOÀN | Kinh=biến động đột ngột.
-Án Tướng: TÙ=trùng Thái Ất(giam lỏng) | YỂM=trùng Thủy Kích(flash dump) | CÁCH=đối xung Thái Ất(đứt xu hướng) | BÁCH=kề sát Thái Ất(quét stoploss) | QUAN=trùng Văn Xương(kìm kẹp) | ĐỖ=Trung Cung(kẹt hoàn toàn) | HIỆP=bị 2 tướng địch kẹp | ĐỀ=mượn sức Thái Ất ép chết.
+Án Tướng: TÙ=trùng Thái Ất(giam lỏng) | YỂM=trùng Thủy Kích(flash dump) | CÁCH=đối xung Thái Ất(đứt xu hướng) | BÁCH=kề sát Thái Ất + địch kẹp tả hữu(quét stoploss toàn diện) | BÁCH ĐƠN=kề sát Thái Ất một phía(áp lực một chiều) | QUAN=trùng Văn Xương không kẹp Thái Ất(kìm kẹp hành chính) | ĐỖ=Trung Cung(kẹt lỗ đen) | ĐỖ CỐ=Trung Cung + Văn Xương cũng ở Trung Cung(đại hung cực độ — nặng nhất) | TỨ QUÁCH CỐ=trùng Văn Xương + kề sát Thái Ất(bủa vây tứ phía tuyệt đường lui) | HIỆP=bị 2 tướng địch kẹp | ĐỀ=mượn sức Thái Ất ép chết.
 Toán số: THƯỢNG HÒA(14,18,23)=đại cát | THỨ HÒA(29,36)=cát | HẠ HÒA(12,16,27,34,38)=cát vừa | THUẦN DƯƠNG(33,39)=đại hung FOMO | THUẦN ÂM(22,26)=đại hung bán tháo | CÔ(10,20,30,40)=sideway chôn vốn | ĐƠN(1-9)=vô thiên mỏng manh | VÔ ĐỊA(đơn vị 1-4)=mất nền tảng.
 Ngũ Hành tương tác với Vàng(Kim): Thổ sinh Kim(cung 3,7)=đại cát | Thủy tiết Kim(cung 8)=tích lũy tốt | Kim tỷ hòa(cung 1,6)=sideway | Mộc bị Kim khắc(cung 4,9)=hao tổn | Hỏa khắc Kim(cung 2)=đại hung.
 Ngũ Hành BĐS(Thổ): Hỏa sinh Thổ(cung 2)=đại cát | Thổ tỷ hòa(cung 3,7)=bền vững | Kim tiết Thổ(cung 1,6)=hao tổn | Thổ khắc Thủy(cung 8)=trì trệ | Mộc khắc Thổ(cung 4,9)=đại hung.`;
@@ -4899,6 +4927,40 @@ ${hungList.length > 0
   ? hungList.map((c,i) => `${i+1}. [${c.layer||""}] ${c.ten}\n   ${c.mo_ta}`).join("\n")
   : "🟢 Tất cả 11 lưới lọc bình yên — vĩ mô ổn định"}
 ══════════════════════════════════════
+
+══════ THUẬT TOÁN LUẬN GIẢI 4 LỚP (áp cho Tuế Kế & Nguyệt Kế) ══════
+Khi luận tầng NĂM hoặc THÁNG, mày PHẢI quét tuần tự 4 lớp này trước khi kết luận:
+
+LỚP 1 — BINH LỰC & TƯỚNG SOÁI (Toán Chủ - Toán Khách):
+• So sánh quân số: Chủ > Khách → nội lực áp đảo, thủ vững. Khách > Chủ → ngoại lực đang áp đảo, cẩn trọng.
+• Quét Bẫy Thái Quá: Thuần Dương/Thuần Âm → khí trời mất cân bằng cùng cực, điềm đại hung. Vô Địa/Vô Thiên → lực rỗng tuếch, mất nền tảng dễ tan vỡ.
+• Quét Tướng Tinh: Phát → xuất chinh bách thắng. Tù/Đỗ/Đỗ Cố → bị giam lỏng bế tắc, tuyệt đối không cất quân. Bách/Bách Đơn → hoảng loạn tứ phía. Cách → đội hình đứt gãy nội bộ sinh biến. Yểm → bị tập kích bất ngờ flash dump. Hiệp/Đề → bị kẹp úp sọt.
+
+LỚP 2 — NỘI TRỊ (Tam Cơ):
+• Quân Cơ (vua/quân đội): đang ở cung nào, quỹ đạo 30 năm đã đi được bao nhiêu — có đụng Đại Du/Thủy Kích không?
+• Thần Cơ (quan lại/bộ máy): quỹ đạo 3 năm — có đụng Sát Tinh không? Nếu có → quan lại rối loạn, kỷ cương sụp đổ.
+• Dân Cơ (dân chúng): có hội tụ Tứ Thần/Địa Ất không? Nếu có → thiên tai, dân lưu tán, mất mùa.
+
+LỚP 3 — THIÊN TAI & PHẢN NGHỊCH (Hung Tinh Vĩ Mô):
+• Án Yểm (Thủy Kích ∩ Thái Ất): đại hung — cấu trúc sụp đổ, máu chảy thành sông.
+• Đại Du phạm Trực Phù: đao binh hỏa hoạn, hạn hán khốc liệt.
+• Thái Ất ∩ Tứ Thần: đại hồng thủy quốc gia.
+• Văn Xương án BĐS (Tù/Đối/Bách): thanh khoản đóng băng, bẫy lồng son.
+• Toán Số Cực Đoan (lưới 2): vĩ mô mất cân bằng, nạn đói/lũ lụt/xung đột.
+
+LỚP 4 — TÌM ĐƯỜNG SỐNG (Ngũ Phúc):
+• Ngũ Phúc hội tụ Thái Ất Năm → hóa giải toàn bộ án hung, vĩ mô đại vượng.
+• Ngũ Phúc cung khác → chỉ hóa giải cục bộ cung đó, cảnh báo cung khác vẫn còn.
+• Ngũ Phúc kẹt Trung Cung (cung 5) → Đỗ Vô Môn, MẤT toàn bộ lá chắn, mọi án hung phát huy 100% độc tính.
+
+KẾT LUẬN SAU 4 LỚP:
+• Tướng Phát + vĩ mô bình yên → tâu xuất chinh, thời cơ vàng.
+• Tướng Tù/Đỗ hoặc có Hung Tinh kích hoạt → khuyên ẩn nhẫn phòng ngự, tích lũy chờ thời, đề phòng phản loạn nội bộ.
+• Nếu Ngũ Phúc còn lá chắn → trong hung vẫn có đường sống, chỉ rõ đường đó.
+
+LƯU Ý QUAN TRỌNG: Quy trình 4 lớp này CHỈ áp cho Tuế Kế (năm) và Nguyệt Kế (tháng). Thời Kế (giờ) và Nhật Kế (ngày) luận theo thế trận Chủ-Khách trực tiếp, không cần quét Tam Cơ hay Hung Tinh Vĩ Mô.
+Ngôn ngữ luận giải: khi luận Tuế/Nguyệt Kế thì dùng giọng đại cuộc cổ phong (binh đao, triều chính, thiên tai, bách tính); khi luận Thời/Nhật Kế thì dùng giọng thực chiến (Long/Short, stoploss, thanh khoản). KHÔNG trộn lẫn giọng điệu giữa hai chế độ.
+══════════════════════════════════════════════════════════
 
 Khi trả lời: (1) Xác định rõ người dùng hỏi ở tầng nào (Năm/Tháng/Ngày/Giờ) — nếu chưa rõ thì HỎI trước. (2) Chỉ đọc và trích dẫn đúng cục của tầng đó. (3) Dựa vào đúng số liệu trên, đừng nói chung chung. Trả lời ngắn gọn 80-150 chữ trừ khi em hỏi chi tiết.`;
   }
