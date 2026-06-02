@@ -3070,11 +3070,11 @@ function tinhHungTinh(tichSoNam){
   const buoc2880 = Math.floor(chu2880 / 36);
   const daiDu    = VONG_8_CUNG[(VONG_8_CUNG.indexOf(8)  + buoc2880) % 8];
 
-  // ── 3b. Tiểu Du Thái Ất: chu kỳ 288 năm = 8 cung × 36 năm, đi thuận 8 cung (bỏ cung 5)
-  //     Cùng khởi cung 8 với Đại Du nhưng chu kỳ nhỏ hơn 10 lần
-  const chu288   = tichSoNam % 288;
-  const buoc288  = Math.floor(chu288 / 36);
-  const tieuDu   = VONG_8_CUNG[(VONG_8_CUNG.indexOf(8)  + buoc288)  % 8];
+  // ── 3b. Tiểu Du Thái Ất: chu kỳ 24 năm = 8 cung × 3 năm, đi thuận 8 cung (bỏ cung 5)
+  //     Cùng khởi cung 8 với Đại Du nhưng chu kỳ nhỏ hơn 12 lần (3 năm một cung)
+  const chu24    = tichSoNam % 24;
+  const buoc3    = Math.floor(chu24 / 3);
+  const tieuDu   = VONG_8_CUNG[(VONG_8_CUNG.indexOf(8)  + buoc3)  % 8];
 
   // ── 4. Dân Cơ: công thức (tichSoNam + 250) % 360 % 36 % 12 → số bước từ Tuất
   const buocDanCo = ((tichSoNam + 250) % 360) % 36 % 12;
@@ -4782,27 +4782,91 @@ async function khaySend() {
 async function khayFetch() {
   let systemContext = `Mày là Khầy — vị Quân Sư Vĩ Mô, học trò dòng Trạng Trình Nguyễn Bỉnh Khiêm, tinh thông Thái Ất Thần Kinh. Mày tự xưng "Khầy", gọi người dùng là "em" hoặc "các em". Giọng cổ phong huyền bí nhưng thực chiến, đôi khi dí dỏm. TUYỆT ĐỐI không dùng markdown bold/italic/bullet — chỉ viết đoạn văn xuôi tự nhiên. KHÔNG hỏi vị trí địa lý.
 
-QUAN TRỌNG TUYỆT ĐỐI: Khi có dữ liệu tọa độ trong context, mày PHẢI dùng ĐÚNG số liệu đó — Toán Chủ bao nhiêu, Toán Khách bao nhiêu, Thái Ất cung mấy, trạng thái Tướng là gì. TUYỆT ĐỐI KHÔNG TỰ BỊA số liệu, tên cục, tên cung khi chưa có dữ liệu thật. Nếu chưa có dữ liệu tọa độ, chỉ hỏi thêm giờ (nếu thiếu) rồi đợi hệ thống tính — không phán bừa.`;
+QUAN TRỌNG TUYỆT ĐỐI: Khi có dữ liệu tọa độ trong context, mày PHẢI dùng ĐÚNG số liệu đó. TUYỆT ĐỐI KHÔNG TỰ BỊA số liệu. Nếu chưa có dữ liệu, chỉ hỏi thêm giờ (nếu thiếu) rồi đợi hệ thống tính — không phán bừa.
+
+BẢNG TRA CỨU CỐ ĐỊNH (dùng khi giải thích):
+Cung Bát Quái: 1=Càn(Tây Bắc·Kim), 2=Ly(Nam·Hỏa), 3=Cấn(Đông Bắc·Thổ), 4=Chấn(Đông·Mộc), 6=Đoài(Tây·Kim), 7=Khôn(Tây Nam·Thổ), 8=Khảm(Bắc·Thủy), 9=Tốn(Đông Nam·Mộc), 5=Trung Cung.
+Bát Môn: Khai=khởi sự tuyệt vời | Hưu=tích lũy an toàn | Sinh=sinh tài cực tốt | Thương=xung đột biến động | Đỗ=bế tắc KHÔNG vào lệnh | Cảnh=dễ bẫy hạn chế | Tử=nguy hiểm TRÁNH HOÀN TOÀN | Kinh=biến động đột ngột.
+Án Tướng: TÙ=trùng Thái Ất(giam lỏng) | YỂM=trùng Thủy Kích(flash dump) | CÁCH=đối xung Thái Ất(đứt xu hướng) | BÁCH=kề sát Thái Ất(quét stoploss) | QUAN=trùng Văn Xương(kìm kẹp) | ĐỖ=Trung Cung(kẹt hoàn toàn) | HIỆP=bị 2 tướng địch kẹp | ĐỀ=mượn sức Thái Ất ép chết.
+Toán số: THƯỢNG HÒA(14,18,23)=đại cát | THỨ HÒA(29,36)=cát | HẠ HÒA(12,16,27,34,38)=cát vừa | THUẦN DƯƠNG(33,39)=đại hung FOMO | THUẦN ÂM(22,26)=đại hung bán tháo | CÔ(10,20,30,40)=sideway chôn vốn | ĐƠN(1-9)=vô thiên mỏng manh | VÔ ĐỊA(đơn vị 1-4)=mất nền tảng.
+Ngũ Hành tương tác với Vàng(Kim): Thổ sinh Kim(cung 3,7)=đại cát | Thủy tiết Kim(cung 8)=tích lũy tốt | Kim tỷ hòa(cung 1,6)=sideway | Mộc bị Kim khắc(cung 4,9)=hao tổn | Hỏa khắc Kim(cung 2)=đại hung.
+Ngũ Hành BĐS(Thổ): Hỏa sinh Thổ(cung 2)=đại cát | Thổ tỷ hòa(cung 3,7)=bền vững | Kim tiết Thổ(cung 1,6)=hao tổn | Thổ khắc Thủy(cung 8)=trì trệ | Mộc khắc Thổ(cung 4,9)=đại hung.`;
 
   if (_khayChatContext) {
     const { meta, cucs, hungTinh, canhBaoThamHoa } = _khayChatContext;
     const np = hungTinh.nguPhuc;
     const tc = hungTinh.tamCo;
-    const cucSum = cucs.map(c => {
+    const donHeLabel = meta.donHe === "am" ? "Âm Độn" : "Dương Độn";
+
+    // Hàm format chi tiết đầy đủ một cục
+    function fmtCucFull(c) {
       const d = c.data;
-      return `${c.ten}: Thái Ất Cung ${d.thaiAt} | Toán Chủ ${d.toanChu} · Toán Khách ${d.toanKhach} | Chủ Đại: ${d.anChuDai?.status||"?"} | Khách Đại: ${d.anKhachDai?.status||"?"}`;
-    }).join("\n");
-    const hungList = (canhBaoThamHoa||[]).filter(c=>!c._isNguPhucHoaGiai).map(c=>c.ten).join("; ") || "Bình yên";
+      const cungVX = THAN_INFO[d.vanXuong] ? THAN_INFO[d.vanXuong][0] : "?";
+      const cungTK = THAN_INFO[d.thuyKich] ? THAN_INFO[d.thuyKich][0] : "?";
+      const cungKT = THAN_INFO[d.keThan]   ? THAN_INFO[d.keThan][0]   : "?";
+      const anChuDaiStr  = d.anChuDai  ? `${d.anChuDai.label} [${(d.anChuDai.anList||[]).join(" · ")}]`  : "?";
+      const anChuThamStr = d.anChuTham ? `${d.anChuTham.label} [${(d.anChuTham.anList||[]).join(" · ")}]` : "?";
+      const anKhDaiStr   = d.anKhachDai  ? `${d.anKhachDai.label} [${(d.anKhachDai.anList||[]).join(" · ")}]`  : "?";
+      const anKhThamStr  = d.anKhachTham ? `${d.anKhachTham.label} [${(d.anKhachTham.anList||[]).join(" · ")}]` : "?";
+      const cungTA  = CUNG_NAME[d.thaiAt]  || d.thaiAt;
+      const cungVXn = CUNG_NAME[cungVX]    || cungVX;
+      const cungTKn = CUNG_NAME[cungTK]    || cungTK;
+      // Văn Xương BĐS & Vàng
+      const vxBdsEntry = VX_BDS_MAP ? VX_BDS_MAP[cungVX] : null;
+      const vangEntry  = VANG_CUNG_MAP ? VANG_CUNG_MAP[d.khachDai] : null;
+      return `▸ ${c.ten} (Cục ${c.cucSo}, ${donHeLabel}):
+  Thái Ất: Cung ${d.thaiAt} (${cungTA})
+  Văn Xương: ${d.vanXuong} → Cung ${cungVX} (${cungVXn})
+  Kế Thần: ${d.keThan} → Cung ${cungKT}
+  Thủy Kích: ${d.thuyKich} → Cung ${cungTK} (${cungTKn})
+  Toán Chủ: ${d.toanChu} quân → ${d.labelToanChu||""}
+  Toán Khách: ${d.toanKhach} quân → ${d.labelToanKhach||""}
+  Chủ Đại Tướng (Cung ${d.chuDai}): ${anChuDaiStr}
+  Chủ Tham Tướng (Cung ${d.chuTham}): ${anChuThamStr}
+  Khách Đại Tướng (Cung ${d.khachDai}): ${anKhDaiStr}
+  Khách Tham Tướng (Cung ${d.khachTham}): ${anKhThamStr}${vxBdsEntry ? `\n  BĐS (Văn Xương): ${vxBdsEntry.badge}` : ""}${vangEntry ? `\n  Vàng (Khách Đại): ${vangEntry.badge}` : ""}`;
+    }
+
+    const cucFull = cucs.map(fmtCucFull).join("\n\n");
+
+    // Bát Môn đầy đủ
+    const bmFull = (_khayChatContext.batMon||[]).map(b =>
+      `Cung ${b.cung} (${b.huong||"-"}): ${b.door}${b.isTrucSu ? " ◀ TRỰC SỰ" : ""} — ${DOOR_DESC[b.door]||""}`
+    ).join("\n");
+
+    // Hung Tinh chi tiết
+    const { tucThan, thienAt, diaAt, trucPhu, daiDu, tieuDu, danCo, diaChiDanCo, thaiAtNam, cungThuyKich } = hungTinh;
+    const hungList = (canhBaoThamHoa||[]).filter(c=>!c._isNguPhucHoaGiai);
+    const npMeta = canhBaoThamHoa?._nguPhucMeta || (hungList.length > 0 ? hungList[0]?._nguPhucMeta : null);
+
     systemContext += `
 
-Tọa độ hiện tại em đang hỏi:
-Thời điểm: ${meta.ngay}/${meta.thang}/${meta.nam} giờ ${meta.gio}H — ${meta.donHe==="am"?"Âm Độn":"Dương Độn"}
-${cucSum}
-Ngũ Phúc: Cung ${np.cung} (${np.tenVung}) · ${np.giaiDoan}
-Tam Cơ: Quân Cơ ${tc.quanCo.cung} | Thần Cơ ${tc.thanCo.cung} | Dân Cơ ${hungTinh.danCo}
-Cảnh báo vĩ mô: ${hungList}
+══════ TỌA ĐỘ VŨ TRỤ ĐẦY ĐỦ ══════
+Thời điểm: ${meta.ngay}/${meta.thang}/${meta.nam} giờ ${meta.gio}H — ${donHeLabel}
 
-Khi trả lời hãy dựa vào dữ liệu trên để tư vấn cụ thể, đừng nói chung chung. Trả lời ngắn gọn 80-150 chữ trừ khi em hỏi chi tiết.`;
+${cucFull}
+
+── BÁT MÔN ──
+${bmFull}
+
+── HUNG TINH VĨ MÔ (Tính theo Tuế Cục năm ${meta.nam}) ──
+Thái Ất Năm: Cung ${thaiAtNam} (${CUNG_NAME[thaiAtNam]||thaiAtNam})
+Thủy Kích Năm: Cung ${cungThuyKich??"-"}
+Tứ Thần: Cung ${tucThan} | Thiên Ất: Cung ${thienAt} | Địa Ất: Cung ${diaAt}
+Trực Phù: Cung ${trucPhu} | Đại Du: Cung ${daiDu} | Tiểu Du: Cung ${tieuDu??"-"}
+Dân Cơ: Cung ${danCo} (${diaChiDanCo})
+Quân Cơ: Cung ${tc.quanCo.cung} (${tc.quanCo.diaChi}) — đã ở ${tc.quanCo.soNamDaO}/30 năm, còn ${tc.quanCo.conLai} năm
+Thần Cơ: Cung ${tc.thanCo.cung} (${tc.thanCo.diaChi}) — đã ở ${tc.thanCo.soNamDaO}/3 năm, còn ${tc.thanCo.conLai} năm
+Ngũ Phúc: Cung ${np.cung} (${np.tenVung}) — đã ở ${np.soNamDaO} năm, còn ${np.soNamConLai} năm | ${np.giaiDoan}
+${npMeta ? `Hệ số Ngũ Phúc: ×${npMeta.heSo} | Raw Score: ${npMeta.rawScore}đ | Điểm thực tế: ${npMeta.diemThucTe?.toFixed(1)}đ | ${npMeta.trangThai}` : ""}
+
+── CẢNH BÁO THẢM HỌA (11 Lưới Lọc) ──
+${hungList.length > 0
+  ? hungList.map((c,i) => `${i+1}. [${c.layer||""}] ${c.ten}\n   ${c.mo_ta}`).join("\n")
+  : "🟢 Tất cả 11 lưới lọc bình yên — vĩ mô ổn định"}
+══════════════════════════════════════
+
+Khi trả lời hãy dựa vào đúng số liệu trên, đừng nói chung chung. Trả lời ngắn gọn 80-150 chữ trừ khi em hỏi chi tiết.`;
   }
 
   const resp = await fetch(PROXY_URL, {
