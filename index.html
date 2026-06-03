@@ -6,6 +6,13 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>☯ Thái Ất Thần Kinh</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#030810">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icon-192.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -3104,6 +3111,37 @@ function tinhHungTinh(tichSoNam){
   // ── 7. Bộ Ba Tam Cơ (Quân Cơ + Thần Cơ + Dân Cơ)
   const tamCo = tinhBoBaTamCo(tichSoNam);
 
+  // ── 8. Thái Âm (Hậu Cung)
+  // Công thức: Thái Âm đóng ở cung cách Hợp Thần 3 bước lùi trong vòng 12 Địa Chi
+  // (tức "qua hai cung về phía sau" = bỏ qua 2 cung giữa = lùi 3 bước)
+  // Lục Hợp: Tý-Sửu, Dần-Hợi, Mão-Tuất, Thìn-Dậu, Tỵ-Thân, Ngọ-Mùi
+  const LUC_HOP_MAP = {
+    "Tý":"Sửu","Sửu":"Tý","Dần":"Hợi","Hợi":"Dần",
+    "Mão":"Tuất","Tuất":"Mão","Thìn":"Dậu","Dậu":"Thìn",
+    "Tỵ":"Thân","Thân":"Tỵ","Ngọ":"Mùi","Mùi":"Ngọ"
+  };
+  // Thái Tuế = Địa Chi của năm hiện tại (tính từ tichSoNam)
+  // tichSoNam % 12 → index trong DIA_CHI, khởi từ Tý (năm 0 = Giáp Tý)
+  const thaiTueDiaChi = DIA_CHI[(tichSoNam + 8) % 12]; // offset=8 để 2020(Tý)→idx0 đúng
+  const hopThanDiaChi = LUC_HOP_MAP[thaiTueDiaChi] || thaiTueDiaChi;
+  const idxHopThan    = DIA_CHI.indexOf(hopThanDiaChi);
+  const thaiAmDiaChi  = DIA_CHI[(idxHopThan - 3 + 12) % 12];
+  const thaiAmCung    = DIA_CHI_CUNG[thaiAmDiaChi] || null;
+  // Phán đoán Thái Âm
+  const cungVanXuongNam = THAN_INFO[vanXuongNam] ? THAN_INFO[vanXuongNam][0] : null;
+  const thaiAmGapThaiAt  = thaiAmCung !== null && thaiAmCung === thaiAtNam;
+  const thaiAmGapVanXuong= thaiAmCung !== null && thaiAmCung === cungVanXuongNam;
+  const thaiAmGapThuyKich= thaiAmCung !== null && thaiAmCung === cungThuyKich;
+  const thaiAmGapTucThan = thaiAmCung !== null && thaiAmCung === tucThan;
+  let thaiAmPhanDoan = "";
+  if(thaiAmGapThaiAt)   thaiAmPhanDoan = "✨ VUA-HẬU HÒA MỤC — quốc gia hưng vượng, lân bang triều cống";
+  else if(thaiAmGapVanXuong || thaiAmGapThuyKich)
+    thaiAmPhanDoan = "🔴 HẬU CUNG SINH BIẾN — đàn bà mưu mô nắm quyền, bề tôi chuyên quyền, bách tính lầm than";
+  else if(thaiAmGapTucThan)
+    thaiAmPhanDoan = "⚠️ TỬ ĐỊA — Thái Âm lọt vào Tứ Thần, tai ương trong nước thêm nặng nề";
+  else
+    thaiAmPhanDoan = "🟡 Bình thường — hậu cung không can dự đại cuộc";
+
   return {
     tucThan, thienAt, diaAt, trucPhu, daiDu, tieuDu,
     danCo: danCoCung, diaChiDanCo,
@@ -3113,6 +3151,17 @@ function tinhHungTinh(tichSoNam){
     toanKhachNam,    // Lưới Lọc 2
     nguPhuc,         // Sao hóa giải & thịnh vượng
     tamCo,           // Bộ Ba Tam Cơ (Quân + Thần + Dân)
+    thaiAm: {        // Hậu Cung Thái Âm
+      diaChi: thaiAmDiaChi,
+      cung: thaiAmCung,
+      hopThan: hopThanDiaChi,
+      thaiTue: thaiTueDiaChi,
+      gapThaiAt:   thaiAmGapThaiAt,
+      gapVanXuong: thaiAmGapVanXuong,
+      gapThuyKich: thaiAmGapThuyKich,
+      gapTucThan:  thaiAmGapTucThan,
+      phanDoan:    thaiAmPhanDoan,
+    },
   };
 }
 
@@ -4457,6 +4506,7 @@ Dữ liệu tính toán:
 - Quân Cơ: Cung ${tc.quanCo.cung} (${tc.quanCo.diaChi}) 
 - Thần Cơ: Cung ${tc.thanCo.cung} (${tc.thanCo.diaChi})
 - Dân Cơ: Cung ${hungTinh.danCo} (${hungTinh.diaChiDanCo})
+- Thái Âm (Hậu Cung): ${hungTinh.thaiAm?.diaChi??"-"} → Cung ${hungTinh.thaiAm?.cung??"-"} | ${hungTinh.thaiAm?.phanDoan??""}
 - Đại Du Thái Ất: Cung ${hungTinh.daiDu}
 - Cảnh báo thảm họa: ${canhBao && canhBao.length > 0 ? canhBao.filter(c=>!c._isNguPhucHoaGiai).map(c=>c.ten).join("; ") : "Bình yên — không có cảnh báo"}`;
   }
@@ -4533,6 +4583,7 @@ ${cucSummary}
 
 Ngũ Phúc: Cung ${np.cung} (${np.tenVung}) · ${np.giaiDoan}
 Tam Cơ: Quân Cơ Cung ${tc.quanCo.cung} | Thần Cơ Cung ${tc.thanCo.cung} | Dân Cơ Cung ${hungTinh.danCo}
+Thái Âm (Hậu Cung): ${hungTinh.thaiAm?.diaChi??"-"} → Cung ${hungTinh.thaiAm?.cung??"-"} | ${hungTinh.thaiAm?.phanDoan??""}
 Cảnh báo vĩ mô: ${hungItems.length > 0 ? hungItems.map(c=>c.ten).join("; ") : "Không có — bình yên"}
 
 Tổng luận phải: (1) nhận định khí tượng tổng thể qua 4 cục (năm→tháng→ngày→giờ), (2) chỉ ra điểm then chốt quan trọng nhất của thời điểm này, (3) lời khuyên thực chiến 1-2 câu. Viết liên mạch, không bullet, ngôn ngữ cổ phong thực chiến.
@@ -4919,6 +4970,7 @@ Trực Phù: Cung ${trucPhu} | Đại Du: Cung ${daiDu} | Tiểu Du: Cung ${tieu
 Dân Cơ: Cung ${danCo} (${diaChiDanCo})
 Quân Cơ: Cung ${tc.quanCo.cung} (${tc.quanCo.diaChi}) — đã ở ${tc.quanCo.soNamDaO}/30 năm, còn ${tc.quanCo.conLai} năm
 Thần Cơ: Cung ${tc.thanCo.cung} (${tc.thanCo.diaChi}) — đã ở ${tc.thanCo.soNamDaO}/3 năm, còn ${tc.thanCo.conLai} năm
+Thái Âm (Hậu Cung): Địa Chi ${hungTinh.thaiAm?.diaChi??"-"} → Cung ${hungTinh.thaiAm?.cung??"-"} | ${hungTinh.thaiAm?.phanDoan??""}
 Ngũ Phúc: Cung ${np.cung} (${np.tenVung}) — đã ở ${np.soNamDaO} năm, còn ${np.soNamConLai} năm | ${np.giaiDoan}
 ${npMeta ? `Hệ số Ngũ Phúc: ×${npMeta.heSo} | Raw Score: ${npMeta.rawScore}đ | Điểm thực tế: ${npMeta.diemThucTe?.toFixed(1)}đ | ${npMeta.trangThai}` : ""}
 
@@ -4936,10 +4988,11 @@ LỚP 1 — BINH LỰC & TƯỚNG SOÁI (Toán Chủ - Toán Khách):
 • Quét Bẫy Thái Quá: Thuần Dương/Thuần Âm → khí trời mất cân bằng cùng cực, điềm đại hung. Vô Địa/Vô Thiên → lực rỗng tuếch, mất nền tảng dễ tan vỡ.
 • Quét Tướng Tinh: Phát → xuất chinh bách thắng. Tù/Đỗ/Đỗ Cố → bị giam lỏng bế tắc, tuyệt đối không cất quân. Bách/Bách Đơn → hoảng loạn tứ phía. Cách → đội hình đứt gãy nội bộ sinh biến. Yểm → bị tập kích bất ngờ flash dump. Hiệp/Đề → bị kẹp úp sọt.
 
-LỚP 2 — NỘI TRỊ (Tam Cơ):
+LỚP 2 — NỘI TRỊ (Tam Cơ & Thái Âm):
 • Quân Cơ (vua/quân đội): đang ở cung nào, quỹ đạo 30 năm đã đi được bao nhiêu — có đụng Đại Du/Thủy Kích không?
 • Thần Cơ (quan lại/bộ máy): quỹ đạo 3 năm — có đụng Sát Tinh không? Nếu có → quan lại rối loạn, kỷ cương sụp đổ.
 • Dân Cơ (dân chúng): có hội tụ Tứ Thần/Địa Ất không? Nếu có → thiên tai, dân lưu tán, mất mùa.
+• Thái Âm (Hậu Cung): xem phán đoán được tính sẵn. Đồng cung Thái Ất → Vua-Hậu hòa mục, quốc thái dân an. Gặp Văn Xương hoặc Thủy Kích → đàn bà mưu mô nắm quyền, bề tôi chuyên quyền. Lọt vào Tứ Thần → tử địa, tai ương nặng nề.
 
 LỚP 3 — THIÊN TAI & PHẢN NGHỊCH (Hung Tinh Vĩ Mô):
 • Án Yểm (Thủy Kích ∩ Thái Ất): đại hung — cấu trúc sụp đổ, máu chảy thành sông.
@@ -5275,7 +5328,7 @@ function drawAllRadars(){
   });
 }
 
-function renderCuc(c,idx){
+function renderCuc(c,idx,hungTinh){
   const d=c.data;
   const openClass=""; // tất cả đóng mặc định, bấm mới mở
   const donHeLabel=d.tenDonHe;
@@ -5327,6 +5380,19 @@ function renderCuc(c,idx){
       </div>
       ${d.thanCo?`<div class="shen-row"><span class="icon-col">👑</span><span class="key">Thần Cơ (Tiền to)</span><span class="val">${d.thanCo} · ${getNguHanh(d.thanCo)}</span></div>`:""}
       ${d.danCo?`<div class="shen-row"><span class="icon-col">🐑</span><span class="key">Dân Cơ (Đám đông)</span><span class="val">${d.danCo} · ${getNguHanh(d.danCo)}</span></div>`:""}
+      ${idx===0&&hungTinh?.thaiAm?(()=>{
+        const ta=hungTinh.thaiAm;
+        const icon=ta.gapThaiAt?"✨":(ta.gapVanXuong||ta.gapThuyKich)?"🔴":ta.gapTucThan?"⚠️":"🌙";
+        const rowStyle=(ta.gapThaiAt?"border-left:2px solid #ffd700;background:rgba(255,215,0,.06);":(ta.gapVanXuong||ta.gapThuyKich)?"border-left:2px solid var(--red);background:rgba(255,68,85,.06);":ta.gapTucThan?"border-left:2px solid #ff8844;background:rgba(255,136,68,.05);":"");
+        const valStyle=(ta.gapThaiAt?"color:#ffd700":(ta.gapVanXuong||ta.gapThuyKich)?"color:var(--red)":ta.gapTucThan?"color:#ff8844":"");
+        const phanDoan=ta.phanDoan.replace(/^[✨🔴⚠️🟡]\s*/,"");
+        return `<div class="shen-row" style="${rowStyle}padding:6px 8px;border-radius:6px;margin:2px 0;">
+          <span class="icon-col">${icon}</span>
+          <span class="key">Thái Âm (Hậu Cung)</span>
+          <span class="val" style="${valStyle}">${ta.diaChi} · Cung ${ta.cung} · ${CUNG_NAME[ta.cung]||""}</span>
+        </div>
+        <div style="font-size:10.5px;color:${ta.gapThaiAt?"#c8a800":(ta.gapVanXuong||ta.gapThuyKich)?"var(--red)":ta.gapTucThan?"#ff8844":"var(--text-dim)"};padding:2px 8px 6px 34px;opacity:.9;">${phanDoan}</div>`;
+      })():""}
 
       ${renderSaBan(d, c.ten)}
 
@@ -5635,7 +5701,7 @@ function tamCoGrid(tamCo, thaiAtNam){
 }
 
 function renderThamHoa(hungTinh, canhBao, meta){
-  const { tucThan, thienAt, diaAt, trucPhu, daiDu, tieuDu, danCo, diaChiDanCo, thaiAtNam, cungThuyKich, nguPhuc, tamCo } = hungTinh;
+  const { tucThan, thienAt, diaAt, trucPhu, daiDu, tieuDu, danCo, diaChiDanCo, thaiAtNam, cungThuyKich, nguPhuc, tamCo, thaiAm } = hungTinh;
   const namLabel = meta ? `Năm ${meta.nam}` : "Năm";
   const ngayLabel = meta ? `${String(meta.ngay).padStart(2,"0")}/${String(meta.thang).padStart(2,"0")}/${meta.nam}` : "";
 
@@ -5643,18 +5709,34 @@ function renderThamHoa(hungTinh, canhBao, meta){
   const npHoiTu = nguPhuc && nguPhuc.cung === thaiAtNam;
   const npCls = npHoiTu ? "ngu-phuc-hot" : "ngu-phuc-cell";
 
+  // Màu ô Thái Âm tùy phán đoán
+  const taIcon = thaiAm?.gapThaiAt ? "✨"
+    : (thaiAm?.gapVanXuong || thaiAm?.gapThuyKich) ? "🔴"
+    : thaiAm?.gapTucThan ? "⚠️" : "🌙";
+  const taStyle = thaiAm?.gapThaiAt
+    ? "border-color:rgba(255,215,0,.5);background:rgba(255,215,0,.07);"
+    : (thaiAm?.gapVanXuong || thaiAm?.gapThuyKich)
+    ? "border-color:rgba(255,68,85,.5);background:rgba(255,68,85,.06);"
+    : thaiAm?.gapTucThan
+    ? "border-color:rgba(255,136,68,.5);background:rgba(255,136,68,.06);"
+    : "";
+  const taNameColor = thaiAm?.gapThaiAt ? "color:#ffd700"
+    : (thaiAm?.gapVanXuong || thaiAm?.gapThuyKich) ? "color:var(--red)"
+    : thaiAm?.gapTucThan ? "color:#ff8844" : "";
+
   const toaDo = [
-    { name:"Thái Ất Năm",     val:`Cung ${thaiAtNam}`,                     sub:CUNG_NAME[thaiAtNam]||"Trung Cung",  cls:"" },
-    { name:"Thủy Kích Năm",   val:`Cung ${cungThuyKich??"-"}`,             sub:CUNG_NAME[cungThuyKich]||"",         cls:"" },
-    { name:"Tứ Thần",         val:`Cung ${tucThan}`,                       sub:CUNG_NAME[tucThan]||"Trung Cung",    cls:"" },
-    { name:"Thiên Ất",        val:`Cung ${thienAt}`,                       sub:CUNG_NAME[thienAt]||"Trung Cung",    cls:"" },
-    { name:"Địa Ất",          val:`Cung ${diaAt}`,                         sub:CUNG_NAME[diaAt]||"Trung Cung",      cls:"" },
-    { name:"Trực Phù",        val:`Cung ${trucPhu}`,                       sub:CUNG_NAME[trucPhu]||"Trung Cung",    cls:"" },
-    { name:"Đại Du Thái Ất",  val:`Cung ${daiDu}`,                        sub:CUNG_NAME[daiDu]||"Trung Cung",      cls:"" },
-    { name:"Tiểu Du Thái Ất", val:`Cung ${tieuDu??"-"}`,                  sub:CUNG_NAME[tieuDu]||"Trung Cung",     cls:"" },
+    { name:"Thái Ất Năm",     val:`Cung ${thaiAtNam}`,                     sub:CUNG_NAME[thaiAtNam]||"Trung Cung",  cls:"", style:"", nameStyle:"" },
+    { name:"Thủy Kích Năm",   val:`Cung ${cungThuyKich??"-"}`,             sub:CUNG_NAME[cungThuyKich]||"",         cls:"", style:"", nameStyle:"" },
+    { name:`${taIcon} Thái Âm · Hậu Cung`, val:`${thaiAm?.diaChi??"-"} · Cung ${thaiAm?.cung??"-"}`, sub:(thaiAm?.phanDoan??"-").replace(/^[✨🔴⚠️🟡]\s*/,""), cls:"", style:taStyle, nameStyle:taNameColor },
+    { name:"Tứ Thần",         val:`Cung ${tucThan}`,                       sub:CUNG_NAME[tucThan]||"Trung Cung",    cls:"", style:"", nameStyle:"" },
+    { name:"Thiên Ất",        val:`Cung ${thienAt}`,                       sub:CUNG_NAME[thienAt]||"Trung Cung",    cls:"", style:"", nameStyle:"" },
+    { name:"Địa Ất",          val:`Cung ${diaAt}`,                         sub:CUNG_NAME[diaAt]||"Trung Cung",      cls:"", style:"", nameStyle:"" },
+    { name:"Trực Phù",        val:`Cung ${trucPhu}`,                       sub:CUNG_NAME[trucPhu]||"Trung Cung",    cls:"", style:"", nameStyle:"" },
+    { name:"Đại Du Thái Ất",  val:`Cung ${daiDu}`,                        sub:CUNG_NAME[daiDu]||"Trung Cung",      cls:"", style:"", nameStyle:"" },
+    { name:"Tiểu Du Thái Ất", val:`Cung ${tieuDu??"-"}`,                  sub:CUNG_NAME[tieuDu]||"Trung Cung",     cls:"", style:"", nameStyle:"" },
   ].map(r=>`
-    <div class="hung-tinh-cell ${r.cls}">
-      <div class="ht-name">${r.name}</div>
+    <div class="hung-tinh-cell ${r.cls}" style="${r.style||""}" >
+      <div class="ht-name" style="${r.nameStyle||""}">​${r.name}</div>
       <div class="ht-val">${r.val}</div>
       <div class="ht-sub">${r.sub}</div>
     </div>`).join("");
@@ -5837,8 +5919,8 @@ function renderResults(r){
   html+=renderTongLuanSection();
   // chat Khầy đã cố định bên trái, không render ở đây nữa
   // 2a. PRIMARY: Tuế Cục (năm) + Nhật Cục (ngày) — quan trọng nhất
-  if(cucs[0]) { cucs[0].tamCo = hungTinh.tamCo; html+=renderCuc(cucs[0],0); }
-  if(cucs[2]) html+=renderCuc(cucs[2],2);
+  if(cucs[0]) { cucs[0].tamCo = hungTinh.tamCo; html+=renderCuc(cucs[0],0,hungTinh); }
+  if(cucs[2]) html+=renderCuc(cucs[2],2,null);
   // 2b. EXTRA: Nguyệt + Thời — ẩn mặc định
   html+=`<div class="cucs-extra-toggle" id="extra-toggle-btn" onclick="toggleExtraCucs()">
     <span style="font-size:14px">📅</span>
@@ -5847,8 +5929,8 @@ function renderResults(r){
     <span style="font-size:9px;opacity:.5;margin-left:auto">Tham khảo thêm</span>
   </div>
   <div id="cucs-extra-group">`;
-  if(cucs[1]) html+=renderCuc(cucs[1],1);
-  if(cucs[3]) html+=renderCuc(cucs[3],3);
+  if(cucs[1]) html+=renderCuc(cucs[1],1,null);
+  if(cucs[3]) html+=renderCuc(cucs[3],3,null);
   html+=`</div>`;
   // 3. Bát Môn — đóng
   html+=renderBatMon(batMon);
@@ -6040,6 +6122,17 @@ fillToday();
     <div id="baocao-text"></div>
   </div>
 </div>
+
+<script>
+// ── PWA SERVICE WORKER REGISTRATION ──
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => console.log('[SW] Registered:', reg.scope))
+      .catch(err => console.warn('[SW] Failed:', err));
+  });
+}
+</script>
 
 </body>
 </html>
