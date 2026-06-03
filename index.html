@@ -1836,6 +1836,33 @@ input[type=range]::-webkit-slider-thumb {
 }
 .luan-giai-retry:hover { background: rgba(200,153,58,.14); }
 
+.luan-giai-btn-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 14px 16px 16px;
+}
+.luan-giai-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 28px;
+  background: rgba(200,153,58,.08);
+  border: 1px solid rgba(200,153,58,.35);
+  border-radius: 50px;
+  color: rgba(200,153,58,.9);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  cursor: pointer;
+  transition: background .2s, border-color .2s, transform .1s;
+}
+.luan-giai-trigger-btn:hover {
+  background: rgba(200,153,58,.18);
+  border-color: rgba(200,153,58,.6);
+  transform: translateY(-1px);
+}
+.luan-giai-trigger-btn:active { transform: translateY(0); }
+
 /* Tổng kết toàn cục */
 .tong-luan-wrap {
   margin: 0 0 12px 0;
@@ -4428,22 +4455,21 @@ function compute(nam,thang,ngay,gio){
   const nhatCucData=tinhCuc(tichSoNgay,nhatCuc,donHe,null);
   const thoiCucData=tinhCuc(tichSoGio,thoiCuc,donHe,null);
 
-  // Bát Môn
-  const DOOR_CUNG_MAP = [
+  // Bát Môn — cung cố định theo sách trang 386–387
+  // Khai→Kiền(1,TBắc) Hưu→Khảm(8,Bắc) Sinh→Cấn(3,ĐBắc) Thương→Chấn(4,Đông)
+  // Đỗ→Tốn(9,ĐNam)   Cảnh→Ly(2,Nam)   Tử→Khôn(7,TNam)   Kinh→Đoài(6,Tây)
+  const DOOR_CUNG_MAP=[
     {door:"Khai", cung:1, huong:"Tây Bắc"},
     {door:"Hưu",  cung:8, huong:"Bắc"},
     {door:"Sinh", cung:3, huong:"Đông Bắc"},
-    {door:"Thương", cung:4, huong:"Đông"},
-    {door:"Đỗ",  cung:9, huong:"Đông Nam"},
+    {door:"Thương",cung:4,huong:"Đông"},
+    {door:"Đỗ",   cung:9, huong:"Đông Nam"},
     {door:"Cảnh", cung:2, huong:"Nam"},
-    {door:"Tử",  cung:7, huong:"Tây Nam"},
+    {door:"Tử",   cung:7, huong:"Tây Nam"},
     {door:"Kinh", cung:6, huong:"Tây"},
   ];
-  const trucSuIdx = Math.floor((tichSoNam % 240) / 30);
-  const batMon = DOOR_CUNG_MAP.map((item, i) => ({
-    ...item,
-    isTrucSu: i === trucSuIdx,
-  }));
+  const trucSuIdx=Math.floor((tichSoNam%240)/30); // trang 388 sách: %240, bỏ %2400
+  const batMon=DOOR_CUNG_MAP.map((item,i)=>({...item,isTrucSu:i===trucSuIdx}));
   return {
     meta:{nam,thang,ngay,gio,doy,donHe},
     cucs:[
@@ -4483,38 +4509,13 @@ async function fetchLuanGiai(cucTen, d, meta, hungTinh, canhBao) {
   const key = `${cucTen}_${meta.nam}_${meta.thang}_${meta.ngay}_${meta.gio}`;
   if (_luanGiaiCache[key]) return _luanGiaiCache[key];
 
-  let prompt = "";
-  if (cucTen === "Bát Môn") {
-    const batMon = d;
-    const trucSu = batMon.find(b => b.isTrucSu);
-    const doorsDesc = batMon.map(b => `Cửa ${b.door} đóng tại cung ${b.cung} (${b.huong})${b.isTrucSu ? " [TRỰC SỰ]" : ""}`).join("\n");
-    let context = `Nhiệm vụ: Luận giải Bát Môn cho thời điểm năm ${meta.nam}, tháng ${meta.thang}, ngày ${meta.ngay}, giờ ${meta.gio}H.
-Bát Môn là bản đồ phân bổ dòng tiền và cát hung của các hướng trong năm.
+  const cungTenTA  = CUNG_NAME[d.thaiAt] || ("Cung "+d.thaiAt);
+  const anChuLabel = d.anChuDai  ? d.anChuDai.label  : "";
+  const anKhLabel  = d.anKhachDai ? d.anKhachDai.label : "";
+  const nhChieuTA  = getNguHanh(String(d.thaiAt));
 
-Vị trí 8 cửa:
-${doorsDesc}
-
-Trực Sự (cửa chủ quản thời kỳ hiện tại): Cửa ${trucSu.door} tại cung ${trucSu.cung} (${trucSu.huong}) - Mô tả: ${DOOR_DESC[trucSu.door] || ""}`;
-
-    prompt = context + `
-
-Hãy viết đoạn luận giải khoảng 120-180 chữ tiếng Việt theo phong cách cổ thư Thái Ất. Luận giải nên:
-1. Nhận định tổng thể về cục diện Bát Môn của năm/thời điểm hiện tại.
-2. Đi sâu phân tích ý nghĩa của cửa Trực Sự (${trucSu.door}) tại cung ${trucSu.cung} (${trucSu.huong}) tác động thế nào tới xu thế vĩ mô, cơ hội/nguy cơ lớn.
-3. Nhận định cát hung cho các hướng/cửa còn lại (nhất là Sinh môn, Khai môn, Tử môn) để người đọc biết nên đầu tư/mưu sự ở hướng nào và tránh hướng nào.
-4. Lời khuyên thực chiến ngắn gọn cho người giao dịch/mưu sự.
-Viết liền tục, không dùng bullet, không dùng số thứ tự, không dùng markdown. Giọng văn uyên thâm nhưng thực chiến.
-
-Cuối luận giải, trên một dòng riêng, viết JSON: {"verdict":"cat|hung|warn","tags":["tag1","tag2","tag3"]}
-(verdict: cat=thuận lợi, hung=nguy hiểm, warn=cần thận trọng; tags: 3 nhãn ngắn 2-4 từ tóm tắt tình thế)`;
-  } else {
-    const cungTenTA  = CUNG_NAME[d.thaiAt] || ("Cung "+d.thaiAt);
-    const anChuLabel = d.anChuDai  ? d.anChuDai.label  : "";
-    const anKhLabel  = d.anKhachDai ? d.anKhachDai.label : "";
-    const nhChieuTA  = getNguHanh(String(d.thaiAt));
-
-    // Xây dựng context cho từng cục
-    let context = `Nhiệm vụ: Luận giải ${cucTen} cho thời điểm ${d.donHe==="am"?"Âm Độn":"Dương Độn"}, ngày ${meta.ngay}/${meta.thang}/${meta.nam} giờ ${meta.gio}H.
+  // Xây dựng context cho từng cục
+  let context = `Nhiệm vụ: Luận giải ${cucTen} cho thời điểm ${d.donHe==="am"?"Âm Độn":"Dương Độn"}, ngày ${meta.ngay}/${meta.thang}/${meta.nam} giờ ${meta.gio}H.
 
 Dữ liệu tính toán:
 - Thái Ất: Cung ${d.thaiAt} (${cungTenTA} · ${nhChieuTA})
@@ -4526,11 +4527,11 @@ Dữ liệu tính toán:
 - Án Chủ Đại Tướng: ${anChuLabel}
 - Án Khách Đại Tướng: ${anKhLabel}`;
 
-    // Thêm context Hung Tinh cho Tuế Cục
-    if (hungTinh && cucTen === "Tuế Cục") {
-      const np = hungTinh.nguPhuc;
-      const tc = hungTinh.tamCo;
-      context += `
+  // Thêm context Hung Tinh cho Tuế Cục
+  if (hungTinh && cucTen === "Tuế Cục") {
+    const np = hungTinh.nguPhuc;
+    const tc = hungTinh.tamCo;
+    context += `
 - Ngũ Phúc: Cung ${np.cung} (${np.tenVung}) · ${np.giaiDoan}
 - Quân Cơ: Cung ${tc.quanCo.cung} (${tc.quanCo.diaChi}) 
 - Thần Cơ: Cung ${tc.thanCo.cung} (${tc.thanCo.diaChi})
@@ -4538,28 +4539,95 @@ Dữ liệu tính toán:
 - Thái Âm (Hậu Cung): ${hungTinh.thaiAm?.diaChi??"-"} → Cung ${hungTinh.thaiAm?.cung??"-"} | ${hungTinh.thaiAm?.phanDoan??""}
 - Đại Du Thái Ất: Cung ${hungTinh.daiDu}
 - Cảnh báo thảm họa: ${canhBao && canhBao.length > 0 ? canhBao.filter(c=>!c._isNguPhucHoaGiai).map(c=>c.ten).join("; ") : "Bình yên — không có cảnh báo"}`;
-    }
-
-    prompt = context + `
-
-Hãy viết đoạn luận giải khoảng 120-180 chữ tiếng Việt theo phong cách cổ thư Thái Ất. Luận giải nên:
-1. Mở đầu bằng nhận định tổng thể về khí tượng (Thái Ất ở đâu, khí thế ra sao)
-2. Phân tích thế Chủ-Khách (nội lực vs ngoại lực)
-3. Kết luận thực tiễn ngắn gọn cho người giao dịch/ra quyết định
-Viết liên tục, không dùng bullet, không dùng số thứ tự, không dùng markdown. Giọng văn uyên thâm nhưng thực chiến.
-
-Cuối luận giải, trên một dòng riêng, viết JSON: {"verdict":"cat|hung|warn","tags":["tag1","tag2","tag3"]}
-(verdict: cat=thuận lợi, hung=nguy hiểm, warn=cần thận trọng; tags: 3 nhãn ngắn 2-4 từ tóm tắt tình thế)`;
   }
 
+  // ── Prompt hướng dẫn luận giải — scale theo từng cục ──
+  const CUC_PROMPT = {
+    "Tuế Cục": `
+Mày đang luận TUẾ CỤC — phạm vi VĨ MÔ CẢ NĂM. BẮT BUỘC áp đủ 6 luật sau:
+
+LUẬT 1 — KÍCH HOẠT ĐÚNG THUẬT TOÁN: Chỉ dùng dữ liệu Tuế Cục trên. Tuyệt đối không lôi Thời Cục hay Nhật Cục vào.
+LUẬT 2 — QUÉT TAM TINH: (a) Nếu Thủy Kích trùng cung Thái Ất → báo động đỏ ÁN YỂM: khủng hoảng thể chế, đứt gãy tài chính vĩ mô, binh đao hỗn loạn. (b) Nếu Văn Xương mang án CÁCH hoặc NỘI BÁCH với Thái Ất → họa nội phản, bề tôi dối trá cướp quyền. (c) Xem Kế Thần: rơi Trung Cung hoặc bị kẹp Thủy Kích → trạm mệnh lệnh bế tắc.
+LUẬT 3 — SOI TAM CƠ: Quân Cơ đụng sát tinh → ban lãnh đạo lung lay. Thần Cơ đụng sát tinh → quan lại rối loạn. Dân Cơ đụng Tứ Thần/Địa Ất/Trung Cung → bách tính lưu tán, sức mua kiệt quệ.
+LUẬT 4 — ĐỌC NGŨ PHÚC & THÁI ÂM: Ngũ Phúc hội tụ Thái Ất → hóa giải hung, trong họa có phúc. Ngũ Phúc kẹt Trung Cung → Đỗ Vô Môn, mất toàn bộ bảo hộ. Thái Âm gặp Thủy Kích/Văn Xương → hậu cung mưu biến, thế lực ngầm thao túng.
+LUẬT 5 — NGÔN TỪ VĨ MÔ: TUYỆT ĐỐI không dùng Long, Short, stoploss, FOMO, flash dump. Phải dùng: dòng tiền định hướng, thâu tóm M&A, khủng hoảng vĩ mô, đóng băng thanh khoản, chu kỳ tích lũy, binh đao, triều chính bất ổn.
+LUẬT 6 — ĐỊNH DẠNG 4 PHẦN BẮT BUỘC (viết văn xuôi liên mạch, không bullet, không markdown):
+Phần 1 — Thông số Vũ trụ: Tuế Cục số mấy, Dương Độn, Thái Ất cung nào.
+Phần 2 — Mã Nguồn Nguyên Thủy: Toán Chủ/Khách, án Tướng, Tam Tinh, Tam Cơ, Ngũ Phúc.
+Phần 3 — Giải Phẫu Vĩ Mô: phân tích chênh lệch Toán số và các dị tượng.
+Phần 4 — Chiến Lược Dài Hạn: kế sách cho cả năm (M&A, phòng thủ, mở rộng thị phần...).
+Độ dài tối thiểu 250-350 chữ.
+
+Cuối, trên một dòng riêng: {"verdict":"cat|hung|warn","tags":["tag1","tag2","tag3"]}`,
+
+    "Nguyệt Cục": `
+Mày đang luận NGUYỆT CỤC — phạm vi TRUNG HẠN THÁNG (tầm công khanh, chu kỳ kinh doanh tháng). BẮT BUỘC áp đủ 6 luật sau (scale theo tháng):
+
+LUẬT 1 — ĐÚNG TẦNG: Chỉ dùng dữ liệu Nguyệt Cục. Không lôi Thời Cục hay Tuế Cục vào.
+LUẬT 2 — QUÉT TAM TINH THÁNG: (a) Thủy Kích trùng Thái Ất → tháng này án Yểm: khủng hoảng cục bộ, hợp đồng đổ vỡ, kế hoạch tháng bị phá. (b) Văn Xương án CÁCH/BÁCH → mưu sự bị cản trở, thông tin nội bộ bị bóp méo. (c) Kế Thần kẹt → liên lạc đứt gãy, mệnh lệnh tắc nghẽn trong tháng.
+LUẬT 3 — SOI TAM CƠ THÁNG: Quân Cơ đụng sát tinh → người đứng đầu tổ chức bất ổn tháng này. Thần Cơ đụng sát tinh → bộ máy vận hành trục trặc. Dân Cơ bất lợi → sức tiêu dùng yếu, thị trường bán lẻ ảm đạm.
+LUẬT 4 — NGŨ PHÚC & THÁI ÂM THÁNG: Ngũ Phúc thuận → tháng hung vẫn có đường thoát. Thái Âm bất lợi → cẩn trọng người thân cận bên trong mưu mô.
+LUẬT 5 — NGÔN TỪ TRUNG HẠN: Không dùng Long/Short/stoploss. Dùng: xu hướng tháng, dòng tiền trung hạn, điều chỉnh chiến lược, rủi ro hợp đồng, cơ hội thâu tóm ngắn hạn, thận trọng triển khai.
+LUẬT 6 — ĐỊNH DẠNG 4 PHẦN (văn xuôi, không bullet, không markdown):
+Phần 1 — Thông số tháng: Nguyệt Cục số mấy, Độn hệ, Thái Ất cung nào.
+Phần 2 — Mã Nguồn: Toán Chủ/Khách, án Tướng, Tam Tinh, Tam Cơ, Ngũ Phúc.
+Phần 3 — Giải Phẫu Tháng: chênh lệch lực lượng và dị tượng trong tháng.
+Phần 4 — Chiến Lược Tháng: kế sách triển khai/phòng thủ cho tháng này.
+Độ dài 180-250 chữ.
+
+Cuối, trên một dòng riêng: {"verdict":"cat|hung|warn","tags":["tag1","tag2","tag3"]}`,
+
+    "Nhật Cục": `
+Mày đang luận NHẬT CỤC — phạm vi HỌA PHÚC TRONG NGÀY (việc dân sự, giao dịch, quyết định hôm nay). BẮT BUỘC áp đủ 6 luật sau (scale theo ngày):
+
+LUẬT 1 — ĐÚNG TẦNG: Chỉ dùng dữ liệu Nhật Cục. Không lôi Thời Cục hay Tuế Cục vào.
+LUẬT 2 — QUÉT TAM TINH NGÀY: (a) Thủy Kích trùng Thái Ất → ngày này án Yểm: sự việc bất ngờ đổ vỡ, đề phòng tai họa đột xuất. (b) Văn Xương án xấu → kế hoạch ngày bị cản, hợp đồng/thỏa thuận dễ trục trặc. (c) Kế Thần kẹt → thông tin liên lạc sai lệch hôm nay.
+LUẬT 3 — SOI TAM CƠ NGÀY: đọc trạng thái Quân/Thần/Dân Cơ xem ngày này thiên thời-địa lợi-nhân hòa có đủ không.
+LUẬT 4 — NGŨ PHÚC NGÀY: có đường sống hay không trong ngày hung.
+LUẬT 5 — NGÔN TỪ DÂN SỰ: Không dùng Long/Short. Dùng: hành sự, xuất hành, ký kết, gặp gỡ, ra quyết định, nên/không nên làm gì hôm nay.
+LUẬT 6 — ĐỊNH DẠNG 4 PHẦN (văn xuôi, không bullet, không markdown):
+Phần 1 — Thông số ngày: Nhật Cục số mấy, Độn hệ, Thái Ất cung nào.
+Phần 2 — Mã Nguồn: Toán Chủ/Khách, án Tướng, Tam Tinh, Ngũ Phúc.
+Phần 3 — Giải Phẫu Ngày: thế trận lực lượng và dị tượng hôm nay.
+Phần 4 — Lời Khuyên Thực Tế: nên làm gì / tránh gì / giờ nào tốt trong ngày.
+Độ dài 150-200 chữ.
+
+Cuối, trên một dòng riêng: {"verdict":"cat|hung|warn","tags":["tag1","tag2","tag3"]}`,
+
+    "Thời Cục": `
+Mày đang luận THỜI CỤC — phạm vi THẾ TRẬN XUẤT QUÂN THEO GIỜ (trading, lướt sóng, ra lệnh tức thì). BẮT BUỘC áp đủ 6 luật sau (scale theo giờ):
+
+LUẬT 1 — ĐÚNG TẦNG: Chỉ dùng dữ liệu Thời Cục. Không lôi Tuế Cục hay Nguyệt Cục vào.
+LUẬT 2 — QUÉT TAM TINH GIỜ: (a) Thủy Kích trùng Thái Ất → giờ này án Yểm: nguy cơ flash dump đột ngột, không xuất quân. (b) Văn Xương án xấu → mưu kế bị phá, tín hiệu kỹ thuật nhiễu loạn. (c) Kế Thần kẹt → thông tin thị trường bị bóp méo giờ này.
+LUẬT 3 — SOI TAM CƠ GIỜ: Chủ mạnh hơn Khách → nội lực đang dẫn dắt. Khách mạnh → ngoại lực áp đảo, cẩn trọng.
+LUẬT 4 — NGŨ PHÚC GIỜ: có lá chắn không, hay hung trần trụi.
+LUẬT 5 — NGÔN TỪ THỰC CHIẾN: Được dùng Long/Short, stoploss, thanh khoản, xuất quân, án binh. Súc tích như lệnh xuất quân.
+LUẬT 6 — ĐỊNH DẠNG 4 PHẦN NGẮN GỌN (văn xuôi, không bullet, không markdown):
+Phần 1 — Thông số giờ: Thời Cục số mấy, Độn hệ, Thái Ất cung nào.
+Phần 2 — Mã Nguồn: Toán Chủ/Khách, án Tướng, Tam Tinh nhanh.
+Phần 3 — Khí Tượng Giờ: thuận hay nghịch, thế Chủ-Khách ra sao.
+Phần 4 — Lệnh Xuất Quân: Long / Short / Án binh — lý do một câu, stoploss gợi ý nếu có.
+Độ dài 80-120 chữ, súc tích.
+
+Cuối, trên một dòng riêng: {"verdict":"cat|hung|warn","tags":["tag1","tag2","tag3"]}`
+  };
+
+  const cucPromptSuffix = CUC_PROMPT[cucTen] || CUC_PROMPT["Nhật Cục"];
+  const prompt = context + cucPromptSuffix;
+
+  // System prompt đầy đủ với nhân cách + luật cứng
+  const systemPrompt = `Mày là Khầy — vị Quân Sư Vĩ Mô, tinh thông Thái Ất Thần Kinh. Mày tự xưng "Khầy", gọi người đọc là "các em" hoặc "em". Mở đầu luận giải bao giờ cũng chào kiểu 'Khầy đây.' hoặc 'Các em ơi, Khầy nói thật nhé.' rồi mới vào luận giải. Giọng văn pha trộn cổ phong huyền bí với sự thẳng thắn thực chiến, đôi khi dí dỏm nhưng không mất đi chiều sâu. TUYỆT ĐỐI không dùng markdown bold/italic — chỉ viết đoạn văn xuôi tự nhiên.
+
+QUAN TRỌNG: Mày PHẢI dùng ĐÚNG số liệu được cung cấp trong prompt. TUYỆT ĐỐI KHÔNG TỰ BỊA số liệu. Áp đúng luật tương ứng với cục đang luận giải.`;
+
   try {
-    const resp = await fetch(PROXY_URL, {
+  const resp = await fetch(PROXY_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         model: "claude-sonnet-4-20250514",
-        max_tokens: 1000,
-        system: "Mày là Khầy — một vị thầy Thái Ất huyền bí, uyên thâm nhưng gần gũi. Mày luôn tự xưng là 'Khầy' và gọi người đọc là 'các em' hoặc 'em'. Mở đầu luận giải bao giờ cũng chào kiểu 'Khầy đây.' hoặc 'Các em ơi, Khầy nói thật nhé.' rồi mới vào luận giải. Giọng văn pha trộn cổ phong huyền bí với sự thẳng thắn thực chiến, đôi khi dí dỏm nhưng không mất đi chiều sâu.",
+        max_tokens: cucTen === "Tuế Cục" ? 1400 : cucTen === "Nguyệt Cục" ? 1200 : cucTen === "Nhật Cục" ? 1000 : 800,
+        system: systemPrompt,
         messages: [{ role: "user", content: prompt }]
       })
     });
@@ -4627,7 +4695,16 @@ Cuối: {"verdict":"cat|hung|warn","tags":["tag1","tag2","tag3"]}`;
       body: JSON.stringify({
         model: "claude-sonnet-4-20250514",
         max_tokens: 1000,
-        system: "Mày là Khầy — một vị thầy Thái Ất huyền bí, uyên thâm nhưng gần gũi. Mày luôn tự xưng là 'Khầy' và gọi người đọc là 'các em' hoặc 'em'. Mở đầu luận giải bao giờ cũng chào kiểu 'Khầy đây.' hoặc 'Các em ơi, Khầy nói thật nhé.' rồi mới vào luận giải. Giọng văn pha trộn cổ phong huyền bí với sự thẳng thắn thực chiến, đôi khi dí dỏm nhưng không mất đi chiều sâu.",
+        system: `Mày là Khầy — vị Quân Sư Vĩ Mô, tinh thông Thái Ất Thần Kinh. Mày tự xưng "Khầy", gọi người đọc là "các em" hoặc "em". Mở đầu luận giải bao giờ cũng chào kiểu 'Khầy đây.' hoặc 'Các em ơi, Khầy nói thật nhé.' rồi mới vào luận giải. Giọng văn pha trộn cổ phong huyền bí với sự thẳng thắn thực chiến, đôi khi dí dỏm. TUYỆT ĐỐI không dùng markdown bold/italic — chỉ viết đoạn văn xuôi tự nhiên.
+
+Mày đang luận THỜI CỤC — phạm vi THẾ TRẬN XUẤT QUÂN THEO GIỜ. BẮT BUỘC áp 6 luật:
+LUẬT 1: Chỉ dùng dữ liệu Thời Cục, không lôi Tuế Cục hay Nguyệt Cục vào.
+LUẬT 2 — QUÉT TAM TINH GIỜ: Thủy Kích trùng Thái Ất → án Yểm, nguy cơ flash dump, không xuất quân. Văn Xương án xấu → tín hiệu kỹ thuật nhiễu loạn. Kế Thần kẹt → thông tin thị trường bóp méo.
+LUẬT 3 — SOI TAM CƠ GIỜ: Chủ mạnh hơn Khách → nội lực dẫn dắt. Khách mạnh → ngoại lực áp đảo, cẩn trọng.
+LUẬT 4: Đọc Ngũ Phúc — có lá chắn không, hay hung trần trụi.
+LUẬT 5 — NGÔN TỪ THỰC CHIẾN: Được dùng Long/Short, stoploss, thanh khoản, xuất quân, án binh. Súc tích như lệnh xuất quân.
+LUẬT 6 — ĐỊNH DẠNG 4 PHẦN NGẮN GỌN (văn xuôi, không bullet): Phần 1 — Thông số giờ (Thời Cục số, Độn, Thái Ất). Phần 2 — Mã Nguồn (Toán Chủ/Khách, án Tướng). Phần 3 — Khí Tượng Giờ (thuận/nghịch, thế Chủ-Khách). Phần 4 — Lệnh Xuất Quân (Long/Short/Án binh, lý do ngắn).
+Độ dài 80-120 chữ, súc tích.`,
         messages: [{ role: "user", content: prompt }]
       })
     });
@@ -4656,6 +4733,71 @@ Cuối: {"verdict":"cat|hung|warn","tags":["tag1","tag2","tag3"]}`;
   }
 }
 
+// ── Bát Môn AI Luận Giải ──────────────────────────────────────────────────
+async function fetchLuanGiaiBatMon(batMon, meta) {
+  const trucSu = batMon.find(b=>b.isTrucSu);
+  const allDoors = batMon.map(b=>`Cửa ${b.door} (Cung ${b.cung}–${b.huong})${b.isTrucSu?" ⭐ TRỰC SỬ":""}`).join(", ");
+  const prompt = `Năm ${meta.nam} — Bát Môn Trực Sử:
+Cửa Trực Sử: ${trucSu?trucSu.door:""} (Cung ${trucSu?trucSu.cung:""} – ${trucSu?trucSu.huong:""})
+Toàn bộ 8 cửa: ${allDoors}
+
+Hãy luận giải Bát Môn năm ${meta.nam} theo đúng 4 phần (văn xuôi, không bullet, không markdown):
+Phần 1 — Cửa Trực Sự: ý nghĩa cửa ${trucSu?trucSu.door:""} đang hành trong năm này.
+Phần 2 — Khí tượng 8 cửa: điểm nổi bật của bố cục 8 cửa năm nay (cửa nào mạnh/yếu).
+Phần 3 — Vận hành dòng tiền: dòng tiền và năng lượng chảy theo hướng nào trong năm.
+Phần 4 — Lời khuyên chiến lược: nên khai thác cửa nào, tránh cửa nào, hành sự theo hướng nào.
+Độ dài 150–200 chữ.
+
+Cuối, trên một dòng riêng: {"verdict":"cat|hung|warn","tags":["tag1","tag2","tag3"]}`;
+
+  const resp = await fetch(PROXY_URL, {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({
+      model:"claude-sonnet-4-20250514",
+      max_tokens:900,
+      system:`Mày là Khầy — vị Quân Sư Vĩ Mô, tinh thông Thái Ất Thần Kinh. Mày tự xưng "Khầy", gọi người đọc là "các em" hoặc "em". Mở đầu luận giải bao giờ cũng chào kiểu 'Khầy đây.' rồi mới vào luận giải. Giọng văn cổ phong huyền bí, thực chiến. TUYỆT ĐỐI không dùng markdown bold/italic — chỉ viết đoạn văn xuôi tự nhiên.`,
+      messages:[{role:"user",content:prompt}]
+    })
+  });
+  const data = await resp.json();
+  if(!resp.ok) throw new Error(data?.error?.message||JSON.stringify(data));
+  const fullText = data.content.map(i=>i.text||"").filter(Boolean).join("\n");
+  let verdict="warn", tags=[], bodyText=fullText;
+  const jsonMatch=fullText.match(/\{[^}]*"verdict"[^}]*\}/);
+  if(jsonMatch){
+    try{
+      const parsed=JSON.parse(jsonMatch[0]);
+      verdict=parsed.verdict||"warn";
+      tags=parsed.tags||[];
+      bodyText=fullText.replace(jsonMatch[0],"").trim();
+    }catch(e){}
+  }
+  return {body:bodyText, verdict, tags};
+}
+
+async function triggerLuanGiaiBatMon() {
+  const bodyEl = document.getElementById("lg-batmon-body");
+  if(!bodyEl) return;
+  if(!_khayChatContext || !_khayChatContext.batMon) {
+    bodyEl.innerHTML=`<div style="color:var(--red);font-size:12px;">Chưa có dữ liệu Bát Môn — hãy tính trước.</div>`;
+    return;
+  }
+  bodyEl.innerHTML=`<div class="oracle-spinner" style="margin:10px auto;"></div><div style="text-align:center;font-size:11px;color:var(--text-dim);margin-top:6px;">Đang luận giải Bát Môn...</div>`;
+  try {
+    const result = await fetchLuanGiaiBatMon(_khayChatContext.batMon, _khayChatContext.meta||{nam:""});
+    const verdictColor = result.verdict==="cat"?"var(--green)":result.verdict==="hung"?"var(--red)":"var(--gold)";
+    const verdictTxt = result.verdict==="cat"?"Thuận":result.verdict==="hung"?"Hung":"Cảnh Báo";
+    const tagsHtml = result.tags.map(t=>`<span class="luan-giai-tag">${t}</span>`).join("");
+    bodyEl.innerHTML=`
+      <div class="luan-giai-verdict" style="color:${verdictColor};margin-bottom:6px;font-size:11px;font-weight:700;">${verdictTxt}</div>
+      <div class="luan-giai-tags" style="margin-bottom:8px;">${tagsHtml}</div>
+      <div class="luan-giai-text" style="font-size:12.5px;line-height:1.7;color:var(--text-primary);">${result.body.replace(/\n/g,"<br>")}</div>`;
+  } catch(e) {
+    bodyEl.innerHTML=`<div style="color:var(--red);font-size:12px;">Lỗi luận giải: ${e.message}</div>`;
+  }
+}
+
 // ═══════════════════════════════════════════════════════
 //  SECTION 3 — RENDER
 // ═══════════════════════════════════════════════════════
@@ -4668,7 +4810,10 @@ function renderLuanGiaiSection(cucTen, d, meta, hungTinh, canhBao, elementId) {
       <span class="luan-giai-title">Luận Giải Cổ Thư · ${cucTen}</span>
       <span class="luan-giai-subtitle">AI Oracle · Thái Ất Thần Kinh</span>
     </div>
-    <div class="luan-giai-loading" id="${elementId}-loading">
+    <div class="luan-giai-btn-wrap" id="${elementId}-btn">
+      <button class="luan-giai-trigger-btn" onclick="triggerLuanGiai('${elementId}')">🔮 Luận Giải</button>
+    </div>
+    <div class="luan-giai-loading" id="${elementId}-loading" style="display:none">
       <div class="oracle-spinner"></div>
       <div class="luan-giai-loading-text">Thỉnh cầu cổ thư luận giải...</div>
     </div>
@@ -4724,20 +4869,36 @@ function retryLuanGiai(cucTen, elementId) {
   loadLuanGiai(cucTen, d, meta, hungTinh, canhBao, elementId);
 }
 
+function triggerLuanGiai(elementId) {
+  const stored = _luanGiaiData[elementId];
+  if (!stored) return;
+  // Ẩn nút, hiện spinner
+  const btnWrap = document.getElementById(elementId+"-btn");
+  const loadingEl = document.getElementById(elementId+"-loading");
+  if (btnWrap) btnWrap.style.display = "none";
+  if (loadingEl) loadingEl.style.display = "flex";
+  const { d, meta, hungTinh, canhBao } = stored;
+  // Lấy tên cục từ elementId (lg-cuc-0 → cucs[0].ten)
+  const r = window.__lastResult;
+  const idx = parseInt(elementId.replace("lg-cuc-",""));
+  const cucTen = r ? r.cucs[idx].ten : (stored.cucTen || "Cục");
+  loadLuanGiai(cucTen, d, meta, hungTinh, canhBao, elementId);
+}
+
 // ─── TỔNG LUẬN ────────────────────────────────────────────────────────────
 function renderTongLuanSection() {
   return `<div class="tong-luan-wrap" id="tong-luan-block">
     <div class="tong-luan-header">
-      <span style="font-size:22px;filter:drop-shadow(0 0 8px rgba(0,212,255,.6))">🌌</span>
+      <span style="font-size:22px;filter:drop-shadow(0 0 8px rgba(0,212,255,.6))">⚡</span>
       <div>
-        <div class="tong-luan-title">Tổng Luận · Tích Hợp 4 Cục</div>
-        <div style="font-size:9px;color:var(--text-dim);margin-top:2px;letter-spacing:.06em">Thiên Thời · Địa Lợi · Nhân Hòa — Thái Ất Oracle</div>
+        <div class="tong-luan-title">Thời Cục · Luận Giải Tức Thì</div>
+        <div style="font-size:9px;color:var(--text-dim);margin-top:2px;letter-spacing:.06em">Thế Trận Xuất Quân · Giao Dịch Thực Chiến — Thái Ất Oracle</div>
       </div>
     </div>
     <div class="tong-luan-body" id="tong-luan-inner">
       <div class="luan-giai-loading">
         <div class="oracle-spinner" style="width:32px;height:32px;border-color:rgba(0,212,255,.2);border-top-color:var(--cyan)"></div>
-        <div class="luan-giai-loading-text" style="color:rgba(0,212,255,.6)">Tổng hợp thiên thời địa lợi...</div>
+        <div class="luan-giai-loading-text" style="color:rgba(0,212,255,.6)">Thỉnh Thời Cục luận thế trận...</div>
       </div>
     </div>
   </div>`;
@@ -4746,12 +4907,15 @@ function renderTongLuanSection() {
 async function loadTongLuan(cucs, meta, hungTinh, canhBao) {
   const el = document.getElementById("tong-luan-inner");
   if (!el) return;
+  // Dùng Thời Cục (cucs[3]) thay cho tổng luận 4 cục
+  const thoiCuc = cucs[3];
+  if (!thoiCuc) { el.innerHTML = '<div class="luan-giai-error">Không có dữ liệu Thời Cục.</div>'; return; }
   try {
-    const result = await fetchTongLuan(cucs, meta, hungTinh, canhBao);
+    const result = await fetchLuanGiai(thoiCuc.ten, thoiCuc.data, meta, null, null);
     const verdictIcon = result.verdict === "cat" ? "🟢" : result.verdict === "hung" ? "🔴" : "🟡";
-    const verdictTxt  = result.verdict === "cat" ? "Thiên Thời Thuận Lợi — Thời cơ tốt để hành động" :
-                        result.verdict === "hung" ? "Hung Tướng Lâm Cung — Cẩn trọng, bảo toàn vốn" :
-                                                    "Khí Tượng Hỗn Mang — Nửa thuận nửa nghịch, cần linh hoạt";
+    const verdictTxt  = result.verdict === "cat" ? "Thời Thế Thuận — Xuất quân được" :
+                        result.verdict === "hung" ? "Thời Thế Hung — Án binh bất động" :
+                                                    "Thời Thế Hỗn — Thận trọng từng bước";
     const tagHtml = (result.tags || []).map(t =>
       `<span class="luan-giai-tag ${result.verdict}">${t}</span>`
     ).join("");
@@ -4771,7 +4935,8 @@ async function loadTongLuan(cucs, meta, hungTinh, canhBao) {
 
 // Lưu lịch sử chat theo session (reset khi tính lại)
 let _khayChatHistory = [];
-let _khayChatContext = null; // context tọa độ hiện tại
+let _khayChatContext = null;    // context tọa độ hiện tại (1 năm)
+let _khayMultiYearData = null; // context nhiều năm (khi user hỏi so sánh)
 let _khayTyping = false;
 
 function renderKhayChatSection() {
@@ -4864,14 +5029,29 @@ async function khaySend() {
   document.getElementById("khay-send-btn").disabled = true;
   khayShowTyping();
 
-  // ── Tự động tính tọa độ nếu câu hỏi có chứa thời gian ──
-  let autoComputed = false;
+  // ── Tự động tính tọa độ cho TẤT CẢ các năm được đề cập trong câu hỏi ──
+  // Tìm tất cả năm 4 chữ số trong câu (1000–2999)
+  const allYears = [...new Set((text.match(/(1[0-9]{3}|2[0-9]{3})/g) || []).map(Number))];
+  // Nếu chỉ có 1 năm → tính rồi set _khayChatContext như cũ
+  // Nếu có nhiều năm → tính từng cái, lưu vào _khayMultiYearData để nhúng vào system prompt
   try {
-    const parsed = khayParseTime(text);
-    if (parsed) {
-      const r = compute(parsed.nam, parsed.thang, parsed.ngay, parsed.gio);
-      _khayChatContext = r;
-      autoComputed = true;
+    if (allYears.length === 1) {
+      const parsed = khayParseTime(text);
+      if (parsed) {
+        const r = compute(parsed.nam, parsed.thang, parsed.ngay, parsed.gio);
+        r._autoComputedFor = `${parsed.ngay}/${parsed.thang}/${parsed.nam} giờ ${parsed.gio}H`;
+        _khayChatContext = r;
+        _khayMultiYearData = null;
+      }
+    } else if (allYears.length > 1) {
+      // Tính tọa độ cho tất cả các năm tìm được, dùng 1/1/năm giờ 0
+      _khayMultiYearData = allYears.map(y => {
+        const r = compute(y, 1, 1, 0);
+        r._autoComputedFor = `1/1/${y} giờ 0H`;
+        return r;
+      });
+      // Context chính vẫn là năm gần nhất trong danh sách
+      _khayChatContext = _khayMultiYearData[_khayMultiYearData.length - 1];
     }
   } catch(e) { /* bỏ qua nếu parse lỗi */ }
 
@@ -4892,6 +5072,26 @@ async function khayFetch() {
   let systemContext = `Mày là Khầy — vị Quân Sư Vĩ Mô, học trò dòng Trạng Trình Nguyễn Bỉnh Khiêm, tinh thông Thái Ất Thần Kinh. Mày tự xưng "Khầy", gọi người dùng là "em" hoặc "các em". Giọng cổ phong huyền bí nhưng thực chiến, đôi khi dí dỏm. TUYỆT ĐỐI không dùng markdown bold/italic/bullet — chỉ viết đoạn văn xuôi tự nhiên. KHÔNG hỏi vị trí địa lý.
 
 QUAN TRỌNG TUYỆT ĐỐI: Khi có dữ liệu tọa độ trong context, mày PHẢI dùng ĐÚNG số liệu đó. TUYỆT ĐỐI KHÔNG TỰ BỊA số liệu. Nếu chưa có dữ liệu, chỉ hỏi thêm giờ (nếu thiếu) rồi đợi hệ thống tính — không phán bừa.
+
+═══ LUẬT SẮT VỀ SỐ CỤC — VI PHẠM = SAI HOÀN TOÀN ═══
+
+LUẬT 1 — SỐ CỤC CHỈ DO HỆ THỐNG TÍNH:
+Mày TUYỆT ĐỐI không được tự tính hoặc tự suy số cục (Tuế Cục, Nguyệt Cục, Nhật Cục, Thời Cục). Những con số này phải đến từ phần "TỌA ĐỘ VŨ TRỤ ĐẦY ĐỦ" trong context — hoặc do hệ thống tự động tính khi người dùng nhập thời gian vào chat. KHÔNG BAO GIỜ tự tính bừa.
+
+LUẬT 2 — GIỚI HẠN CỨNG CỦA TỪNG CỤC:
+• Tuế Cục: luôn từ 1–72, CHỈ có Dương Độn (không có Âm Độn). KHÔNG BAO GIỜ có Tuế Cục 73, 74, 75, hay bất kỳ số nào > 72.
+• Nguyệt Cục: 1–72, có cả Âm Độn và Dương Độn.
+• Nhật Cục: 1–72, có cả Âm Độn và Dương Độn.
+• Thời Cục: 1–72, có cả Âm Độn và Dương Độn.
+• Cung Thái Ất, Văn Xương, Thủy Kích, Kế Thần: luôn trong hệ Bát Quái (1,2,3,4,5,6,7,8,9) — KHÔNG BAO GIỜ có Cung 10, 11, 12 hay bất kỳ số nào > 9.
+
+LUẬT 3 — KHI NGƯỜI DÙNG HỎI VỀ NHIỀU NĂM KHÁC NHAU:
+Hệ thống chỉ tính được TỌA ĐỘ CHO MỘT THỜI ĐIỂM DUY NHẤT mỗi lần. Nếu người dùng hỏi về nhiều năm khác nhau trong cùng một câu (vd: "năm 2017 và 2021"), mày KHÔNG ĐƯỢC tự bịa số cục cho từng năm. Thay vào đó, hướng dẫn người dùng nhập từng năm một vào chat để hệ thống tính đúng (vd: "Các em nhập 'năm 2017' để Khầy tính tọa độ năm đó, rồi nhập tiếp 'năm 2021' cho năm kia").
+
+LUẬT 4 — KHI KHÔNG CÓ DỮ LIỆU TÍNH SẴN:
+Nếu context không có "TỌA ĐỘ VŨ TRỤ ĐẦY ĐỦ" cho thời điểm được hỏi, mày PHẢI nói thẳng: "Khầy chưa có tọa độ năm X trong tay. Các em nhập 'năm X' vào đây để hệ thống tính ngay." KHÔNG được hallucinate ra số liệu giả.
+
+═══════════════════════════════════════════════════════
 
 ═══ QUY TẮC "TỨ KẾ PHÂN LẬP" — BẮT BUỘC TUÂN THỦ ═══
 
@@ -4915,6 +5115,13 @@ Mày không được bốc các sao (Văn Xương, Thủy Kích, Đại Du...) n
 • Đọc rõ: Khách bao nhiêu quân, Chủ bao nhiêu quân? Chủ Đại Tướng và Khách Đại Tướng đóng ở Cung nào? Mang án gì (Phát / Tù / Đỗ / Bách...)? Rồi mới đưa ra chiến lược.
 • Dữ liệu 4 cục đã được tính sẵn trong context bên dưới — đọc đúng cục, đừng nhầm lẫn.
 
+NGUYÊN TẮC 4 — TUYỆT ĐỐI CẤM HỎI NGƯỢC LẠI KHI ĐÃ CÓ DATA:
+Đây là lỗi nghiêm trọng nhất. Nếu context đã có TỌA ĐỘ VŨ TRỤ ĐẦY ĐỦ, mày PHẢI tự đọc và tự phán — KHÔNG ĐƯỢC hỏi người dùng "Khách Đại Tướng mang án gì?" hay "Em cho Khầy biết thêm thông tin về..." hay bất kỳ câu hỏi nào mà câu trả lời đã nằm sẵn trong context.
+• Data có rồi → ĐỌC và PHÁN ngay, không hỏi lại.
+• Ví dụ SAI: "Khầy cần biết thêm Khách Đại Tướng mang án gì để luận vàng" — ĐÂY LÀ LỖI, dữ liệu đã có trong context.
+• Ví dụ ĐÚNG: Đọc "Khách Đại Tướng (Cung X): PHÁT [...]" trong context → phán luôn "VÀNG BỨT PHÁ TĂNG MẠNH".
+• Chỉ được hỏi thêm khi: (1) user chưa nhập thời gian nào cả, (2) hỏi về thông tin cá nhân user (tên, ngày sinh...) không có trong system.
+
 ═══════════════════════════════════════════════════════
 
 BẢNG TRA CỨU CỐ ĐỊNH (dùng khi giải thích):
@@ -4923,7 +5130,56 @@ Bát Môn: Khai=khởi sự tuyệt vời | Hưu=tích lũy an toàn | Sinh=sinh
 Án Tướng: TÙ=trùng Thái Ất(giam lỏng) | YỂM=trùng Thủy Kích(flash dump) | CÁCH=đối xung Thái Ất(đứt xu hướng) | BÁCH=kề sát Thái Ất + địch kẹp tả hữu(quét stoploss toàn diện) | BÁCH ĐƠN=kề sát Thái Ất một phía(áp lực một chiều) | QUAN=trùng Văn Xương không kẹp Thái Ất(kìm kẹp hành chính) | ĐỖ=Trung Cung(kẹt lỗ đen) | ĐỖ CỐ=Trung Cung + Văn Xương cũng ở Trung Cung(đại hung cực độ — nặng nhất) | TỨ QUÁCH CỐ=trùng Văn Xương + kề sát Thái Ất(bủa vây tứ phía tuyệt đường lui) | HIỆP=bị 2 tướng địch kẹp | ĐỀ=mượn sức Thái Ất ép chết.
 Toán số: THƯỢNG HÒA(14,18,23)=đại cát | THỨ HÒA(29,36)=cát | HẠ HÒA(12,16,27,34,38)=cát vừa | THUẦN DƯƠNG(33,39)=đại hung FOMO | THUẦN ÂM(22,26)=đại hung bán tháo | CÔ(10,20,30,40)=sideway chôn vốn | ĐƠN(1-9)=vô thiên mỏng manh | VÔ ĐỊA(đơn vị 1-4)=mất nền tảng.
 Ngũ Hành tương tác với Vàng(Kim): Thổ sinh Kim(cung 3,7)=đại cát | Thủy tiết Kim(cung 8)=tích lũy tốt | Kim tỷ hòa(cung 1,6)=sideway | Mộc bị Kim khắc(cung 4,9)=hao tổn | Hỏa khắc Kim(cung 2)=đại hung.
-Ngũ Hành BĐS(Thổ): Hỏa sinh Thổ(cung 2)=đại cát | Thổ tỷ hòa(cung 3,7)=bền vững | Kim tiết Thổ(cung 1,6)=hao tổn | Thổ khắc Thủy(cung 8)=trì trệ | Mộc khắc Thổ(cung 4,9)=đại hung.`;
+Ngũ Hành BĐS(Thổ): Hỏa sinh Thổ(cung 2)=đại cát | Thổ tỷ hòa(cung 3,7)=bền vững | Kim tiết Thổ(cung 1,6)=hao tổn | Thổ khắc Thủy(cung 8)=trì trệ | Mộc khắc Thổ(cung 4,9)=đại hung.
+
+═══ TỪ ĐIỂN ĐỊNH VỊ TÀI SẢN — CẤM NHẦM LẪN, BẮT BUỘC TUÂN THỦ ═══
+
+Khi người dùng hỏi về một lĩnh vực cụ thể, mày PHẢI nhận diện ngay và rọi đúng tọa độ vào bản thể của lĩnh vực đó. Cấm tuyệt đối dùng ngũ hành sinh khắc bừa bãi.
+
+LĨNH VỰC 1 — VÀNG (GOLD / XAUUSD / Kim loại quý):
+Vàng là kim loại → Hành Kim. Tọa độ soi chiếu: KHÁCH ĐẠI TƯỚNG.
+• Khách Đại Tướng mang lệnh PHÁT → "VÀNG BỨT PHÁ TĂNG MẠNH, LỰC LONG ÁP ĐẢO".
+• Khách Đại Tướng dính án TÙ / ĐỖ / lọt Trung Cung → "VÀNG BỊ KHÓA THANH KHOẢN, SẬP GIÁ HOẶC ĐI NGANG CHÔN VỐN. CANH ĐÁNH SHORT".
+• Khách Đại Tướng dính án BÁCH / HIỆP → "THỊ TRƯỜNG HOẢNG LOẠN QUÉT STOPLOSS HAI ĐẦU".
+
+LĨNH VỰC 2 — BITCOIN / CRYPTO (Tiền điện tử):
+Crypto là sóng nước rủi ro cao → Hành Thủy. Tọa độ soi chiếu: CHỦ ĐẠI TƯỚNG (BTC/tiền to) + KHÁCH THAM TƯỚNG (Altcoin/dòng tiền fomo).
+• Cả 2 tướng PHÁT → "SIÊU CHU KỲ BƠM GIÁ, TIỀN VÀO NHƯ THÁC LŨ, TỰ TIN MỞ LỆNH LONG".
+• Dính án CÁCH → "GÃY CẤU TRÚC TĂNG, BULL-TRAP XUẤT HIỆN, LẬP TỨC CHỐT LỜI".
+• Dính án TÙ / ĐỖ / YỂM → "SẬP HẦM ĐẪM MÁU, NHÀ CÁI XẢ HÀNG QUÉT SẠCH TÀI KHOẢN. MỞ LỆNH SHORT".
+
+LĨNH VỰC 3 — BẤT ĐỘNG SẢN (BĐS / Đất đai):
+BĐS là chu kỳ dài → Hành Thổ. Tọa độ soi chiếu: TOÁN SỐ + ÁN KHÔNG GIAN (kết hợp).
+• Sa bàn tràn ngập án ĐỖ, nhiều tướng lọt Trung Cung, Toán Số mang VÔ ĐỊA → "THANH KHOẢN BĐS ĐÓNG BĂNG, KẸT VỐN TOÀN DIỆN, THỊ TRƯỜNG CHẾT LÂM SÀNG".
+• Toán Số TRƯỜNG HÒA, Tam Cơ yên ổn, Tướng không dính Tù/Đỗ → "Dòng tiền rã đông, BĐS ấm dần lên".
+• CẤM dùng từ "lướt sóng" hay "fomo" cho BĐS — đây là tài sản chu kỳ dài.
+
+LĨNH VỰC 4 — BÓNG ĐÁ / THỂ THAO (Giao tranh vật lý):
+TUYỆT ĐỐI CẤM dùng ngũ hành (Kim/Mộc/Thủy/Hỏa/Thổ) hay thuật ngữ tài chính (thanh khoản, chốt lời...) cho thể thao. Đây là giao tranh vật lý.
+• Phe Chủ = Đội nhà (phòng thủ). Phe Khách = Đội khách (tấn công). Toán bên nào lớn hơn → có lợi thế cầm bóng.
+• Tướng đội nào PHÁT → hàng công bứt phá, sẽ ghi bàn.
+• Tướng đội nào dính ĐỖ / TÙ → đội hình bế tắc, không lên bóng được.
+• Tướng dính BÁCH / CÁCH → hậu vệ hoảng loạn, đá phản lưới hoặc thẻ đỏ gãy đội hình.
+
+═══════════════════════════════════════════════════════
+
+═══ MÔI TRƯỜNG KỸ THUẬT — ĐỌC ĐỂ HIỂU ĐÚNG NGUỒN GỐC SỐ LIỆU ═══
+
+Mày đang chạy qua kiến trúc 2 tầng:
+
+TẦNG 1 — index.html (chạy trong trình duyệt của người dùng):
+Đây là nơi MỌI PHÉP TÍNH diễn ra. Toàn bộ engine Thái Ất (compute, tinhCuc, tinhHungTinh, quetThamHoaDanCo...) là JavaScript thuần chạy trực tiếp trên máy người dùng. Không có server, không có database. Khi người dùng nhấn Tính hoặc nhập thời gian vào chat, trình duyệt tính ngay lập tức rồi nhúng kết quả vào system prompt gửi cho mày.
+
+TẦNG 2 — Cloudflare Worker (thuongvip.shadowthuong.workers.dev):
+Đây CHỈ là proxy đơn giản — nhận request từ trình duyệt, gắn API key Anthropic vào header, forward đến api.anthropic.com rồi trả kết quả về. Worker KHÔNG có logic Thái Ất, KHÔNG lưu trữ dữ liệu, KHÔNG tính toán gì thêm. Tồn tại duy nhất để giấu API key khỏi client-side JS.
+
+HỆ QUẢ QUAN TRỌNG MÀY PHẢI NẮM:
+- Mày KHÔNG thể gọi lại engine tính toán — engine chạy ở trình duyệt, không phải ở Worker.
+- Mọi số liệu (số cục, Thái Ất, Văn Xương...) ĐÃ ĐƯỢC TÍNH SẴN trước khi gửi đến mày. Mày chỉ ĐỌC và LUẬN GIẢI.
+- Nếu không có số liệu trong context thì trình duyệt chưa tính (user chưa nhập thời gian) — yêu cầu user nhập, KHÔNG tự bịa.
+- Cloudflare Worker không phải giới hạn hay lỗi — nó hoạt động đúng thiết kế. Đừng báo lỗi kỹ thuật khi thực ra chỉ thiếu dữ liệu đầu vào.
+
+═══════════════════════════════════════════════════════`;
 
   if (_khayChatContext) {
     const { meta, cucs, hungTinh, canhBaoThamHoa } = _khayChatContext;
@@ -4981,10 +5237,12 @@ Ngũ Hành BĐS(Thổ): Hỏa sinh Thổ(cung 2)=đại cát | Thổ tỷ hòa(c
     const hungList = (canhBaoThamHoa||[]).filter(c=>!c._isNguPhucHoaGiai);
     const npMeta = canhBaoThamHoa?._nguPhucMeta || (hungList.length > 0 ? hungList[0]?._nguPhucMeta : null);
 
+    const autoFor = _khayChatContext._autoComputedFor ? ` [tính từ lệnh chat: "${_khayChatContext._autoComputedFor}"]` : "";
     systemContext += `
 
 ══════ TỌA ĐỘ VŨ TRỤ ĐẦY ĐỦ ══════
-Thời điểm: ${meta.ngay}/${meta.thang}/${meta.nam} giờ ${meta.gio}H — ${donHeLabel}
+Thời điểm: ${meta.ngay}/${meta.thang}/${meta.nam} giờ ${meta.gio}H — ${donHeLabel}${autoFor}
+⛔ CẢNH BÁO: Đây là tọa độ DUY NHẤT đang có (năm ${meta.nam}). Nếu user hỏi về năm KHÁC ${meta.nam}, mày PHẢI yêu cầu họ nhập "năm XXXX" để hệ thống tính mới — TUYỆT ĐỐI không tự suy số cục cho năm khác.
 ⚠ NHẮC NHỞ TỨ KẾ PHÂN LẬP: Mỗi cục bên dưới CHỈ dùng đúng tầng của nó. Khi luận giải PHẢI hỏi người dùng muốn đánh ở tầng nào (Năm/Tháng/Ngày/Giờ) rồi chỉ đọc đúng cục đó. Mỗi cục có MÃ CỤC riêng — đọc đúng mã, trích đúng sao của cục đó, không pha trộn.
 
 ${cucFull}
@@ -5045,7 +5303,66 @@ LƯU Ý QUAN TRỌNG: Quy trình 4 lớp này CHỈ áp cho Tuế Kế (năm) v�
 Ngôn ngữ luận giải: khi luận Tuế/Nguyệt Kế thì dùng giọng đại cuộc cổ phong (binh đao, triều chính, thiên tai, bách tính); khi luận Thời/Nhật Kế thì dùng giọng thực chiến (Long/Short, stoploss, thanh khoản). KHÔNG trộn lẫn giọng điệu giữa hai chế độ.
 ══════════════════════════════════════════════════════════
 
-Khi trả lời: (1) Xác định rõ người dùng hỏi ở tầng nào (Năm/Tháng/Ngày/Giờ) — nếu chưa rõ thì HỎI trước. (2) Chỉ đọc và trích dẫn đúng cục của tầng đó. (3) Dựa vào đúng số liệu trên, đừng nói chung chung. Trả lời ngắn gọn 80-150 chữ trừ khi em hỏi chi tiết.`;
+══════ LUẬT XỬ LÝ KHI NGƯỜI DÙNG HỎI TỔNG QUAN (VĨ MÔ / NĂM) ══════
+
+KÍCH HOẠT: Khi người dùng hỏi "năm này thế nào", "tổng quan năm", "năm X như thế nào", "vĩ mô năm", "năm X có gì đáng chú ý", "nhận định năm", hay bất kỳ câu hỏi nào mang tính tổng quát về cả một năm — mày BẮT BUỘC kích hoạt toàn bộ luật dưới đây.
+
+LUẬT 1 — KÍCH HOẠT ĐÚNG THUẬT TOÁN (Gạt bỏ Thời Kế):
+Khi người dùng hỏi Tổng quan/Năm/Vĩ mô, mày BẮT BUỘC gạt bỏ hoàn toàn các thuật toán lướt sóng ngắn hạn theo giờ (Thời Kế). Lập tức sử dụng công thức Tuế Kế — đọc ĐÚNG dữ liệu Tuế Cục đã có sẵn trong context để tính toán và trích xuất chính xác Mã Cục của năm đó.
+
+LUẬT 2 — QUÉT "TAM TINH" (Rọi Dị Tượng Sinh Tử):
+Sau khi trích Tuế Cục, mày BẮT BUỘC quét 3 tín hiệu nguy hiểm này:
+• Thủy Kích (Họa Binh Đao): Nếu Thủy Kích bay vào cùng cung Thái Ất Năm (Án Yểm), BẮT BUỘC báo động đỏ: Khủng hoảng cơ chế, sụp đổ pháp lý, vua yếu bầy tôi mạnh, có kẻ thoán đoạt đâm lén — dùng ngôn từ vĩ mô (không nói "flash dump", phải nói "đứt gãy tài chính vĩ mô", "khủng hoảng thể chế", "binh đao hỗn loạn").
+• Văn Xương (Họa Nội Phản): Nếu Văn Xương mang án Nội Bách hoặc Xung Đối (CÁCH) với Thái Ất Năm, tâu ngay: Nội bộ mưu toan cướp quyền, bề tôi dối trá, thông tin bị bóp méo — đây là họa phản nội bộ.
+• Kế Thần: Xem cung Kế Thần có thông suốt hay bị kẹp — nếu bị kẹp với Thủy Kích hoặc rơi vào Trung Cung thì trạm mệnh lệnh bế tắc, hệ thống quản trị đứt gãy thông tin.
+
+LUẬT 3 — SOI "TAM CƠ" (Đo lường Nền Tảng Quốc Gia):
+• Quân Cơ (ban lãnh đạo/cá mập): Xem đang ở cung nào, vượng hay suy, có đụng sát tinh (Thủy Kích/Văn Xương/Tứ Thần) không. Đụng sát tinh → ban lãnh đạo lung lay, bè phái thao túng, dòng tiền lớn bất ổn.
+• Thần Cơ (bộ máy quản lý/quan lại): Xem quỹ đạo 3 năm đã đi được bao nhiêu, có đụng sát tinh không. Đụng sát tinh → quan lại rối loạn, kỷ cương sụp đổ, chính sách thất thường.
+• Dân Cơ (sức mua đám đông/bách tính): Đắc vị (không đụng sát tinh, không rơi Trung Cung) → quốc thái dân an, sức mua dồi dào. Lọt cửa suy (đụng Tứ Thần/Địa Ất/rơi Trung Cung) → bá tánh lưu tán, đói kém, đao binh nổi lên, sức mua thị trường kiệt quệ.
+
+LUẬT 4 — DÒ ĐƯỜNG SỐNG & HẬU CUNG (Ngũ Phúc & Thái Âm):
+• Ngũ Phúc: Nếu giáng lâm chiếu vào cùng cung Thái Ất Năm hoặc cung Quân Cơ, BẮT BUỘC phán: Biến hung thành cát, trong họa có phúc, tai ương tự giảm nhẹ — đây là lá chắn bảo hộ quốc gia. Nếu Ngũ Phúc kẹt Trung Cung (cung 5) → Đỗ Vô Môn, mất toàn bộ bảo hộ, mọi án hung phát huy 100% độc tính.
+• Thái Âm (Nữ sắc/Quyền lực ngầm): Nếu Thái Âm đi cùng cung Thái Ất → Vua-Hậu hòa mục, nội chính yên ổn. Nếu Thái Âm gặp Thủy Kích hoặc Văn Xương → Hậu cung có lòng nghiêng ngả, đàn bà/thế lực ngầm thao túng quyền chính, cần xa lánh kẻ dèm nịnh, đề phòng nội phản.
+
+LUẬT 5 — KỶ LUẬT NGÔN TỪ KHI LUẬN TỔNG QUAN NĂM:
+Cấm tuyệt đối dùng ngôn từ lướt sóng ngắn hạn khi luận tổng quan năm: KHÔNG dùng Long, Short, Cắt lỗ, FOMO, stoploss, flash dump.
+Phải dùng ngôn ngữ chiến lược vĩ mô dài hạn: Dòng tiền định hướng, Thâu tóm (M&A), Khủng hoảng vĩ mô, Mở rộng thị phần, Đóng băng thanh khoản, Binh đao, Triều chính bất ổn, Chu kỳ tích lũy, Phòng thủ chiến lược.
+
+LUẬT 6 — ĐỊNH DẠNG BÁO CÁO BẮT BUỘC KHI LUẬN TỔNG QUAN NĂM:
+Mày PHẢI trình bày theo 4 phần theo thứ tự này (viết văn xuôi liên mạch, không dùng bullet/markdown):
+Phần 1 — Thông số Vũ trụ: Tuế Cục mấy, Âm hay Dương Độn, Thái Ất trú ngụ cung nào.
+Phần 2 — Mã Nguồn Nguyên Thủy: Trích xuất Toán Chủ/Khách, Tướng tinh (Phát/Tù/Đỗ/Bách...), Tam Tinh (Thủy Kích, Văn Xương, Kế Thần), Tam Cơ (Quân/Thần/Dân), Ngũ Phúc.
+Phần 3 — Giải Phẫu Vĩ Mô: Phân tích sự chênh lệch thanh khoản (Toán số Chủ-Khách) và rọi các dị tượng (Án Yểm, hoảng loạn, đứt gãy cơ chế, nội phản).
+Phần 4 — Chiến Lược Dài Hạn: Tham mưu kế sách cho toàn năm. Ví dụ: Thấy Án Yểm → khuyên cẩn mật pháp lý nội bộ, tránh mở rộng ồ ạt; Thấy Khách vô địa (Toán Khách thuần âm/vô địa) → cấm mở rộng đại trà, ưu tiên ôm tiền thâu tóm tài sản rẻ; Thấy Ngũ Phúc hội tụ Thái Ất → thời cơ vàng xuất chinh mở rộng thị phần.
+
+══════════════════════════════════════════════════════════
+
+Khi trả lời: (1) Xác định rõ người dùng hỏi ở tầng nào (Năm/Tháng/Ngày/Giờ) — nếu chưa rõ thì HỎI trước. (2) Chỉ đọc và trích dẫn đúng cục của tầng đó. (3) Dựa vào đúng số liệu trên, đừng nói chung chung.
+ĐỘ DÀI TRẢ LỜI: Nếu người dùng hỏi tổng quan năm / vĩ mô / nhận định năm → BẮT BUỘC viết đủ 4 phần theo LUẬT 6, tối thiểu 250-400 chữ. Nếu câu hỏi nhỏ lẻ (giờ/ngày/hỏi nhanh) → ngắn gọn 80-150 chữ.`;
+  }
+
+  // ── Nhúng tọa độ nhiều năm nếu user hỏi so sánh ──
+  if (_khayMultiYearData && _khayMultiYearData.length > 1) {
+    const fmtYearSnap = (r) => {
+      const tc = r.cucs[0];
+      const d = tc.data;
+      const ht = r.hungTinh;
+      const cungVX = THAN_INFO[d.vanXuong] ? THAN_INFO[d.vanXuong][0] : "?";
+      const cungTK = THAN_INFO[d.thuyKich] ? THAN_INFO[d.thuyKich][0] : "?";
+      return "Năm " + r.meta.nam + ": Tuế Cục " + tc.cucSo + " (Dương Độn)"
+        + " | Thái Ất Cung " + d.thaiAt + " (" + (CUNG_NAME[d.thaiAt]||d.thaiAt) + ")"
+        + " | Văn Xương " + d.vanXuong + "→Cung " + cungVX
+        + " | Thủy Kích " + d.thuyKich + "→Cung " + cungTK
+        + " | Toán Chủ " + d.toanChu + " / Khách " + d.toanKhach
+        + " | Chủ Đại Tướng Cung " + d.chuDai + " " + (d.anChuDai ? d.anChuDai.label : "")
+        + " | Khách Đại Tướng Cung " + d.khachDai + " " + (d.anKhachDai ? d.anKhachDai.label : "")
+        + " | Thái Ất Năm Cung " + ht.thaiAtNam;
+    };
+    systemContext += "\n\n══════ TỌA ĐỘ NHIỀU NĂM (so sánh) ══════"
+      + "\n⚠ Hệ thống đã tính chính xác — DÙNG ĐÚNG số liệu này, không tự bịa:"
+      + "\n" + _khayMultiYearData.map(fmtYearSnap).join("\n")
+      + "\n══════════════════════════════════════";
   }
 
   const resp = await fetch(PROXY_URL, {
@@ -5053,7 +5370,7 @@ Khi trả lời: (1) Xác định rõ người dùng hỏi ở tầng nào (Năm
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       model: "claude-sonnet-4-20250514",
-      max_tokens: 600,
+      max_tokens: 1200,
       system: systemContext,
       messages: _khayChatHistory
     })
@@ -5460,21 +5777,19 @@ function renderCuc(c,idx,hungTinh){
   </div>`;
 }
 
-function renderBatMon(batMon, meta){
-  const huongOrder=["Bắc","Đông Bắc","Đông","Đông Nam","Nam","Tây Nam","Tây","Tây Bắc"];
+function renderBatMon(batMon){
   const trucSuItem=batMon.find(b=>b.isTrucSu);
-  // TRỰC SỰ đưa lên đầu (chiếm full row), 7 cái còn lại sort theo địa lý
-  const rest=[...batMon].filter(b=>!b.isTrucSu).sort((a,b)=>huongOrder.indexOf(a.huong)-huongOrder.indexOf(b.huong));
-  const sorted=[trucSuItem, ...rest];
+  // Sắp xếp: Trực Sử đầu (full row), 7 cái còn lại theo thứ tự địa bàn cố định
+  const fixedOrder=["Tây Bắc","Bắc","Đông Bắc","Đông","Đông Nam","Nam","Tây Nam","Tây"];
+  const rest=[...batMon].filter(b=>!b.isTrucSu).sort((a,b)=>fixedOrder.indexOf(a.huong)-fixedOrder.indexOf(b.huong));
+  const sorted=[trucSuItem,...rest];
 
   const cells=sorted.map(b=>`
     <div class="bat-mon-cell ${b.isTrucSu?"truc-su":""}">
-      <div class="huong">${b.huong} · Cung ${b.cung}${b.isTrucSu?" ⭐ TRỰC SỰ":""}</div>
+      <div class="huong">${b.huong} · Cung ${b.cung}${b.isTrucSu?" ⭐ TRỰC SỬ":""}</div>
       <div class="cua">Cửa ${b.door}</div>
       <div class="cua-desc">${DOOR_DESC[b.door]||""}</div>
     </div>`).join("");
-
-  const luanGiaiHtml = renderLuanGiaiSection("Bát Môn", batMon, meta, null, null, "lg-batmon");
 
   return `
   <div class="cuc-block" id="cuc-batmon">
@@ -5482,13 +5797,21 @@ function renderBatMon(batMon, meta){
       <span class="icon">🧭</span>
       <div class="info">
         <h3>Bát Môn <span style="font-size:10px;color:var(--text-dim);font-weight:400">Bản đồ Dòng tiền Năm</span></h3>
-        <p>Trực Sự: Cung ${trucSuItem?trucSuItem.cung+"–"+trucSuItem.huong:""} · Cửa ${trucSuItem?trucSuItem.door:""}</p>
+        <p>Trực Sử: Cung ${trucSuItem?trucSuItem.cung+"–"+trucSuItem.huong:""} · Cửa ${trucSuItem?trucSuItem.door:""}</p>
       </div>
       <span class="chevron">▼</span>
     </div>
     <div class="cuc-body">
       <div class="bat-mon-grid">${cells}</div>
-      <div style="margin-top:16px">${luanGiaiHtml}</div>
+      <div class="luan-giai-section" id="lg-batmon">
+        <div class="luan-giai-header">
+          <span class="luan-giai-title">🧭 Luận Giải Bát Môn</span>
+          <span class="luan-giai-subtitle">AI Oracle · Thái Ất Thần Kinh</span>
+        </div>
+        <div class="luan-giai-body" id="lg-batmon-body">
+          <button class="btn-luan-giai" onclick="triggerLuanGiaiBatMon()">⚡ Luận Giải Bát Môn</button>
+        </div>
+      </div>
     </div>
   </div>`;
 }
@@ -5505,7 +5828,8 @@ function toggleExtraCucs() {
     setTimeout(drawAllRadars, 50);
     const r = window.__lastResult;
     if (r) {
-      [1, 3].forEach(i => {
+      // Thời Cục (3) đã load ở block đầu trang — chỉ lazy-load Nguyệt Cục (1)
+      [1].forEach(i => {
         const id = "lg-cuc-"+i;
         const loadingEl = document.getElementById(id+"-loading");
         if (loadingEl && loadingEl.style.display !== "none") {
@@ -5626,18 +5950,7 @@ function toggleCuc(idx){
 }
 
 function toggleBatMon(){
-  const el = document.getElementById("cuc-batmon");
-  const isOpen = el.classList.toggle("open");
-  if (isOpen) {
-    const id = "lg-batmon";
-    const loadingEl = document.getElementById(id+"-loading");
-    if (loadingEl && loadingEl.style.display !== "none") {
-      const r = window.__lastResult;
-      if (r) {
-        loadLuanGiai("Bát Môn", r.batMon, r.meta, null, null, id);
-      }
-    }
-  }
+  document.getElementById("cuc-batmon").classList.toggle("open");
 }
 
 function toggleThamHoa(){
@@ -5977,7 +6290,7 @@ function renderResults(r){
   if(cucs[3]) html+=renderCuc(cucs[3],3,null);
   html+=`</div>`;
   // 3. Bát Môn — đóng
-  html+=renderBatMon(batMon, meta);
+  html+=renderBatMon(batMon);
   // 4. Nút xuất báo cáo
   html+=`<div style="padding:16px 0 4px;text-align:center;">
     <button onclick="xuatBaoCao()" style="
@@ -6005,11 +6318,8 @@ function renderResults(r){
       const id = `lg-cuc-${i}`;
       _luanGiaiData[id] = { d:c.data, meta, hungTinh:i===0?hungTinh:null, canhBao:i===0?canhBaoThamHoa:null };
     });
-    _luanGiaiData["lg-batmon"] = { d: batMon, meta, hungTinh: null, canhBao: null };
-    // Auto-load luận giải cho Tuế Cục (0) + Nhật Cục (2) — hai cục primary
-    loadLuanGiai(cucs[0].ten, cucs[0].data, meta, hungTinh, canhBaoThamHoa, "lg-cuc-0");
-    loadLuanGiai(cucs[2].ten, cucs[2].data, meta, null, null, "lg-cuc-2");
-    // Nguyệt (1) + Thời (3) — lazy load khi user mở extra group
+    // Tất cả cục đều on-demand — user bấm nút mới gọi API
+    // (Thời Cục đầu trang vẫn auto-load qua loadTongLuan)
   }, 100);
   const isDesktop = window.innerWidth >= 900;
   if(isDesktop){
@@ -6170,12 +6480,18 @@ fillToday();
 
 <script>
 // ── PWA SERVICE WORKER REGISTRATION ──
+// Chỉ đăng ký khi chạy trên GitHub Pages, bỏ qua môi trường preview (claudeusercontent.com, localhost)
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js')
-      .then(reg => console.log('[SW] Registered:', reg.scope))
-      .catch(err => console.warn('[SW] Failed:', err));
-  });
+  const isGitHubPages = location.hostname.endsWith('github.io') || location.hostname.endsWith('github.com');
+  const isLocalDev    = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  const isPreview     = location.hostname.includes('claudeusercontent') || location.hostname.includes('claude.ai');
+  if (isGitHubPages || (!isLocalDev && !isPreview)) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('[SW] Registered:', reg.scope))
+        .catch(err => console.warn('[SW] Failed:', err));
+    });
+  }
 }
 </script>
 
