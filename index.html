@@ -5202,7 +5202,8 @@ Phần 4 — Chiến Lược Dài Hạn: Tham mưu kế sách cho toàn năm. V�
 
 ══════════════════════════════════════════════════════════
 
-Khi trả lời: (1) Xác định rõ người dùng hỏi ở tầng nào (Năm/Tháng/Ngày/Giờ) — nếu chưa rõ thì HỎI trước. (2) Chỉ đọc và trích dẫn đúng cục của tầng đó. (3) Dựa vào đúng số liệu trên, đừng nói chung chung. Trả lời ngắn gọn 80-150 chữ trừ khi em hỏi chi tiết.`;
+Khi trả lời: (1) Xác định rõ người dùng hỏi ở tầng nào (Năm/Tháng/Ngày/Giờ) — nếu chưa rõ thì HỎI trước. (2) Chỉ đọc và trích dẫn đúng cục của tầng đó. (3) Dựa vào đúng số liệu trên, đừng nói chung chung.
+ĐỘ DÀI TRẢ LỜI: Nếu người dùng hỏi tổng quan năm / vĩ mô / nhận định năm → BẮT BUỘC viết đủ 4 phần theo LUẬT 6, tối thiểu 250-400 chữ. Nếu câu hỏi nhỏ lẻ (giờ/ngày/hỏi nhanh) → ngắn gọn 80-150 chữ.`;
   }
 
   // ── Nhúng tọa độ nhiều năm nếu user hỏi so sánh ──
@@ -5233,7 +5234,7 @@ Khi trả lời: (1) Xác định rõ người dùng hỏi ở tầng nào (Năm
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       model: "claude-sonnet-4-20250514",
-      max_tokens: 600,
+      max_tokens: 1200,
       system: systemContext,
       messages: _khayChatHistory
     })
