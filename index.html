@@ -1836,6 +1836,33 @@ input[type=range]::-webkit-slider-thumb {
 }
 .luan-giai-retry:hover { background: rgba(200,153,58,.14); }
 
+.luan-giai-btn-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 14px 16px 16px;
+}
+.luan-giai-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 28px;
+  background: rgba(200,153,58,.08);
+  border: 1px solid rgba(200,153,58,.35);
+  border-radius: 50px;
+  color: rgba(200,153,58,.9);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  cursor: pointer;
+  transition: background .2s, border-color .2s, transform .1s;
+}
+.luan-giai-trigger-btn:hover {
+  background: rgba(200,153,58,.18);
+  border-color: rgba(200,153,58,.6);
+  transform: translateY(-1px);
+}
+.luan-giai-trigger-btn:active { transform: translateY(0); }
+
 /* Tổng kết toàn cục */
 .tong-luan-wrap {
   margin: 0 0 12px 0;
@@ -4511,7 +4538,16 @@ Dữ liệu tính toán:
 - Cảnh báo thảm họa: ${canhBao && canhBao.length > 0 ? canhBao.filter(c=>!c._isNguPhucHoaGiai).map(c=>c.ten).join("; ") : "Bình yên — không có cảnh báo"}`;
   }
 
-  const prompt = context + `
+  // Thời Cục → luận ngắn gọn tổng quát, không đi sâu như các cục khác
+  const isThoiCuc = cucTen === "Thời Cục";
+  const prompt = context + (isThoiCuc ? `
+
+Hãy viết đoạn nhận định tổng quát khoảng 60-90 chữ tiếng Việt, phong cách thực chiến ngắn gọn. Chỉ cần:
+1. Khí tượng giờ này: thuận hay nghịch, thế Chủ-Khách ra sao
+2. Một lời khuyên hành động cụ thể (vào lệnh / chờ / bảo toàn)
+Viết liên mạch, không bullet, không markdown. Súc tích như lệnh xuất quân.
+
+Cuối, trên một dòng riêng: {"verdict":"cat|hung|warn","tags":["tag1","tag2","tag3"]}` : `
 
 Hãy viết đoạn luận giải khoảng 120-180 chữ tiếng Việt theo phong cách cổ thư Thái Ất. Luận giải nên:
 1. Mở đầu bằng nhận định tổng thể về khí tượng (Thái Ất ở đâu, khí thế ra sao)
@@ -4520,10 +4556,10 @@ Hãy viết đoạn luận giải khoảng 120-180 chữ tiếng Việt theo pho
 Viết liên tục, không dùng bullet, không dùng số thứ tự, không dùng markdown. Giọng văn uyên thâm nhưng thực chiến.
 
 Cuối luận giải, trên một dòng riêng, viết JSON: {"verdict":"cat|hung|warn","tags":["tag1","tag2","tag3"]}
-(verdict: cat=thuận lợi, hung=nguy hiểm, warn=cần thận trọng; tags: 3 nhãn ngắn 2-4 từ tóm tắt tình thế)`;
+(verdict: cat=thuận lợi, hung=nguy hiểm, warn=cần thận trọng; tags: 3 nhãn ngắn 2-4 từ tóm tắt tình thế)`);
 
   try {
-    const resp = await fetch(PROXY_URL, {
+  const resp = await fetch(PROXY_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -4638,7 +4674,10 @@ function renderLuanGiaiSection(cucTen, d, meta, hungTinh, canhBao, elementId) {
       <span class="luan-giai-title">Luận Giải Cổ Thư · ${cucTen}</span>
       <span class="luan-giai-subtitle">AI Oracle · Thái Ất Thần Kinh</span>
     </div>
-    <div class="luan-giai-loading" id="${elementId}-loading">
+    <div class="luan-giai-btn-wrap" id="${elementId}-btn">
+      <button class="luan-giai-trigger-btn" onclick="triggerLuanGiai('${elementId}')">🔮 Luận Giải</button>
+    </div>
+    <div class="luan-giai-loading" id="${elementId}-loading" style="display:none">
       <div class="oracle-spinner"></div>
       <div class="luan-giai-loading-text">Thỉnh cầu cổ thư luận giải...</div>
     </div>
@@ -4694,20 +4733,36 @@ function retryLuanGiai(cucTen, elementId) {
   loadLuanGiai(cucTen, d, meta, hungTinh, canhBao, elementId);
 }
 
+function triggerLuanGiai(elementId) {
+  const stored = _luanGiaiData[elementId];
+  if (!stored) return;
+  // Ẩn nút, hiện spinner
+  const btnWrap = document.getElementById(elementId+"-btn");
+  const loadingEl = document.getElementById(elementId+"-loading");
+  if (btnWrap) btnWrap.style.display = "none";
+  if (loadingEl) loadingEl.style.display = "flex";
+  const { d, meta, hungTinh, canhBao } = stored;
+  // Lấy tên cục từ elementId (lg-cuc-0 → cucs[0].ten)
+  const r = window.__lastResult;
+  const idx = parseInt(elementId.replace("lg-cuc-",""));
+  const cucTen = r ? r.cucs[idx].ten : (stored.cucTen || "Cục");
+  loadLuanGiai(cucTen, d, meta, hungTinh, canhBao, elementId);
+}
+
 // ─── TỔNG LUẬN ────────────────────────────────────────────────────────────
 function renderTongLuanSection() {
   return `<div class="tong-luan-wrap" id="tong-luan-block">
     <div class="tong-luan-header">
-      <span style="font-size:22px;filter:drop-shadow(0 0 8px rgba(0,212,255,.6))">🌌</span>
+      <span style="font-size:22px;filter:drop-shadow(0 0 8px rgba(0,212,255,.6))">⚡</span>
       <div>
-        <div class="tong-luan-title">Tổng Luận · Tích Hợp 4 Cục</div>
-        <div style="font-size:9px;color:var(--text-dim);margin-top:2px;letter-spacing:.06em">Thiên Thời · Địa Lợi · Nhân Hòa — Thái Ất Oracle</div>
+        <div class="tong-luan-title">Thời Cục · Luận Giải Tức Thì</div>
+        <div style="font-size:9px;color:var(--text-dim);margin-top:2px;letter-spacing:.06em">Thế Trận Xuất Quân · Giao Dịch Thực Chiến — Thái Ất Oracle</div>
       </div>
     </div>
     <div class="tong-luan-body" id="tong-luan-inner">
       <div class="luan-giai-loading">
         <div class="oracle-spinner" style="width:32px;height:32px;border-color:rgba(0,212,255,.2);border-top-color:var(--cyan)"></div>
-        <div class="luan-giai-loading-text" style="color:rgba(0,212,255,.6)">Tổng hợp thiên thời địa lợi...</div>
+        <div class="luan-giai-loading-text" style="color:rgba(0,212,255,.6)">Thỉnh Thời Cục luận thế trận...</div>
       </div>
     </div>
   </div>`;
@@ -4716,12 +4771,15 @@ function renderTongLuanSection() {
 async function loadTongLuan(cucs, meta, hungTinh, canhBao) {
   const el = document.getElementById("tong-luan-inner");
   if (!el) return;
+  // Dùng Thời Cục (cucs[3]) thay cho tổng luận 4 cục
+  const thoiCuc = cucs[3];
+  if (!thoiCuc) { el.innerHTML = '<div class="luan-giai-error">Không có dữ liệu Thời Cục.</div>'; return; }
   try {
-    const result = await fetchTongLuan(cucs, meta, hungTinh, canhBao);
+    const result = await fetchLuanGiai(thoiCuc.ten, thoiCuc.data, meta, null, null);
     const verdictIcon = result.verdict === "cat" ? "🟢" : result.verdict === "hung" ? "🔴" : "🟡";
-    const verdictTxt  = result.verdict === "cat" ? "Thiên Thời Thuận Lợi — Thời cơ tốt để hành động" :
-                        result.verdict === "hung" ? "Hung Tướng Lâm Cung — Cẩn trọng, bảo toàn vốn" :
-                                                    "Khí Tượng Hỗn Mang — Nửa thuận nửa nghịch, cần linh hoạt";
+    const verdictTxt  = result.verdict === "cat" ? "Thời Thế Thuận — Xuất quân được" :
+                        result.verdict === "hung" ? "Thời Thế Hung — Án binh bất động" :
+                                                    "Thời Thế Hỗn — Thận trọng từng bước";
     const tagHtml = (result.tags || []).map(t =>
       `<span class="luan-giai-tag ${result.verdict}">${t}</span>`
     ).join("");
@@ -4741,7 +4799,8 @@ async function loadTongLuan(cucs, meta, hungTinh, canhBao) {
 
 // Lưu lịch sử chat theo session (reset khi tính lại)
 let _khayChatHistory = [];
-let _khayChatContext = null; // context tọa độ hiện tại
+let _khayChatContext = null;    // context tọa độ hiện tại (1 năm)
+let _khayMultiYearData = null; // context nhiều năm (khi user hỏi so sánh)
 let _khayTyping = false;
 
 function renderKhayChatSection() {
@@ -4834,14 +4893,29 @@ async function khaySend() {
   document.getElementById("khay-send-btn").disabled = true;
   khayShowTyping();
 
-  // ── Tự động tính tọa độ nếu câu hỏi có chứa thời gian ──
-  let autoComputed = false;
+  // ── Tự động tính tọa độ cho TẤT CẢ các năm được đề cập trong câu hỏi ──
+  // Tìm tất cả năm 4 chữ số trong câu (1000–2999)
+  const allYears = [...new Set((text.match(/(1[0-9]{3}|2[0-9]{3})/g) || []).map(Number))];
+  // Nếu chỉ có 1 năm → tính rồi set _khayChatContext như cũ
+  // Nếu có nhiều năm → tính từng cái, lưu vào _khayMultiYearData để nhúng vào system prompt
   try {
-    const parsed = khayParseTime(text);
-    if (parsed) {
-      const r = compute(parsed.nam, parsed.thang, parsed.ngay, parsed.gio);
-      _khayChatContext = r;
-      autoComputed = true;
+    if (allYears.length === 1) {
+      const parsed = khayParseTime(text);
+      if (parsed) {
+        const r = compute(parsed.nam, parsed.thang, parsed.ngay, parsed.gio);
+        r._autoComputedFor = `${parsed.ngay}/${parsed.thang}/${parsed.nam} giờ ${parsed.gio}H`;
+        _khayChatContext = r;
+        _khayMultiYearData = null;
+      }
+    } else if (allYears.length > 1) {
+      // Tính tọa độ cho tất cả các năm tìm được, dùng 1/1/năm giờ 0
+      _khayMultiYearData = allYears.map(y => {
+        const r = compute(y, 1, 1, 0);
+        r._autoComputedFor = `1/1/${y} giờ 0H`;
+        return r;
+      });
+      // Context chính vẫn là năm gần nhất trong danh sách
+      _khayChatContext = _khayMultiYearData[_khayMultiYearData.length - 1];
     }
   } catch(e) { /* bỏ qua nếu parse lỗi */ }
 
@@ -4862,6 +4936,26 @@ async function khayFetch() {
   let systemContext = `Mày là Khầy — vị Quân Sư Vĩ Mô, học trò dòng Trạng Trình Nguyễn Bỉnh Khiêm, tinh thông Thái Ất Thần Kinh. Mày tự xưng "Khầy", gọi người dùng là "em" hoặc "các em". Giọng cổ phong huyền bí nhưng thực chiến, đôi khi dí dỏm. TUYỆT ĐỐI không dùng markdown bold/italic/bullet — chỉ viết đoạn văn xuôi tự nhiên. KHÔNG hỏi vị trí địa lý.
 
 QUAN TRỌNG TUYỆT ĐỐI: Khi có dữ liệu tọa độ trong context, mày PHẢI dùng ĐÚNG số liệu đó. TUYỆT ĐỐI KHÔNG TỰ BỊA số liệu. Nếu chưa có dữ liệu, chỉ hỏi thêm giờ (nếu thiếu) rồi đợi hệ thống tính — không phán bừa.
+
+═══ LUẬT SẮT VỀ SỐ CỤC — VI PHẠM = SAI HOÀN TOÀN ═══
+
+LUẬT 1 — SỐ CỤC CHỈ DO HỆ THỐNG TÍNH:
+Mày TUYỆT ĐỐI không được tự tính hoặc tự suy số cục (Tuế Cục, Nguyệt Cục, Nhật Cục, Thời Cục). Những con số này phải đến từ phần "TỌA ĐỘ VŨ TRỤ ĐẦY ĐỦ" trong context — hoặc do hệ thống tự động tính khi người dùng nhập thời gian vào chat. KHÔNG BAO GIỜ tự tính bừa.
+
+LUẬT 2 — GIỚI HẠN CỨNG CỦA TỪNG CỤC:
+• Tuế Cục: luôn từ 1–72, CHỈ có Dương Độn (không có Âm Độn). KHÔNG BAO GIỜ có Tuế Cục 73, 74, 75, hay bất kỳ số nào > 72.
+• Nguyệt Cục: 1–72, có cả Âm Độn và Dương Độn.
+• Nhật Cục: 1–72, có cả Âm Độn và Dương Độn.
+• Thời Cục: 1–72, có cả Âm Độn và Dương Độn.
+• Cung Thái Ất, Văn Xương, Thủy Kích, Kế Thần: luôn trong hệ Bát Quái (1,2,3,4,5,6,7,8,9) — KHÔNG BAO GIỜ có Cung 10, 11, 12 hay bất kỳ số nào > 9.
+
+LUẬT 3 — KHI NGƯỜI DÙNG HỎI VỀ NHIỀU NĂM KHÁC NHAU:
+Hệ thống chỉ tính được TỌA ĐỘ CHO MỘT THỜI ĐIỂM DUY NHẤT mỗi lần. Nếu người dùng hỏi về nhiều năm khác nhau trong cùng một câu (vd: "năm 2017 và 2021"), mày KHÔNG ĐƯỢC tự bịa số cục cho từng năm. Thay vào đó, hướng dẫn người dùng nhập từng năm một vào chat để hệ thống tính đúng (vd: "Các em nhập 'năm 2017' để Khầy tính tọa độ năm đó, rồi nhập tiếp 'năm 2021' cho năm kia").
+
+LUẬT 4 — KHI KHÔNG CÓ DỮ LIỆU TÍNH SẴN:
+Nếu context không có "TỌA ĐỘ VŨ TRỤ ĐẦY ĐỦ" cho thời điểm được hỏi, mày PHẢI nói thẳng: "Khầy chưa có tọa độ năm X trong tay. Các em nhập 'năm X' vào đây để hệ thống tính ngay." KHÔNG được hallucinate ra số liệu giả.
+
+═══════════════════════════════════════════════════════
 
 ═══ QUY TẮC "TỨ KẾ PHÂN LẬP" — BẮT BUỘC TUÂN THỦ ═══
 
@@ -4893,7 +4987,25 @@ Bát Môn: Khai=khởi sự tuyệt vời | Hưu=tích lũy an toàn | Sinh=sinh
 Án Tướng: TÙ=trùng Thái Ất(giam lỏng) | YỂM=trùng Thủy Kích(flash dump) | CÁCH=đối xung Thái Ất(đứt xu hướng) | BÁCH=kề sát Thái Ất + địch kẹp tả hữu(quét stoploss toàn diện) | BÁCH ĐƠN=kề sát Thái Ất một phía(áp lực một chiều) | QUAN=trùng Văn Xương không kẹp Thái Ất(kìm kẹp hành chính) | ĐỖ=Trung Cung(kẹt lỗ đen) | ĐỖ CỐ=Trung Cung + Văn Xương cũng ở Trung Cung(đại hung cực độ — nặng nhất) | TỨ QUÁCH CỐ=trùng Văn Xương + kề sát Thái Ất(bủa vây tứ phía tuyệt đường lui) | HIỆP=bị 2 tướng địch kẹp | ĐỀ=mượn sức Thái Ất ép chết.
 Toán số: THƯỢNG HÒA(14,18,23)=đại cát | THỨ HÒA(29,36)=cát | HẠ HÒA(12,16,27,34,38)=cát vừa | THUẦN DƯƠNG(33,39)=đại hung FOMO | THUẦN ÂM(22,26)=đại hung bán tháo | CÔ(10,20,30,40)=sideway chôn vốn | ĐƠN(1-9)=vô thiên mỏng manh | VÔ ĐỊA(đơn vị 1-4)=mất nền tảng.
 Ngũ Hành tương tác với Vàng(Kim): Thổ sinh Kim(cung 3,7)=đại cát | Thủy tiết Kim(cung 8)=tích lũy tốt | Kim tỷ hòa(cung 1,6)=sideway | Mộc bị Kim khắc(cung 4,9)=hao tổn | Hỏa khắc Kim(cung 2)=đại hung.
-Ngũ Hành BĐS(Thổ): Hỏa sinh Thổ(cung 2)=đại cát | Thổ tỷ hòa(cung 3,7)=bền vững | Kim tiết Thổ(cung 1,6)=hao tổn | Thổ khắc Thủy(cung 8)=trì trệ | Mộc khắc Thổ(cung 4,9)=đại hung.`;
+Ngũ Hành BĐS(Thổ): Hỏa sinh Thổ(cung 2)=đại cát | Thổ tỷ hòa(cung 3,7)=bền vững | Kim tiết Thổ(cung 1,6)=hao tổn | Thổ khắc Thủy(cung 8)=trì trệ | Mộc khắc Thổ(cung 4,9)=đại hung.
+
+═══ MÔI TRƯỜNG KỸ THUẬT — ĐỌC ĐỂ HIỂU ĐÚNG NGUỒN GỐC SỐ LIỆU ═══
+
+Mày đang chạy qua kiến trúc 2 tầng:
+
+TẦNG 1 — index.html (chạy trong trình duyệt của người dùng):
+Đây là nơi MỌI PHÉP TÍNH diễn ra. Toàn bộ engine Thái Ất (compute, tinhCuc, tinhHungTinh, quetThamHoaDanCo...) là JavaScript thuần chạy trực tiếp trên máy người dùng. Không có server, không có database. Khi người dùng nhấn Tính hoặc nhập thời gian vào chat, trình duyệt tính ngay lập tức rồi nhúng kết quả vào system prompt gửi cho mày.
+
+TẦNG 2 — Cloudflare Worker (thuongvip.shadowthuong.workers.dev):
+Đây CHỈ là proxy đơn giản — nhận request từ trình duyệt, gắn API key Anthropic vào header, forward đến api.anthropic.com rồi trả kết quả về. Worker KHÔNG có logic Thái Ất, KHÔNG lưu trữ dữ liệu, KHÔNG tính toán gì thêm. Tồn tại duy nhất để giấu API key khỏi client-side JS.
+
+HỆ QUẢ QUAN TRỌNG MÀY PHẢI NẮM:
+- Mày KHÔNG thể gọi lại engine tính toán — engine chạy ở trình duyệt, không phải ở Worker.
+- Mọi số liệu (số cục, Thái Ất, Văn Xương...) ĐÃ ĐƯỢC TÍNH SẴN trước khi gửi đến mày. Mày chỉ ĐỌC và LUẬN GIẢI.
+- Nếu không có số liệu trong context thì trình duyệt chưa tính (user chưa nhập thời gian) — yêu cầu user nhập, KHÔNG tự bịa.
+- Cloudflare Worker không phải giới hạn hay lỗi — nó hoạt động đúng thiết kế. Đừng báo lỗi kỹ thuật khi thực ra chỉ thiếu dữ liệu đầu vào.
+
+═══════════════════════════════════════════════════════`;
 
   if (_khayChatContext) {
     const { meta, cucs, hungTinh, canhBaoThamHoa } = _khayChatContext;
@@ -4951,10 +5063,12 @@ Ngũ Hành BĐS(Thổ): Hỏa sinh Thổ(cung 2)=đại cát | Thổ tỷ hòa(c
     const hungList = (canhBaoThamHoa||[]).filter(c=>!c._isNguPhucHoaGiai);
     const npMeta = canhBaoThamHoa?._nguPhucMeta || (hungList.length > 0 ? hungList[0]?._nguPhucMeta : null);
 
+    const autoFor = _khayChatContext._autoComputedFor ? ` [tính từ lệnh chat: "${_khayChatContext._autoComputedFor}"]` : "";
     systemContext += `
 
 ══════ TỌA ĐỘ VŨ TRỤ ĐẦY ĐỦ ══════
-Thời điểm: ${meta.ngay}/${meta.thang}/${meta.nam} giờ ${meta.gio}H — ${donHeLabel}
+Thời điểm: ${meta.ngay}/${meta.thang}/${meta.nam} giờ ${meta.gio}H — ${donHeLabel}${autoFor}
+⛔ CẢNH BÁO: Đây là tọa độ DUY NHẤT đang có (năm ${meta.nam}). Nếu user hỏi về năm KHÁC ${meta.nam}, mày PHẢI yêu cầu họ nhập "năm XXXX" để hệ thống tính mới — TUYỆT ĐỐI không tự suy số cục cho năm khác.
 ⚠ NHẮC NHỞ TỨ KẾ PHÂN LẬP: Mỗi cục bên dưới CHỈ dùng đúng tầng của nó. Khi luận giải PHẢI hỏi người dùng muốn đánh ở tầng nào (Năm/Tháng/Ngày/Giờ) rồi chỉ đọc đúng cục đó. Mỗi cục có MÃ CỤC riêng — đọc đúng mã, trích đúng sao của cục đó, không pha trộn.
 
 ${cucFull}
@@ -5016,6 +5130,29 @@ Ngôn ngữ luận giải: khi luận Tuế/Nguyệt Kế thì dùng giọng đ�
 ══════════════════════════════════════════════════════════
 
 Khi trả lời: (1) Xác định rõ người dùng hỏi ở tầng nào (Năm/Tháng/Ngày/Giờ) — nếu chưa rõ thì HỎI trước. (2) Chỉ đọc và trích dẫn đúng cục của tầng đó. (3) Dựa vào đúng số liệu trên, đừng nói chung chung. Trả lời ngắn gọn 80-150 chữ trừ khi em hỏi chi tiết.`;
+  }
+
+  // ── Nhúng tọa độ nhiều năm nếu user hỏi so sánh ──
+  if (_khayMultiYearData && _khayMultiYearData.length > 1) {
+    const fmtYearSnap = (r) => {
+      const tc = r.cucs[0];
+      const d = tc.data;
+      const ht = r.hungTinh;
+      const cungVX = THAN_INFO[d.vanXuong] ? THAN_INFO[d.vanXuong][0] : "?";
+      const cungTK = THAN_INFO[d.thuyKich] ? THAN_INFO[d.thuyKich][0] : "?";
+      return "Năm " + r.meta.nam + ": Tuế Cục " + tc.cucSo + " (Dương Độn)"
+        + " | Thái Ất Cung " + d.thaiAt + " (" + (CUNG_NAME[d.thaiAt]||d.thaiAt) + ")"
+        + " | Văn Xương " + d.vanXuong + "→Cung " + cungVX
+        + " | Thủy Kích " + d.thuyKich + "→Cung " + cungTK
+        + " | Toán Chủ " + d.toanChu + " / Khách " + d.toanKhach
+        + " | Chủ Đại Tướng Cung " + d.chuDai + " " + (d.anChuDai ? d.anChuDai.label : "")
+        + " | Khách Đại Tướng Cung " + d.khachDai + " " + (d.anKhachDai ? d.anKhachDai.label : "")
+        + " | Thái Ất Năm Cung " + ht.thaiAtNam;
+    };
+    systemContext += "\n\n══════ TỌA ĐỘ NHIỀU NĂM (so sánh) ══════"
+      + "\n⚠ Hệ thống đã tính chính xác — DÙNG ĐÚNG số liệu này, không tự bịa:"
+      + "\n" + _khayMultiYearData.map(fmtYearSnap).join("\n")
+      + "\n══════════════════════════════════════";
   }
 
   const resp = await fetch(PROXY_URL, {
@@ -5472,7 +5609,8 @@ function toggleExtraCucs() {
     setTimeout(drawAllRadars, 50);
     const r = window.__lastResult;
     if (r) {
-      [1, 3].forEach(i => {
+      // Thời Cục (3) đã load ở block đầu trang — chỉ lazy-load Nguyệt Cục (1)
+      [1].forEach(i => {
         const id = "lg-cuc-"+i;
         const loadingEl = document.getElementById(id+"-loading");
         if (loadingEl && loadingEl.style.display !== "none") {
@@ -5961,10 +6099,8 @@ function renderResults(r){
       const id = `lg-cuc-${i}`;
       _luanGiaiData[id] = { d:c.data, meta, hungTinh:i===0?hungTinh:null, canhBao:i===0?canhBaoThamHoa:null };
     });
-    // Auto-load luận giải cho Tuế Cục (0) + Nhật Cục (2) — hai cục primary
-    loadLuanGiai(cucs[0].ten, cucs[0].data, meta, hungTinh, canhBaoThamHoa, "lg-cuc-0");
-    loadLuanGiai(cucs[2].ten, cucs[2].data, meta, null, null, "lg-cuc-2");
-    // Nguyệt (1) + Thời (3) — lazy load khi user mở extra group
+    // Tất cả cục đều on-demand — user bấm nút mới gọi API
+    // (Thời Cục đầu trang vẫn auto-load qua loadTongLuan)
   }, 100);
   const isDesktop = window.innerWidth >= 900;
   if(isDesktop){
@@ -6125,12 +6261,18 @@ fillToday();
 
 <script>
 // ── PWA SERVICE WORKER REGISTRATION ──
+// Chỉ đăng ký khi chạy trên GitHub Pages, bỏ qua môi trường preview (claudeusercontent.com, localhost)
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js')
-      .then(reg => console.log('[SW] Registered:', reg.scope))
-      .catch(err => console.warn('[SW] Failed:', err));
-  });
+  const isGitHubPages = location.hostname.endsWith('github.io') || location.hostname.endsWith('github.com');
+  const isLocalDev    = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  const isPreview     = location.hostname.includes('claudeusercontent') || location.hostname.includes('claude.ai');
+  if (isGitHubPages || (!isLocalDev && !isPreview)) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('[SW] Registered:', reg.scope))
+        .catch(err => console.warn('[SW] Failed:', err));
+    });
+  }
 }
 </script>
 
