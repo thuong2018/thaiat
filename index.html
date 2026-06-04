@@ -1427,6 +1427,33 @@ input[type=range]::-webkit-slider-thumb {
   padding: 24px;
 }
 #about-modal.open { display: flex; }
+
+#api-settings-modal.open { display: flex !important; }
+
+.api-ep-card {
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  transition: border-color .2s;
+}
+.api-ep-card.active { border-color: #3a3a1a; }
+.api-toggle { position:relative; display:inline-block; width:38px; height:22px; flex-shrink:0; }
+.api-toggle input { opacity:0; width:0; height:0; }
+.api-toggle-slider {
+  position:absolute; cursor:pointer; inset:0;
+  background:#2a2a2a; border-radius:22px; transition:.25s;
+}
+.api-toggle-slider:before {
+  content:""; position:absolute;
+  width:16px; height:16px; left:3px; bottom:3px;
+  background:#555; border-radius:50%; transition:.25s;
+}
+.api-toggle input:checked + .api-toggle-slider { background:#3a5a1a; }
+.api-toggle input:checked + .api-toggle-slider:before { background:#8bc34a; transform:translateX(16px); }
+
+
 .about-box {
   max-width: 500px;
   width: 100%;
@@ -2383,7 +2410,79 @@ input[type=range]::-webkit-slider-thumb {
 <!-- ═══ MAIN APP ═══ -->
 <div id="app">
 
-  <header>
+  
+<div id="api-settings-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.78);align-items:center;justify-content:center;">
+  <div style="background:#0e0e0e;border:1px solid #2a2a2a;border-radius:14px;padding:22px 20px 18px;width:min(420px,95vw);position:relative;max-height:90vh;overflow-y:auto;">
+    <span onclick="document.getElementById('api-settings-modal').classList.remove('open')" style="position:absolute;top:12px;right:14px;cursor:pointer;font-size:18px;color:#666;">✕</span>
+    <div style="font-size:15px;font-weight:700;color:#d4af37;margin-bottom:2px;">⚙️ Cài Đặt API Oracle</div>
+    <div style="font-size:10px;color:#555;margin-bottom:18px;">Bật/tắt từng endpoint · Fallback tự động theo thứ tự</div>
+
+    <!-- CLOUDFLARE -->
+    <div class="api-ep-card" id="card-cf">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:16px;">☁️</span>
+          <div>
+            <div style="font-size:12px;font-weight:600;color:#eee;">Cloudflare Worker</div>
+            <div style="font-size:10px;color:#555;">thuongvip.shadowthuong.workers.dev</div>
+          </div>
+        </div>
+        <label class="api-toggle">
+          <input type="checkbox" id="toggle-cf" onchange="saveAPISettings()">
+          <span class="api-toggle-slider"></span>
+        </label>
+      </div>
+      <div style="font-size:10px;color:#444;">Ưu tiên 1 · Không cần key · Phụ thuộc CORS allowlist</div>
+    </div>
+
+    <!-- OPENROUTER -->
+    <div class="api-ep-card" id="card-or">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:16px;">🔀</span>
+          <div>
+            <div style="font-size:12px;font-weight:600;color:#eee;">OpenRouter</div>
+            <div style="font-size:10px;color:#555;">openrouter.ai · claude-sonnet-4</div>
+          </div>
+        </div>
+        <label class="api-toggle">
+          <input type="checkbox" id="toggle-or" onchange="saveAPISettings()">
+          <span class="api-toggle-slider"></span>
+        </label>
+      </div>
+      <input id="input-or-key" type="password" placeholder="sk-or-v1-..." style="width:100%;box-sizing:border-box;background:#141414;border:1px solid #2a2a2a;border-radius:6px;padding:7px 10px;color:#eee;font-size:11px;margin-bottom:4px;" />
+      <div style="font-size:10px;color:#444;">Ưu tiên 2 · Cần API key tại openrouter.ai/keys</div>
+    </div>
+
+    <!-- OLLAMA -->
+    <div class="api-ep-card" id="card-ol">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:16px;">🦙</span>
+          <div>
+            <div style="font-size:12px;font-weight:600;color:#eee;">Ollama Local</div>
+            <div style="font-size:10px;color:#555;">10.173.185.181:11434</div>
+          </div>
+        </div>
+        <label class="api-toggle">
+          <input type="checkbox" id="toggle-ol" onchange="saveAPISettings()">
+          <span class="api-toggle-slider"></span>
+        </label>
+      </div>
+      <input id="input-ollama-model" type="text" placeholder="qwen3:1.7b / qwen3:8b / llama3..." style="width:100%;box-sizing:border-box;background:#141414;border:1px solid #2a2a2a;border-radius:6px;padding:7px 10px;color:#eee;font-size:11px;margin-bottom:4px;" />
+      <div style="font-size:10px;color:#444;">Ưu tiên 3 · Cần <code style="color:#888;">OLLAMA_ORIGINS=*</code> để tránh CORS</div>
+    </div>
+
+    <!-- Test buttons -->
+    <div style="display:flex;gap:8px;margin-top:14px;">
+      <button onclick="testAPIConnection('cf')" style="flex:1;background:#111;color:#4caf50;border:1px solid #2a4a2a;border-radius:6px;padding:8px;font-size:11px;cursor:pointer;">🔗 Test CF</button>
+      <button onclick="testAPIConnection('or')" style="flex:1;background:#111;color:#2196f3;border:1px solid #1a2a4a;border-radius:6px;padding:8px;font-size:11px;cursor:pointer;">🔗 Test OR</button>
+      <button onclick="testAPIConnection('ol')" style="flex:1;background:#111;color:#ff9800;border:1px solid #4a3a1a;border-radius:6px;padding:8px;font-size:11px;cursor:pointer;">🔗 Test Ol</button>
+    </div>
+    <div id="api-test-result" style="margin-top:10px;font-size:11px;min-height:16px;text-align:center;color:#aaa;"></div>
+  </div>
+</div>
+<header>
     <div class="header-inner">
       <span class="header-symbol">☯</span>
       <div class="header-title-block">
@@ -2400,6 +2499,7 @@ input[type=range]::-webkit-slider-thumb {
       <span class="header-badge">11 Lưới Lọc Vĩ Mô</span>
       <span class="header-about-btn" onclick="document.getElementById('about-modal').classList.add('open')">🪷 Về Phần Mềm</span>
       <span class="header-about-btn" onclick="openIntro()">☯ Giới Thiệu</span>
+      <span class="header-about-btn" onclick="document.getElementById('api-settings-modal').classList.add('open')">⚙️ API</span>
     </div>
   </header>
 
@@ -2559,6 +2659,85 @@ input[type=range]::-webkit-slider-thumb {
   }
 })();
 
+
+// ── API Settings UI ──────────────────────────────────────────────────────
+function loadAPISettings() {
+  // Keys & model
+  const ki = document.getElementById("input-or-key");
+  const mi = document.getElementById("input-ollama-model");
+  if (ki) ki.value = localStorage.getItem("openrouter_key") || "";
+  if (mi) mi.value = localStorage.getItem("ollama_model") || "";
+  // Toggles — default: CF=on, OR=off (no key), OL=on
+  const cfOn = localStorage.getItem("api_cf_enabled") !== "0";
+  const orOn = localStorage.getItem("api_or_enabled") === "1";
+  const olOn = localStorage.getItem("api_ol_enabled") !== "0";
+  const tCf = document.getElementById("toggle-cf");
+  const tOr = document.getElementById("toggle-or");
+  const tOl = document.getElementById("toggle-ol");
+  if (tCf) tCf.checked = cfOn;
+  if (tOr) tOr.checked = orOn;
+  if (tOl) tOl.checked = olOn;
+  updateCardStyle();
+}
+
+function updateCardStyle() {
+  const cfOn = document.getElementById("toggle-cf")?.checked;
+  const orOn = document.getElementById("toggle-or")?.checked;
+  const olOn = document.getElementById("toggle-ol")?.checked;
+  ["cf","or","ol"].forEach((k,i) => {
+    const on = [cfOn, orOn, olOn][i];
+    const card = document.getElementById("card-"+k);
+    if (card) card.style.opacity = on ? "1" : "0.45";
+  });
+}
+
+function saveAPISettings() {
+  // Lưu toggles
+  localStorage.setItem("api_cf_enabled", document.getElementById("toggle-cf")?.checked ? "1" : "0");
+  localStorage.setItem("api_or_enabled", document.getElementById("toggle-or")?.checked ? "1" : "0");
+  localStorage.setItem("api_ol_enabled", document.getElementById("toggle-ol")?.checked ? "1" : "0");
+  // Lưu key & model
+  const orKey = (document.getElementById("input-or-key")?.value || "").trim();
+  const olModel = (document.getElementById("input-ollama-model")?.value || "").trim();
+  if (orKey) localStorage.setItem("openrouter_key", orKey); else localStorage.removeItem("openrouter_key");
+  if (olModel) localStorage.setItem("ollama_model", olModel); else localStorage.removeItem("ollama_model");
+  // Sync vào _API_ENDPOINTS skip functions
+  syncEndpointToggles();
+  updateCardStyle();
+  const res = document.getElementById("api-test-result");
+  if (res) { res.style.color = "#4caf50"; res.textContent = "✅ Đã lưu!"; setTimeout(()=>res.textContent="", 1500); }
+}
+
+function syncEndpointToggles() {
+  const cfOn = localStorage.getItem("api_cf_enabled") !== "0";
+  const orOn = localStorage.getItem("api_or_enabled") === "1";
+  const olOn = localStorage.getItem("api_ol_enabled") !== "0";
+  if (_API_ENDPOINTS[0]) _API_ENDPOINTS[0].skip = () => !cfOn;
+  if (_API_ENDPOINTS[1]) _API_ENDPOINTS[1].skip = () => !orOn || !localStorage.getItem("openrouter_key");
+  if (_API_ENDPOINTS[2]) _API_ENDPOINTS[2].skip = () => !olOn;
+}
+
+async function testAPIConnection(epKey) {
+  const res = document.getElementById("api-test-result");
+  const epMap = { cf: _API_ENDPOINTS[0], or: _API_ENDPOINTS[1], ol: _API_ENDPOINTS[2] };
+  const ep = epMap[epKey];
+  if (!ep) return;
+  if (res) { res.style.color = "#aaa"; res.textContent = "⏳ Testing " + ep.name + "..."; }
+  try {
+    const payload = { model:"claude-sonnet-4-20250514", max_tokens:10, system:"", messages:[{role:"user",content:"hi"}] };
+    const headers = { "Content-Type":"application/json", ...(ep.extraHeaders ? ep.extraHeaders() : {}) };
+    const resp = await fetch(ep.url, { method:"POST", headers, body: JSON.stringify(ep.toBody(payload)) });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data?.error?.message || resp.status);
+    const text = ep.fromData(data) || "(ok)";
+    if (res) { res.style.color = "#4caf50"; res.textContent = "✅ " + ep.name + " OK · " + text.slice(0,40); }
+  } catch(e) {
+    if (res) { res.style.color = "#f44"; res.textContent = "❌ " + ep.name + ": " + e.message.slice(0,70); }
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => { loadAPISettings(); syncEndpointToggles(); });
+// ─────────────────────────────────────────────────────────────────────────
 function openIntro() {
   const el = document.getElementById('intro-screen');
   if (!el) return;
@@ -4502,7 +4681,72 @@ const _luanGiaiCache = {};
 // ── CẤU HÌNH PROXY ─────────────────────────────────────────────────────────
 // Sau khi deploy Cloudflare Worker, thay URL bên dưới bằng URL worker của bạn
 // Ví dụ: "https://thai-at.ten-ban.workers.dev"
-const PROXY_URL = "https://thuongvip.shadowthuong.workers.dev";
+// ── API ENDPOINTS — tự động fallback theo thứ tự ─────────────────────────
+// Thứ tự: Cloudflare Worker → OpenRouter → Ollama Local
+// Nếu một cái đứt, tự chuyển sang cái tiếp theo
+const _API_ENDPOINTS = [
+  {
+    name: "Cloudflare",
+    url: "https://thuongvip.shadowthuong.workers.dev",
+    toBody: (p) => ({ model: p.model, max_tokens: p.max_tokens, system: p.system, messages: p.messages }),
+    fromData: (d) => (d.content||[]).map(b=>b.text||"").join("").trim(),
+    skip: () => false,
+  },
+  {
+    name: "OpenRouter",
+    url: "https://openrouter.ai/api/v1/chat/completions",
+    toBody: (p) => ({
+      model: "anthropic/claude-sonnet-4",
+      max_tokens: p.max_tokens,
+      messages: [{ role:"system", content: p.system||"" }, ...(p.messages||[])],
+    }),
+    extraHeaders: () => ({ "Authorization":"Bearer "+(localStorage.getItem("openrouter_key")||""), "HTTP-Referer":location.origin, "X-Title":"Thai At Than Kinh" }),
+    fromData: (d) => d?.choices?.[0]?.message?.content||"",
+    skip: () => !localStorage.getItem("openrouter_key"),
+  },
+  {
+    name: "Ollama Local",
+    url: "http://10.173.185.181:11434/api/chat",
+    toBody: (p) => {
+      // Rút gọn system prompt cho model nhỏ — giữ tối đa 800 ký tự phần đầu + phần cuối (luật quan trọng)
+      const sys = p.system || "";
+      const MAX = 800;
+      const shortSys = sys.length > MAX
+        ? sys.slice(0, MAX) + "\n[...lược...]\n" + sys.slice(-200)
+        : sys;
+      return {
+        model: localStorage.getItem("ollama_model")||"qwen3:1.7b",
+        think: false,
+        stream: false,
+        messages: [{ role:"system", content: shortSys }, ...(p.messages||[])],
+      };
+    },
+    fromData: (d) => (d?.message?.content||"").replace(/<think>[\s\S]*?<\/think>/gi,"").trim(),
+    skip: () => false,
+  },
+];
+
+async function callAPI(payload) {
+  let lastErr = null;
+  for (const ep of _API_ENDPOINTS) {
+    if (ep.skip && ep.skip()) { console.log("[API] skip "+ep.name); continue; }
+    try {
+      const headers = { "Content-Type":"application/json", ...(ep.extraHeaders ? ep.extraHeaders() : {}) };
+      const resp = await fetch(ep.url, { method:"POST", headers, body: JSON.stringify(ep.toBody(payload)) });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data?.error?.message||JSON.stringify(data));
+      const text = ep.fromData(data);
+      if (!text) throw new Error("Empty response");
+      console.log("[API] thanh cong qua "+ep.name);
+      return { content:[{ type:"text", text }] };
+    } catch(e) {
+      console.warn("[API] "+ep.name+" that bai:", e.message);
+      lastErr = e;
+    }
+  }
+  throw new Error("Khong ket noi duoc Oracle: " + (lastErr?.message||"tat ca endpoint deu that bai"));
+}
+// ─────────────────────────────────────────────────────────────────────────
 // ───────────────────────────────────────────────────────────────────────────
 
 async function fetchLuanGiai(cucTen, d, meta, hungTinh, canhBao) {
@@ -4621,21 +4865,12 @@ Cuối, trên một dòng riêng: {"verdict":"cat|hung|warn","tags":["tag1","tag
 QUAN TRỌNG: Mày PHẢI dùng ĐÚNG số liệu được cung cấp trong prompt. TUYỆT ĐỐI KHÔNG TỰ BỊA số liệu. Áp đúng luật tương ứng với cục đang luận giải.`;
 
   try {
-  const resp = await fetch(PROXY_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: cucTen === "Tuế Cục" ? 1400 : cucTen === "Nguyệt Cục" ? 1200 : cucTen === "Nhật Cục" ? 1000 : 800,
-        system: systemPrompt,
-        messages: [{ role: "user", content: prompt }]
-      })
+  const data = await callAPI({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: cucTen === "Tuế Cục" ? 1400 : cucTen === "Nguyệt Cục" ? 1200 : cucTen === "Nhật Cục" ? 1000 : 800,
+      system: systemPrompt,
+      messages: [{ role: "user", content: prompt }]
     });
-    const data = await resp.json();
-    if (!resp.ok) {
-      const msg = data?.error?.message || JSON.stringify(data);
-      throw new Error(`API ${resp.status}: ${msg}`);
-    }
     const fullText = (data.content || []).map(b => b.text || "").join("").trim();
 
     // Tách phần JSON ra khỏi văn bản
@@ -4689,13 +4924,10 @@ Tổng luận phải: (1) nhận định khí tượng tổng thể qua 4 cục 
 Cuối: {"verdict":"cat|hung|warn","tags":["tag1","tag2","tag3"]}`;
 
   try {
-    const resp = await fetch(PROXY_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 1000,
-        system: `Mày là Khầy — vị Quân Sư Vĩ Mô, tinh thông Thái Ất Thần Kinh. Mày tự xưng "Khầy", gọi người đọc là "các em" hoặc "em". Mở đầu luận giải bao giờ cũng chào kiểu 'Khầy đây.' hoặc 'Các em ơi, Khầy nói thật nhé.' rồi mới vào luận giải. Giọng văn pha trộn cổ phong huyền bí với sự thẳng thắn thực chiến, đôi khi dí dỏm. TUYỆT ĐỐI không dùng markdown bold/italic — chỉ viết đoạn văn xuôi tự nhiên.
+    const data = await callAPI({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 1000,
+      system: `Mày là Khầy — vị Quân Sư Vĩ Mô, tinh thông Thái Ất Thần Kinh. Mày tự xưng "Khầy", gọi người đọc là "các em" hoặc "em". Mở đầu luận giải bao giờ cũng chào kiểu 'Khầy đây.' hoặc 'Các em ơi, Khầy nói thật nhé.' rồi mới vào luận giải. Giọng văn pha trộn cổ phong huyền bí với sự thẳng thắn thực chiến, đôi khi dí dỏm. TUYỆT ĐỐI không dùng markdown bold/italic — chỉ viết đoạn văn xuôi tự nhiên.
 
 Mày đang luận THỜI CỤC — phạm vi THẾ TRẬN XUẤT QUÂN THEO GIỜ. BẮT BUỘC áp 6 luật:
 LUẬT 1: Chỉ dùng dữ liệu Thời Cục, không lôi Tuế Cục hay Nguyệt Cục vào.
@@ -4705,14 +4937,8 @@ LUẬT 4: Đọc Ngũ Phúc — có lá chắn không, hay hung trần trụi.
 LUẬT 5 — NGÔN TỪ THỰC CHIẾN: Được dùng Long/Short, stoploss, thanh khoản, xuất quân, án binh. Súc tích như lệnh xuất quân.
 LUẬT 6 — ĐỊNH DẠNG 4 PHẦN NGẮN GỌN (văn xuôi, không bullet): Phần 1 — Thông số giờ (Thời Cục số, Độn, Thái Ất). Phần 2 — Mã Nguồn (Toán Chủ/Khách, án Tướng). Phần 3 — Khí Tượng Giờ (thuận/nghịch, thế Chủ-Khách). Phần 4 — Lệnh Xuất Quân (Long/Short/Án binh, lý do ngắn).
 Độ dài 80-120 chữ, súc tích.`,
-        messages: [{ role: "user", content: prompt }]
-      })
+      messages: [{ role: "user", content: prompt }]
     });
-    const data = await resp.json();
-    if (!resp.ok) {
-      const msg = data?.error?.message || JSON.stringify(data);
-      throw new Error(`API ${resp.status}: ${msg}`);
-    }
     const fullText = (data.content || []).map(b => b.text || "").join("").trim();
     const jsonMatch = fullText.match(/\{[^{}]*"verdict"[^{}]*\}/);
     let verdict = "warn", tags = [];
@@ -4750,18 +4976,12 @@ Phần 4 — Lời khuyên chiến lược: nên khai thác cửa nào, tránh c
 
 Cuối, trên một dòng riêng: {"verdict":"cat|hung|warn","tags":["tag1","tag2","tag3"]}`;
 
-  const resp = await fetch(PROXY_URL, {
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({
-      model:"claude-sonnet-4-20250514",
-      max_tokens:900,
-      system:`Mày là Khầy — vị Quân Sư Vĩ Mô, tinh thông Thái Ất Thần Kinh. Mày tự xưng "Khầy", gọi người đọc là "các em" hoặc "em". Mở đầu luận giải bao giờ cũng chào kiểu 'Khầy đây.' rồi mới vào luận giải. Giọng văn cổ phong huyền bí, thực chiến. TUYỆT ĐỐI không dùng markdown bold/italic — chỉ viết đoạn văn xuôi tự nhiên.`,
+  const data = await callAPI({
+    model:"claude-sonnet-4-20250514",
+    max_tokens:900,
+    system:`Mày là Khầy — vị Quân Sư Vĩ Mô, tinh thông Thái Ất Thần Kinh. Mày tự xưng "Khầy", gọi người đọc là "các em" hoặc "em". Mở đầu luận giải bao giờ cũng chào kiểu 'Khầy đây.' rồi mới vào luận giải. Giọng văn cổ phong huyền bí, thực chiến. TUYỆT ĐỐI không dùng markdown bold/italic — chỉ viết đoạn văn xuôi tự nhiên.`,
       messages:[{role:"user",content:prompt}]
-    })
-  });
-  const data = await resp.json();
-  if(!resp.ok) throw new Error(data?.error?.message||JSON.stringify(data));
+    });
   const fullText = data.content.map(i=>i.text||"").filter(Boolean).join("\n");
   let verdict="warn", tags=[], bodyText=fullText;
   const jsonMatch=fullText.match(/\{[^}]*"verdict"[^}]*\}/);
@@ -5365,17 +5585,12 @@ Khi trả lời: (1) Xác định rõ người dùng hỏi ở tầng nào (Năm
       + "\n══════════════════════════════════════";
   }
 
-  const resp = await fetch(PROXY_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 1200,
-      system: systemContext,
-      messages: _khayChatHistory
-    })
+  const data = await callAPI({
+    model: "claude-sonnet-4-20250514",
+    max_tokens: 1200,
+    system: systemContext,
+    messages: _khayChatHistory
   });
-  const data = await resp.json();
   return (data.content || []).map(b => b.text || "").join("").trim();
 }
 
