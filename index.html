@@ -88,6 +88,7 @@ html, body {
 /* ═══════════════════════════════
    DESKTOP LAYOUT — 2 cột
    ═══════════════════════════════ */
+/* ── MOBILE ─────────────────────────────────── */
 @media (max-width: 899px) {
   #desktop-body {
     display: flex;
@@ -96,46 +97,559 @@ html, body {
   #khay-panel { margin: 0 14px 20px; }
   #left-panel .calc-btn { width: calc(100% - 28px); margin: 12px 14px 0; }
   #right-panel #results { padding: 14px 14px calc(var(--safe-bot) + 20px); }
+  #black-swan-panel { margin: 0 14px 20px; }
 }
 
-@media (min-width: 900px) {
-  #app { max-width: 1400px; }
+/* ── TABLET 900–1199px: 2 cột đơn giản ─────── */
+@media (min-width: 900px) and (max-width: 1199px) {
+  #app { max-width: 100%; }
   #desktop-body {
     display: grid;
-    grid-template-columns: 320px 1fr 420px;
-    grid-template-rows: 1fr;
-    gap: 20px;
-    padding: 0 20px 40px;
+    grid-template-columns: 300px 1fr;
+    grid-template-rows: auto auto;
+    gap: 14px;
+    padding: 0 16px 40px;
     align-items: start;
   }
+  /* Cột trái: Input + Chat xếp dọc */
+  #left-panel  { grid-column: 1; grid-row: 1; position: sticky; top: 80px; }
+  #khay-panel  { grid-column: 1; grid-row: 2; }
+  /* Cột phải: Results + Black Swan xếp dọc */
+  #right-panel        { grid-column: 2; grid-row: 1; }
+  #black-swan-panel   { grid-column: 2; grid-row: 2; }
+
+  #left-panel .card { margin-left: 0; margin-right: 0; }
+  #left-panel .calc-btn { width: 100%; margin-left: 0; margin-right: 0; }
+  #left-panel .disclaimer { margin-left: 0; margin-right: 0; }
+  #left-panel input[type="number"] { font-size: 16px; padding: 11px 12px; }
+  #right-panel #results { padding: 0 0 40px; }
+  .bat-mon-grid { grid-template-columns: 1fr 1fr; }
+  .hung-tinh-grid { grid-template-columns: 1fr 1fr; }
+  .tham-hoa-canh-bao { display: grid; grid-template-columns: 1fr; gap: 8px; }
+}
+
+/* ── DESKTOP 1200px+: Layout 2 cột chính ───── */
+@media (min-width: 1200px) {
+  #app { max-width: 1800px; }
+  #desktop-body {
+    display: grid;
+    /* Cột trái: cố định 420px | Cột phải: phần còn lại */
+    grid-template-columns: 420px 1fr;
+    grid-template-rows: auto auto;
+    gap: 18px;
+    padding: 0 24px 40px;
+    align-items: start;
+  }
+
+  /* ── CỘT TRÁI: 3 panel xếp dọc ── */
   #left-panel {
     grid-column: 1;
     grid-row: 1;
     position: sticky;
-    top: 90px;
+    top: 80px;
   }
   #khay-panel {
-    grid-column: 2;
-    grid-row: 1;
-    position: sticky;
-    top: 90px;
+    grid-column: 1;
+    grid-row: 2;
   }
   #right-panel {
-    grid-column: 3;
-    grid-row: 1;
+    grid-column: 1;
+    grid-row: 3;
   }
+
+  /* ── CỘT PHẢI: Black Swan full height ── */
+  #black-swan-panel {
+    grid-column: 2;
+    grid-row: 1 / 4;   /* span tất cả 3 rows */
+    position: sticky;
+    top: 80px;
+    /* Chiều cao tối đa = viewport trừ header */
+    max-height: calc(100vh - 100px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  /* bsr-wrap fill full height của panel */
+  #black-swan-panel .bsr-wrap {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  /* Body scroll thay vì fixed max-height */
+  #black-swan-panel .bsr-body {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto;
+  }
+  /* Scan results có thể taller */
+  #black-swan-panel .bsr-scan-results {
+    max-height: 280px;
+  }
+
+  /* ── Left panel nội dung ── */
   #left-panel .card { margin-left: 0; margin-right: 0; }
   #left-panel .calc-btn { width: 100%; margin-left: 0; margin-right: 0; }
   #left-panel .disclaimer { margin-left: 0; margin-right: 0; }
-  #left-panel input[type="number"] { font-size: 18px; padding: 13px 15px; }
+  #left-panel input[type="number"] { font-size: 17px; padding: 12px 14px; }
   #left-panel .date-grid { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+  /* ── Khầy Chat full width trong cột trái ── */
+  #khay-panel .khay-chat-wrap {
+    min-height: 460px !important;
+  }
+  #khay-panel .khay-messages {
+    max-height: calc(100vh - 520px) !important;
+    min-height: 220px !important;
+  }
+
+  /* ── Results scroll thoải mái ── */
   #right-panel #results { padding: 0 0 40px; }
+
+  /* ── Internal grids rộng hơn ── */
   .bat-mon-grid { grid-template-columns: 1fr 1fr 1fr 1fr; }
   .bat-mon-cell.truc-su { grid-column: 1 / -1; }
-  .hung-tinh-grid { grid-template-columns: 1fr 1fr 1fr 1fr; }
+  .hung-tinh-grid { grid-template-columns: 1fr 1fr; }
   .hung-tinh-cell.dan-co { grid-column: 1 / -1; }
   .tham-hoa-canh-bao { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .bsr-detail-grid { grid-template-columns: 1fr 1fr 1fr; }
 }
+
+/* ── WIDE 1440px+: cột trái rộng hơn chút ── */
+@media (min-width: 1440px) {
+  #desktop-body {
+    grid-template-columns: 460px 1fr;
+    gap: 22px;
+    padding: 0 28px 40px;
+  }
+  #left-panel input[type="number"] { font-size: 18px; padding: 13px 15px; }
+  #khay-panel .khay-messages {
+    max-height: calc(100vh - 490px) !important;
+  }
+  .bsr-detail-grid { grid-template-columns: 1fr 1fr 1fr; }
+}
+
+/* ══════════════════════════════════════════════════
+   BLACK SWAN RADAR — Panel Styles
+   ══════════════════════════════════════════════════ */
+#black-swan-panel {
+  padding: 0 0 40px;
+}
+.bsr-wrap {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 0 0 1px rgba(255,68,85,.06) inset, 0 8px 40px rgba(0,0,0,.5);
+}
+.bsr-wrap::before {
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent 0%,rgba(255,68,85,.5) 30%,rgba(255,140,66,.8) 50%,rgba(255,68,85,.5) 70%,transparent 100%);
+}
+.bsr-header {
+  padding: 16px 18px 12px;
+  background: rgba(20,5,5,0.4);
+  border-bottom: 1px solid rgba(255,68,85,.12);
+}
+.bsr-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.bsr-swan-icon {
+  font-size: 26px;
+  animation: bsr-pulse 3s ease-in-out infinite;
+}
+@keyframes bsr-pulse {
+  0%,100% { filter: drop-shadow(0 0 6px rgba(255,68,85,.4)); }
+  50%      { filter: drop-shadow(0 0 18px rgba(255,68,85,.9)); }
+}
+.bsr-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  background: linear-gradient(135deg,#ff6677 0%,#ffaa44 50%,#ff6677 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.bsr-subtitle {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+.bsr-live-badge {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  color: var(--red);
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+.bsr-live-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--red);
+  animation: bsr-blink 1.4s ease-in-out infinite;
+}
+@keyframes bsr-blink { 0%,100%{opacity:1} 50%{opacity:.15} }
+.bsr-controls {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.bsr-filter-btn {
+  padding: 4px 10px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,68,85,.2);
+  background: rgba(255,68,85,.05);
+  color: var(--text-dim);
+  font-size: 10px;
+  cursor: pointer;
+  transition: all .2s;
+  font-family: inherit;
+  letter-spacing: .03em;
+}
+.bsr-filter-btn:hover { border-color:var(--red); color:#ff8899; }
+.bsr-filter-btn.active { background:rgba(255,68,85,.15); border-color:var(--red); color:#ff8899; font-weight:700; }
+#bsr-search {
+  margin-left: auto;
+  background: rgba(255,68,85,.04);
+  border: 1px solid rgba(255,68,85,.15);
+  border-radius: 16px;
+  padding: 4px 12px;
+  color: var(--text);
+  font-size: 10px;
+  font-family: inherit;
+  width: 140px;
+  outline: none;
+}
+#bsr-search::placeholder { color: var(--text-dim); }
+#bsr-search:focus { border-color: var(--red); }
+
+/* Ticker */
+.bsr-ticker {
+  background: rgba(255,68,85,.06);
+  border-bottom: 1px solid rgba(255,68,85,.12);
+  padding: 5px 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.bsr-ticker-inner {
+  display: inline-block;
+  animation: bsr-scroll 80s linear infinite;
+}
+.bsr-tick-item {
+  display: inline-block;
+  margin: 0 28px;
+  font-size: 10px;
+  color: var(--text-dim);
+}
+.bsr-tick-year { color: var(--gold); font-weight: 700; margin-right: 4px; }
+.bsr-tick-impact { color: var(--red); margin-left: 5px; }
+@keyframes bsr-scroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+
+/* Summary strip */
+.bsr-summary-strip {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  border-bottom: 1px solid rgba(255,68,85,.1);
+  background: rgba(10,4,4,.4);
+}
+.bsr-sum-cell {
+  padding: 8px 12px;
+  text-align: center;
+  border-right: 1px solid rgba(255,68,85,.08);
+}
+.bsr-sum-cell:last-child { border-right:none; }
+.bsr-sum-val { font-size: 18px; font-weight: 700; letter-spacing: -.01em; }
+.bsr-sum-label { font-size: 8px; color: var(--text-dim); letter-spacing: .08em; margin-top: 2px; text-transform: uppercase; }
+
+/* Year alert */
+.bsr-year-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 7px 16px;
+  background: rgba(255,215,0,.04);
+  border-bottom: 1px solid rgba(255,215,0,.08);
+  font-size: 10px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+/* Table */
+.bsr-body { overflow-x: auto; overflow-y: auto; }
+.bsr-body::-webkit-scrollbar { width: 4px; height: 4px; }
+.bsr-body::-webkit-scrollbar-track { background: transparent; }
+.bsr-body::-webkit-scrollbar-thumb { background: rgba(255,68,85,.25); border-radius: 2px; }
+table.bsr-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  min-width: 520px;
+}
+.bsr-table thead tr {
+  background: rgba(255,68,85,.05);
+  border-bottom: 1px solid rgba(255,68,85,.2);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.bsr-table th {
+  padding: 8px 10px;
+  text-align: left;
+  font-size: 9px;
+  letter-spacing: .1em;
+  color: var(--gold);
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  background: rgba(8,16,38,.95);
+}
+.bsr-table th:hover { color: var(--gold-light); }
+.bsr-table th.sorted { color: var(--cyan); }
+.bsr-table tbody tr {
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  transition: background .15s;
+  cursor: pointer;
+}
+.bsr-table tbody tr:hover { background: rgba(255,68,85,.04); }
+.bsr-table tbody tr.bsr-highlighted { background: rgba(255,215,0,.04); border-left: 2px solid var(--yellow); }
+.bsr-table tbody tr.bsr-selected { background: rgba(0,212,255,.06) !important; border-left: 2px solid var(--cyan); }
+.bsr-table td { padding: 8px 10px; vertical-align: top; }
+
+.bsr-year-val { font-weight: 700; font-size: 12px; color: var(--cyan); letter-spacing: .04em; }
+.bsr-event-name { font-weight: 700; font-size: 11px; color: var(--text); }
+.bsr-event-desc { font-size: 9.5px; color: var(--text-dim); margin-top: 2px; line-height: 1.4; }
+
+.bsr-type-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 8px;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  white-space: nowrap;
+}
+.btype-financial    { background:rgba(255,68,85,.15); border:1px solid rgba(255,68,85,.3); color:#ff8899; }
+.btype-pandemic     { background:rgba(0,229,192,.08); border:1px solid rgba(0,229,192,.2); color:#00e5c0; }
+.btype-geopolitical { background:rgba(200,153,58,.1); border:1px solid rgba(200,153,58,.25); color:#d4a84b; }
+.btype-natural      { background:rgba(100,120,255,.1); border:1px solid rgba(100,120,255,.2); color:#8899ff; }
+.btype-tech         { background:rgba(0,212,255,.08); border:1px solid rgba(0,212,255,.15); color:#00d4ff; }
+
+.bsr-impact-bar-wrap { display:flex; align-items:center; gap:6px; min-width:80px; }
+.bsr-impact-bar-bg { flex:1; height:3px; background:rgba(255,255,255,.06); border-radius:2px; overflow:hidden; }
+.bsr-impact-bar    { height:100%; border-radius:2px; }
+.bsr-impact-val    { font-size:10px; font-weight:700; white-space:nowrap; min-width:26px; text-align:right; }
+
+.bsr-alert-badge {
+  display:inline-block; padding:2px 8px; border-radius:4px;
+  font-size:9px; font-weight:700; letter-spacing:.05em; white-space:nowrap;
+}
+.balert-extreme { background:rgba(255,68,85,.15);border:1px solid rgba(255,68,85,.35);color:#ff6677; }
+.balert-high    { background:rgba(255,140,66,.12);border:1px solid rgba(255,140,66,.3); color:#ff9a55; }
+.balert-medium  { background:rgba(255,215,0,.1); border:1px solid rgba(255,215,0,.25);  color:#ffd700; }
+
+/* Detail panel (dưới row) */
+.bsr-detail-row td {
+  padding: 0 !important;
+  border-bottom: 1px solid rgba(0,212,255,.12) !important;
+}
+.bsr-detail-inner {
+  padding: 14px 16px 16px;
+  background: rgba(0,8,28,.5);
+  border-top: 1px solid rgba(0,212,255,.1);
+}
+.bsr-detail-thai-at-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(200,153,58,.15);
+}
+.bsr-detail-year-badge {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gold-light);
+  letter-spacing: .04em;
+}
+.bsr-detail-event-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+}
+.bsr-detail-event-desc {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 2px;
+  line-height: 1.5;
+}
+.bsr-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.bsr-detail-cell {
+  background: rgba(0,212,255,.04);
+  border: 1px solid rgba(0,212,255,.1);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.bsr-detail-cell-label {
+  font-size: 8.5px;
+  color: var(--text-dim);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.bsr-detail-cell-val {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--cyan);
+}
+.bsr-detail-cell-sub {
+  font-size: 9px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+.bsr-detail-canh-bao-list {
+  margin-top: 8px;
+}
+.bsr-detail-cb-item {
+  padding: 7px 10px;
+  margin-bottom: 5px;
+  border-radius: 8px;
+  border-left: 3px solid;
+  font-size: 10.5px;
+  line-height: 1.55;
+}
+.bsr-detail-cb-item.extreme { background:rgba(255,68,85,.07); border-color:var(--red); color:#ffb0b8; }
+.bsr-detail-cb-item.warn    { background:rgba(255,215,0,.06);  border-color:var(--yellow); color:#ffe680; }
+.bsr-detail-cb-item.ok      { background:rgba(34,221,136,.06); border-color:var(--green); color:#80ffbb; }
+.bsr-detail-cb-layer {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  opacity: .7;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.bsr-detail-cb-ten { font-weight: 700; font-size: 10.5px; margin-bottom: 2px; }
+.bsr-detail-cb-mota { font-size: 9.5px; color: var(--text-dim); line-height: 1.5; }
+
+.bsr-detail-binh-yen {
+  padding: 10px 12px;
+  background: rgba(34,221,136,.05);
+  border: 1px solid rgba(34,221,136,.2);
+  border-radius: 8px;
+  color: var(--green);
+  font-size: 10.5px;
+  margin-top: 8px;
+}
+.bsr-footer {
+  background: rgba(5,10,28,.8);
+  border-top: 1px solid rgba(255,68,85,.1);
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 9.5px;
+  color: var(--text-muted, #3a5a7a);
+  gap: 8px;
+  flex-wrap: wrap;
+}
+#bsr-count-info span { color: var(--cyan); font-weight: 700; }
+
+/* ── REALTIME SCAN STRIP ── */
+.bsr-scan-strip {
+  border-top: 1px solid rgba(0,212,255,.1);
+  background: rgba(0,8,24,.6);
+  padding: 10px 16px;
+}
+.bsr-scan-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.bsr-scan-title {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  flex: 1;
+}
+.bsr-scan-btn {
+  padding: 4px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,212,255,.3);
+  background: rgba(0,212,255,.06);
+  color: var(--cyan);
+  font-size: 9.5px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .2s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.bsr-scan-btn:hover { background: rgba(0,212,255,.14); border-color: var(--cyan); }
+.bsr-scan-btn:disabled { opacity: .4; cursor: not-allowed; }
+.bsr-scan-status { font-size: 9px; color: var(--text-dim); }
+.bsr-scan-spinner {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(0,212,255,.3);
+  border-top-color: var(--cyan);
+  animation: spin .7s linear infinite;
+  display: none;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.bsr-scan-results { display: flex; flex-direction: column; gap: 5px; max-height: 240px; overflow-y: auto; }
+.bsr-scan-results::-webkit-scrollbar { width: 3px; }
+.bsr-scan-results::-webkit-scrollbar-thumb { background: rgba(0,212,255,.2); border-radius: 2px; }
+.bsr-scan-item {
+  padding: 7px 10px; border-radius: 8px; border-left: 3px solid var(--cyan);
+  background: rgba(0,212,255,.04); display: flex; align-items: flex-start;
+  gap: 8px; transition: background .15s;
+}
+.bsr-scan-item.impact-extreme { border-left-color: var(--red); background: rgba(255,68,85,.05); }
+.bsr-scan-item.impact-high    { border-left-color: #ff8c42;   background: rgba(255,140,66,.05); }
+.bsr-scan-item.impact-medium  { border-left-color: var(--yellow); background: rgba(255,215,0,.04); }
+.bsr-scan-item-meta { flex-shrink: 0; text-align: center; min-width: 36px; }
+.bsr-scan-item-score { font-size: 13px; font-weight: 700; line-height: 1; }
+.bsr-scan-item-date { font-size: 8px; color: var(--text-dim); margin-top: 2px; }
+.bsr-scan-item-body { flex: 1; min-width: 0; }
+.bsr-scan-item-name { font-size: 10.5px; font-weight: 700; color: var(--text); }
+.bsr-scan-item-desc { font-size: 9px; color: var(--text-dim); margin-top: 2px; line-height: 1.45; }
+.bsr-scan-item-tags { margin-top: 4px; display: flex; gap: 4px; flex-wrap: wrap; }
+.bsr-scan-tag { font-size: 8px; padding: 1px 5px; border-radius: 4px; background: rgba(255,68,85,.1); color: #ff9aaa; }
+.bsr-scan-add-btn {
+  padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(255,215,0,.3);
+  background: rgba(255,215,0,.06); color: var(--gold); font-size: 8.5px;
+  cursor: pointer; font-family: inherit; flex-shrink: 0; margin-top: 2px; transition: all .15s;
+}
+.bsr-scan-add-btn:hover { background: rgba(255,215,0,.14); }
+.bsr-scan-add-btn.added { border-color: var(--green); color: var(--green); background: rgba(34,221,136,.06); pointer-events: none; }
+.bsr-scan-empty { text-align: center; padding: 14px; color: var(--text-dim); font-size: 10px; }
 
 /* ═══════════════════════════════
    HEADER — Premium Redesign
@@ -273,13 +787,6 @@ header h1 {
   content: '✦';
   font-size: 7px;
   color: var(--gold);
-}
-
-@media (min-width: 900px) {
-  header h1 { font-size: 22px; }
-  .header-symbol { font-size: 46px; }
-  .header-author { font-size: 13px; }
-  .header-tagline { font-size: 9.5px; }
 }
 
 /* ═══════════════════════════════
@@ -1966,8 +2473,8 @@ input[type=range]::-webkit-slider-thumb {
 }
 #khay-panel .khay-messages {
   flex: 1;
-  max-height: calc(100vh - 380px);
-  min-height: 300px;
+  max-height: calc(100vh - 420px);
+  min-height: 260px;
 }
 
 .khay-chat-wrap {
@@ -2614,6 +3121,98 @@ input[type=range]::-webkit-slider-thumb {
         </div>
       </div>
     </div><!-- /#right-panel -->
+
+    <!-- BLACK SWAN RADAR PANEL -->
+    <div id="black-swan-panel">
+      <div class="bsr-wrap">
+        <div class="bsr-header">
+          <div class="bsr-title-row">
+            <div class="bsr-swan-icon">🦢</div>
+            <div>
+              <div class="bsr-title">BLACK SWAN RADAR</div>
+              <div class="bsr-subtitle">Thiên Nga Đen · Luận giải Thái Ất từng năm</div>
+            </div>
+            <div class="bsr-live-badge">
+              <div class="bsr-live-dot"></div>
+              <span id="bsr-clock">LIVE</span>
+            </div>
+          </div>
+          <div class="bsr-controls">
+            <button class="bsr-filter-btn active" data-filter="all" onclick="bsrFilter(this)">Tất cả</button>
+            <button class="bsr-filter-btn" data-filter="financial" onclick="bsrFilter(this)">💸 Tài chính</button>
+            <button class="bsr-filter-btn" data-filter="pandemic" onclick="bsrFilter(this)">🦠 Dịch bệnh</button>
+            <button class="bsr-filter-btn" data-filter="geopolitical" onclick="bsrFilter(this)">⚔️ Địa chính trị</button>
+            <button class="bsr-filter-btn" data-filter="natural" onclick="bsrFilter(this)">🌊 Thiên tai</button>
+            <input id="bsr-search" type="text" placeholder="🔍 Tìm..." oninput="bsrSearch(this.value)">
+          </div>
+        </div>
+
+        <div class="bsr-ticker"><div class="bsr-ticker-inner" id="bsr-ticker-inner"></div></div>
+
+        <div class="bsr-summary-strip">
+          <div class="bsr-sum-cell">
+            <div class="bsr-sum-val" style="color:var(--red)" id="bsr-sum-total">—</div>
+            <div class="bsr-sum-label">Sự kiện lớn</div>
+          </div>
+          <div class="bsr-sum-cell">
+            <div class="bsr-sum-val" style="color:var(--orange,#ff8c42)" id="bsr-sum-since2000">—</div>
+            <div class="bsr-sum-label">Từ 2000</div>
+          </div>
+          <div class="bsr-sum-cell">
+            <div class="bsr-sum-val" style="color:var(--yellow)" id="bsr-sum-avg">—</div>
+            <div class="bsr-sum-label">TB năm/SK</div>
+          </div>
+          <div class="bsr-sum-cell">
+            <div class="bsr-sum-val" style="color:var(--cyan)" id="bsr-sum-next">≈4y</div>
+            <div class="bsr-sum-label">Đến SK tiếp</div>
+          </div>
+        </div>
+
+        <div class="bsr-year-alert" id="bsr-year-alert">
+          🔔 <span id="bsr-year-msg">Đang tải...</span>
+        </div>
+
+        <div class="bsr-body">
+          <table class="bsr-table">
+            <thead>
+              <tr>
+                <th onclick="bsrSort('year')" style="width:72px">NĂM<br><span style="font-size:8px;font-weight:400;color:var(--text-dim);letter-spacing:.04em">BẮT ĐẦU</span> <span id="bsa-year">▼</span></th>
+                <th onclick="bsrSort('name')" style="min-width:160px">SỰ KIỆN <span id="bsa-name">▼</span></th>
+                <th onclick="bsrSort('type')" style="width:80px">LOẠI <span id="bsa-type">▼</span></th>
+                <th onclick="bsrSort('impact')" style="width:90px">TÁC ĐỘNG <span id="bsa-impact">▼</span></th>
+                <th onclick="bsrSort('alert')" style="width:82px">CẢNH BÁO <span id="bsa-alert">▼</span></th>
+                <th style="width:110px">TUẾ CỤC ☯</th>
+              </tr>
+            </thead>
+            <tbody id="bsr-tbody"></tbody>
+          </table>
+        </div>
+
+
+        <!-- REALTIME SCAN STRIP -->
+        <div class="bsr-scan-strip">
+          <div class="bsr-scan-header">
+            <span style="font-size:13px">📡</span>
+            <div class="bsr-scan-title">REALTIME BLACK SWAN SCANNER</div>
+            <div class="bsr-scan-spinner" id="bsr-scan-spinner"></div>
+            <span class="bsr-scan-status" id="bsr-scan-status">Chưa quét</span>
+            <button class="bsr-scan-btn" id="bsr-scan-btn" onclick="bsrRunScan()">
+              ⚡ Quét ngay
+            </button>
+          </div>
+          <div id="bsr-scan-results" class="bsr-scan-results">
+            <div class="bsr-scan-empty">
+              Nhấn <strong style="color:var(--cyan)">Quét ngay</strong> để AI quét tin tức toàn cầu và phát hiện Thiên Nga Đen mới nhất.
+            </div>
+          </div>
+        </div>
+
+        <div class="bsr-footer">
+          <div id="bsr-count-info">Hiển thị <span id="bsr-cnt-show">—</span> / <span id="bsr-cnt-total">—</span> sự kiện</div>
+          <div style="font-size:9px;color:var(--text-dim)">Nhấn vào hàng để xem luận giải Thái Ất</div>
+        </div>
+      </div>
+    </div><!-- /#black-swan-panel -->
 
   </div><!-- /#desktop-body -->
 
@@ -6676,6 +7275,537 @@ function genBaoCao(r){
   return b;
 }
 
+
+// ═══════════════════════════════════════════════════════
+//  BLACK SWAN RADAR — Data & Engine
+// ═══════════════════════════════════════════════════════
+const BSR_DATA = [
+  { year:1929, startDate:"24/10/1929", name:"Đại Suy Thoái",             desc:"Sụp đổ TTCK Mỹ, thất nghiệp 25%, GDP giảm 30%",                   type:"financial",    impact:10, alert:"extreme", markets:["DOW -89%","USD mất giá"] },
+  { year:1973, startDate:"16/10/1973", name:"Khủng hoảng dầu mỏ OPEC",   desc:"Arab cấm vận dầu, giá dầu tăng 300% trong 6 tháng",               type:"geopolitical", impact:9,  alert:"extreme", markets:["DẦU +300%","CK -45%"] },
+  { year:1987, startDate:"19/10/1987", name:"Black Monday",               desc:"Dow Jones sụt 22.6% chỉ trong một ngày — kỷ lục lịch sử",         type:"financial",    impact:9,  alert:"extreme", markets:["DOW -22%","1 ngày"] },
+  { year:1997, startDate:"02/07/1997", name:"Khủng hoảng tài chính châu Á", desc:"Baht Thái lao dốc, lan rộng khắp ASEAN, Hàn Quốc, Indonesia",  type:"financial",    impact:9,  alert:"extreme", markets:["VND -15%","ASEAN -50%"] },
+  { year:1998, startDate:"17/08/1998", name:"Vỡ nợ Nga & sụp đổ LTCM",   desc:"Nga phá sản, quỹ LTCM gần kéo sập Wall Street",                  type:"financial",    impact:8,  alert:"high",    markets:["RUB -75%","Bond sụp"] },
+  { year:2000, startDate:"10/03/2000", name:"Bong bóng Dotcom vỡ",        desc:"NASDAQ mất 78% trong 3 năm, hàng nghìn công ty phá sản",         type:"tech",         impact:8,  alert:"high",    markets:["NASDAQ -78%","Tech -80%"] },
+  { year:2001, startDate:"11/09/2001", name:"11 tháng 9",                 desc:"Khủng bố tấn công Mỹ, NYSE đóng cửa 4 ngày, khủng hoảng toàn cầu",type:"geopolitical", impact:10, alert:"extreme", markets:["DOW -14%","4 ngày đóng"] },
+  { year:2003, startDate:"01/11/2002", name:"Dịch SARS",                  desc:"Bùng phát châu Á, thiệt hại ~$40 tỷ USD du lịch",                type:"pandemic",     impact:7,  alert:"medium",  markets:["Hàng không -30%","Du lịch -40%"] },
+  { year:2004, startDate:"26/12/2004", name:"Sóng thần Ấn Độ Dương",      desc:"Magnitude 9.3, 230,000 người thiệt mạng, 14 quốc gia",           type:"natural",      impact:9,  alert:"extreme", markets:["Bảo hiểm -8%","Tái thiết"] },
+  { year:2008, startDate:"15/09/2008", name:"Khủng hoảng tài chính toàn cầu", desc:"Lehman Brothers phá sản, hệ thống tài chính thế giới gần sụp đổ", type:"financial", impact:10, alert:"extreme", markets:["S&P -57%","VN-Index -66%"] },
+  { year:2010, startDate:"23/04/2010", name:"Khủng hoảng nợ châu Âu",     desc:"Hy Lạp, Ireland, Bồ Đào Nha gần vỡ nợ, EUR mất giá",            type:"financial",    impact:8,  alert:"high",    markets:["EUR -20%","PIIGS sụp"] },
+  { year:2011, startDate:"11/03/2011", name:"Sóng thần Nhật Bản & Fukushima", desc:"Động đất 9.0, sóng thần, thảm họa hạt nhân Fukushima",      type:"natural",      impact:9,  alert:"extreme", markets:["Nikkei -18%","Hạt nhân -40%"] },
+  { year:2014, startDate:"27/02/2014", name:"Khủng hoảng Crimea",          desc:"Nga sáp nhập Crimea, cấm vận, dầu mỏ giảm mạnh",                type:"geopolitical", impact:7,  alert:"medium",  markets:["RUB -50%","DẦU -50%"] },
+  { year:2015, startDate:"12/06/2015", name:"Trung Quốc TTCK sụp",        desc:"Bong bóng chứng khoán TQ vỡ, Thượng Hải mất 30% trong 3 tuần",  type:"financial",    impact:8,  alert:"high",    markets:["SSE -40%","Hàng hóa -25%"] },
+  { year:2016, startDate:"23/06/2016", name:"Brexit & Trump thắng cử",    desc:"Anh rời EU, Trump đắc cử — hai cú sốc bất ngờ nhất năm",         type:"geopolitical", impact:7,  alert:"medium",  markets:["GBP -20%","USD +5%"] },
+  { year:2018, startDate:"06/07/2018", name:"Chiến tranh thương mại Mỹ-TQ", desc:"Thuế quan leo thang, chuỗi cung ứng toàn cầu bị phá vỡ",     type:"geopolitical", impact:8,  alert:"high",    markets:["CK TQ -30%","Yuan -8%"] },
+  { year:2020, startDate:"11/03/2020", name:"Đại dịch COVID-19",          desc:"Lockdown toàn cầu, GDP thế giới -3.5%, hàng triệu người chết",   type:"pandemic",     impact:10, alert:"extreme", markets:["S&P -35%","VN-Index -33%"] },
+  { year:2022, startDate:"24/02/2022", name:"Chiến tranh Ukraine",         desc:"Nga xâm lược Ukraine, khủng hoảng năng lượng, lạm phát toàn cầu",type:"geopolitical", impact:9,  alert:"extreme", markets:["Khí đốt +400%","EUR -15%"] },
+  { year:2023, startDate:"10/03/2023", name:"Khủng hoảng ngân hàng Mỹ",   desc:"SVB, Signature, First Republic sụp đổ — deposit run lần đầu từ 2008", type:"financial", impact:7, alert:"medium", markets:["Bank -30%","FDIC bailout"] },
+  { year:2024, startDate:"13/04/2024", name:"Iran tấn công Israel trực tiếp", desc:"Iran tập kích Israel lần đầu trong lịch sử, rủi ro dầu mỏ leo thang", type:"geopolitical", impact:8, alert:"high", markets:["DẦU +8%","GOLD +5%"] },
+  { year:2025, startDate:"02/04/2025", name:"Chiến tranh thuế quan toàn cầu", desc:"Mỹ áp thuế 145% hàng TQ, chuỗi cung ứng đứt gãy hàng loạt",type:"geopolitical", impact:9,  alert:"extreme", markets:["Yuan -3%","CK TQ -15%"] },
+  { year:2026, startDate:"28/02/2026", name:"Mỹ-Israel ném bom Iran · Hormuz nghẽn", desc:"Mỹ+Israel không kích Iran 28/02, Khamenei thiệt mạng. Iran đóng eo biển Hormuz (20% dầu TG), Brent vọt $114/thùng (+40%). LNG châu Âu/Á tăng 54–63%. Chuỗi cung ứng năng lượng toàn cầu tê liệt.",type:"geopolitical", impact:10, alert:"extreme", markets:["Brent +40% ($114)","LNG EU +63%","LNG Á +54%","GOLD tăng mạnh"] },
+];
+
+const BSR_TYPE_LABEL = { financial:"Tài chính", pandemic:"Dịch bệnh", geopolitical:"Địa chính trị", natural:"Thiên tai", tech:"Công nghệ" };
+const BSR_ALERT_LABEL = { extreme:"⚠️ CỰC CAO", high:"🔶 CAO", medium:"🟡 TRUNG BÌNH" };
+const BSR_ALERT_ORDER = { extreme:3, high:2, medium:1 };
+const BSR_IMPACT_COLORS = { 10:"#ff4455", 9:"#ff6677", 8:"#ff8c42", 7:"#ffaa44", 6:"#ffd700" };
+const BSR_CUNG_NAME = {1:"Càn",2:"Ly",3:"Cấn",4:"Chấn",6:"Đoài",7:"Khôn",8:"Khảm",9:"Tốn"};
+const BSR_NGU_PHUC_NAMES = ["Hoàng Bí (Càn)","Hoàng Thủy (Cấn)","Hoàng Thất (Tốn)","Hoàng Đình (Khôn)","Huyền Thất (Trung)"];
+
+let bsrFiltered = [...BSR_DATA];
+let bsrSortKey = "year";
+let bsrSortDir = -1;
+let bsrActiveFilter = "all";
+let bsrSearchTerm = "";
+let bsrOpenYear = null;
+const bsrCache = {}; // cache Thái Ất per year
+
+function bsrGetThaiAt(year){
+  if(bsrCache[year]) return bsrCache[year];
+  try {
+    const tichSoNam = 10155509 + (year - 1592);
+    // Sử dụng hàm đã có trong file
+    const ht = tinhHungTinh(tichSoNam);
+    const tueCuc = (tichSoNam % 3600) % 72 || 72;
+    const tueCucData = tinhCuc(tichSoNam, tueCuc, "duong", tichSoNam);
+    const canhBao = quetThamHoaDanCo(tichSoNam, tueCucData.anChuDai, tueCucData.anKhachDai);
+    const result = { ht, tueCucData, canhBao, tichSoNam, tueCuc };
+    bsrCache[year] = result;
+    return result;
+  } catch(e) { return null; }
+}
+
+function bsrFilter(btn) {
+  document.querySelectorAll(".bsr-filter-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  bsrActiveFilter = btn.dataset.filter;
+  bsrApply();
+}
+function bsrSearch(val) { bsrSearchTerm = val.toLowerCase(); bsrApply(); }
+function bsrSort(key) {
+  if(bsrSortKey === key) bsrSortDir *= -1;
+  else { bsrSortKey = key; bsrSortDir = key === "year" ? -1 : 1; }
+  bsrApply();
+}
+function bsrApply() {
+  let data = [...BSR_DATA];
+  if(bsrActiveFilter !== "all") data = data.filter(d => d.type === bsrActiveFilter);
+  if(bsrSearchTerm) data = data.filter(d =>
+    d.name.toLowerCase().includes(bsrSearchTerm) ||
+    d.desc.toLowerCase().includes(bsrSearchTerm) ||
+    String(d.year).includes(bsrSearchTerm)
+  );
+  data.sort((a,b) => {
+    let va = a[bsrSortKey], vb = b[bsrSortKey];
+    if(bsrSortKey === "alert") { va = BSR_ALERT_ORDER[a.alert]||0; vb = BSR_ALERT_ORDER[b.alert]||0; }
+    if(typeof va === "string") return bsrSortDir * va.localeCompare(vb, "vi");
+    return bsrSortDir * (vb - va);
+  });
+  bsrFiltered = data;
+  bsrRender();
+  ["year","name","type","impact","alert"].forEach(k => {
+    const el = document.getElementById("bsa-"+k);
+    if(!el) return;
+    el.parentElement.classList.toggle("sorted", k === bsrSortKey);
+    el.textContent = k === bsrSortKey ? (bsrSortDir === -1 ? "▼" : "▲") : "▼";
+  });
+}
+
+function bsrRender() {
+  const tbody = document.getElementById("bsr-tbody");
+  if(!tbody) return;
+  const curYear = new Date().getFullYear();
+  if(!bsrFiltered.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-dim)">Không tìm thấy sự kiện</td></tr>`;
+    document.getElementById("bsr-cnt-show").textContent = 0;
+    document.getElementById("bsr-cnt-total").textContent = BSR_DATA.length;
+    return;
+  }
+  tbody.innerHTML = bsrFiltered.map(d => {
+    const isHL = d.year === curYear || d.year === curYear-1;
+    const isSel = d.year === bsrOpenYear;
+    const ic = BSR_IMPACT_COLORS[d.impact] || "#888";
+    const barW = Math.round((d.impact/10)*100);
+    const rowClass = (isSel?"bsr-selected ":"") + (isHL?"bsr-highlighted ":"");
+    return `<tr class="${rowClass}" onclick="bsrToggleDetail(${d.year})" data-year="${d.year}">
+      <td>
+        <div class="bsr-year-val">${d.year}</div>
+        ${d.startDate ? `<div style="font-size:9px;color:var(--text-dim);margin-top:2px;letter-spacing:.03em">${d.startDate}</div>` : ""}
+      </td>
+      <td>
+        <div class="bsr-event-name">${d.name}</div>
+        <div class="bsr-event-desc">${d.desc}</div>
+      </td>
+      <td><span class="bsr-type-badge btype-${d.type}">${BSR_TYPE_LABEL[d.type]||d.type}</span></td>
+      <td>
+        <div class="bsr-impact-bar-wrap">
+          <div class="bsr-impact-bar-bg"><div class="bsr-impact-bar" style="width:${barW}%;background:${ic}"></div></div>
+          <div class="bsr-impact-val" style="color:${ic}">${d.impact}/10</div>
+        </div>
+      </td>
+      <td><span class="bsr-alert-badge balert-${d.alert}">${BSR_ALERT_LABEL[d.alert]}</span></td>
+      <td>${(() => {
+        const ta = bsrGetThaiAt(d.year);
+        if(!ta) return `<span style="color:var(--text-dim);font-size:9px">...</span>`;
+        const { ht, tueCucData, canhBao } = ta;
+        const cucSo = ta.tueCuc;
+        const taC = ht.thaiAtNam;
+        const taName = BSR_CUNG_NAME[taC] || "TC";
+        const diem = canhBao._nguPhucMeta ? canhBao._nguPhucMeta.diemThucTe
+                   : canhBao[0]?._nguPhucMeta ? canhBao[0]._nguPhucMeta.diemThucTe
+                   : (canhBao.length>0 ? (canhBao[0]._tongDiem||0) : 0);
+        const mau = diem>=6?"#cc1122" : diem>=4?"#ff4455" : diem>=2?"#ff8844" : "#22dd88";
+        const hungN = canhBao.filter(c=>!c._isNguPhucHoaGiai).length;
+        return `<div style="font-size:10px;font-weight:700;color:var(--cyan)">Cục ${cucSo}</div>
+                <div style="font-size:9.5px;color:var(--gold)">☯ Cung ${taC}·${taName}</div>
+                <div style="font-size:9px;color:${mau};margin-top:1px">${hungN>0?`${hungN} lưới kích hoạt`:"🟢 Bình yên"}</div>`;
+      })()}</td>
+    </tr>
+    ${isSel ? `<tr class="bsr-detail-row" id="bsr-detail-${d.year}"><td colspan="6">${bsrRenderDetail(d)}</td></tr>` : ""}`;
+  }).join("");
+  document.getElementById("bsr-cnt-show").textContent = bsrFiltered.length;
+  document.getElementById("bsr-cnt-total").textContent = BSR_DATA.length;
+}
+
+function bsrToggleDetail(year) {
+  if(bsrOpenYear === year) { bsrOpenYear = null; }
+  else { bsrOpenYear = year; }
+  bsrRender();
+  if(bsrOpenYear) {
+    const row = document.getElementById("bsr-detail-" + year);
+    if(row) setTimeout(()=>row.scrollIntoView({behavior:"smooth",block:"nearest"}),50);
+  }
+}
+
+function bsrRenderDetail(d) {
+  const ta = bsrGetThaiAt(d.year);
+  if(!ta) return `<div class="bsr-detail-inner"><div style="color:var(--text-dim);font-size:11px;padding:8px">Không thể tải dữ liệu Thái Ất cho năm ${d.year}</div></div>`;
+
+  const { ht, tueCucData, canhBao } = ta;
+  const npCung = ht.nguPhuc ? ht.nguPhuc.cung : "?";
+  const npTen  = ht.nguPhuc ? ht.nguPhuc.tenVung : "";
+  const npGD   = ht.nguPhuc ? ht.nguPhuc.giaiDoan : "";
+
+  const hungItems = canhBao.filter(c => !c._isNguPhucHoaGiai);
+  const npItems   = canhBao.filter(c => c._isNguPhucHoaGiai);
+  const tongDiem  = canhBao.length>0 ? (canhBao[0]._tongDiem||0) : 0;
+  const diemKH    = canhBao._nguPhucMeta ? canhBao._nguPhucMeta.diemThucTe
+                  : canhBao[0]?._nguPhucMeta ? canhBao[0]._nguPhucMeta.diemThucTe
+                  : tongDiem;
+
+  // Màu mức độ
+  const mucMau = diemKH>=6?"#cc1122" : diemKH>=4?"#ff4455" : diemKH>=2?"#ff8844" : "#22dd88";
+  const mucNhan = diemKH>=6?"⛔ CỰC NGUY HIỂM" : diemKH>=4?"🔴 NGUY HIỂM CAO" : diemKH>=2?"🟠 CẢNH BÁO" : "🟢 BÌNH YÊN";
+
+  // Thị trường thực tế
+  const mkChips = d.markets.map(m=>`<span style="display:inline-block;font-size:9.5px;padding:1px 6px;border-radius:4px;margin:1px;background:rgba(255,68,85,.1);color:#ff8899">${m}</span>`).join("");
+
+  // Render cảnh báo
+  let canhBaoHtml = "";
+  if(hungItems.length>0){
+    canhBaoHtml = hungItems.map(c=>`
+      <div class="bsr-detail-cb-item extreme">
+        <div class="bsr-detail-cb-layer">${c.layer||""} · ${c.diem?"★".repeat(Math.min(c.diem,3))+" "+c.diem+"đ":""}</div>
+        <div class="bsr-detail-cb-ten">${c.icon||""} ${c.ten}</div>
+        <div class="bsr-detail-cb-mota">${c.mo_ta}</div>
+      </div>`).join("");
+  } else if(npItems.length>0){
+    canhBaoHtml = npItems.map(c=>`
+      <div class="bsr-detail-cb-item ok">
+        <div class="bsr-detail-cb-ten">🌟 NGŨ PHÚC BẢO HỘ — ${c.ten}</div>
+        <div class="bsr-detail-cb-mota">${c.mo_ta}</div>
+      </div>`).join("");
+  } else {
+    canhBaoHtml = `<div class="bsr-detail-binh-yen">🟢 11 lưới lọc Thái Ất đều bình yên — vĩ mô ổn định, không có cảnh báo thảm họa năm ${d.year}.</div>`;
+  }
+
+  return `<div class="bsr-detail-inner">
+    <div class="bsr-detail-thai-at-header">
+      <div class="bsr-detail-year-badge">${d.year}</div>
+      <div>
+        <div class="bsr-detail-event-name">${d.name}</div>
+        <div class="bsr-detail-event-desc">${d.desc}</div>
+        <div style="margin-top:5px">${mkChips}</div>
+      </div>
+    </div>
+
+    <div style="font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);margin:0 0 8px;padding-bottom:5px;border-bottom:1px solid rgba(0,212,255,.12)">
+      ☯ Luận giải Thái Ất Thần Kinh · Tuế Cục ${d.year}
+    </div>
+
+    <div class="bsr-detail-grid">
+      <div class="bsr-detail-cell">
+        <div class="bsr-detail-cell-label">🌟 Thái Ất Năm</div>
+        <div class="bsr-detail-cell-val">Cung ${ht.thaiAtNam} · ${BSR_CUNG_NAME[ht.thaiAtNam]||"Trung Cung"}</div>
+        <div class="bsr-detail-cell-sub">Ngai vàng vũ trụ năm ${d.year}</div>
+      </div>
+      <div class="bsr-detail-cell">
+        <div class="bsr-detail-cell-label">💀 Thủy Kích Năm</div>
+        <div class="bsr-detail-cell-val" style="color:${ht.cungThuyKich===ht.thaiAtNam?"var(--red)":"var(--cyan)"}">Cung ${ht.cungThuyKich||"-"} ${ht.cungThuyKich===ht.thaiAtNam?"⚠️ ÁN YỂM":""}</div>
+        <div class="bsr-detail-cell-sub">Sát tinh tập kích</div>
+      </div>
+      <div class="bsr-detail-cell">
+        <div class="bsr-detail-cell-label">🌊 Tứ Thần</div>
+        <div class="bsr-detail-cell-val">Cung ${ht.tucThan} · ${BSR_CUNG_NAME[ht.tucThan]||""}</div>
+        <div class="bsr-detail-cell-sub">Chủ thiên tai · binh đao</div>
+      </div>
+      <div class="bsr-detail-cell">
+        <div class="bsr-detail-cell-label">⚔️ Đại Du Thái Ất</div>
+        <div class="bsr-detail-cell-val">Cung ${ht.daiDu} · ${BSR_CUNG_NAME[ht.daiDu]||""}</div>
+        <div class="bsr-detail-cell-sub">Chu kỳ 2880 năm · Kim thần</div>
+      </div>
+      <div class="bsr-detail-cell">
+        <div class="bsr-detail-cell-label">🌟 Ngũ Phúc Thái Ất</div>
+        <div class="bsr-detail-cell-val" style="color:${npCung===5?"var(--red)":"var(--green)"}">Cung ${npCung} · ${npTen}</div>
+        <div class="bsr-detail-cell-sub">${(npGD||"").substring(0,30)}</div>
+      </div>
+      <div class="bsr-detail-cell">
+        <div class="bsr-detail-cell-label">☯ Tuế Cục</div>
+        <div class="bsr-detail-cell-val">Cục số ${ta.tueCuc} · ${tueCucData.tenDonHe||""}</div>
+        <div class="bsr-detail-cell-sub">Chủ ${tueCucData.toanChu}q · Khách ${tueCucData.toanKhach}q</div>
+      </div>
+    </div>
+
+    ${ht.tamCo ? `<div class="bsr-detail-cell" style="margin-bottom:8px">
+      <div class="bsr-detail-cell-label">🐉 Bộ Ba Tam Cơ</div>
+      <div style="font-size:10px;color:var(--text);line-height:1.7">
+        Quân Cơ (Cá mập) · Cung ${ht.tamCo.quanCo.cung} · ${ht.tamCo.quanCo.diaChi} · ${ht.tamCo.quanCo.soNamDaO}/30 năm<br>
+        Thần Cơ (Thể chế) · Cung ${ht.tamCo.thanCo.cung} · ${ht.tamCo.thanCo.diaChi} · ${ht.tamCo.thanCo.soNamDaO}/3 năm<br>
+        Dân Cơ (Đám đông) · Cung ${ht.danCo} · ${ht.diaChiDanCo}
+      </div>
+    </div>` : ""}
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin:10px 0 8px">
+      <div style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--red)">
+        🔴 Scanner 11 Lưới Lọc Thảm Họa
+      </div>
+      <div style="font-size:11px;font-weight:700;color:${mucMau}">${mucNhan} · ${typeof diemKH==="number"?diemKH.toFixed(1):diemKH}đ</div>
+    </div>
+    ${canhBaoHtml}
+
+    <div style="margin-top:10px;padding:8px 10px;background:rgba(200,153,58,.05);border:1px solid rgba(200,153,58,.15);border-radius:8px;font-size:10px;color:var(--text-dim);line-height:1.65">
+      <strong style="color:var(--gold)">📊 Đối chiếu thực tế:</strong> ${d.name} (${d.year}) — ${d.desc}. 
+      Thị trường ghi nhận: ${d.markets.join(" · ")}. 
+      ${hungItems.length>0?`Thái Ất báo trước ${hungItems.length} lưới kích hoạt, điểm ${typeof diemKH==="number"?diemKH.toFixed(1):diemKH} — phù hợp với mức độ thực tế của sự kiện.`:`Thái Ất không kích hoạt lưới cảnh báo nào — sự kiện này mang tính ngoại sinh hoặc từ yếu tố con người thuần túy.`}
+    </div>
+  </div>`;
+}
+
+function bsrInitTicker() {
+  const items = BSR_DATA.map(d =>
+    `<span class="bsr-tick-item"><span class="bsr-tick-year">${d.year}</span>${d.startDate?`<span style="color:var(--text-dim);font-size:9px;margin-right:4px">${d.startDate}</span>`:""}${d.name}<span class="bsr-tick-impact">[${d.impact}/10]</span></span>`
+  ).join("");
+  const el = document.getElementById("bsr-ticker-inner");
+  if(el) el.innerHTML = items + items;
+}
+function bsrInitSummary() {
+  const since2000 = BSR_DATA.filter(d=>d.year>=2000).length;
+  const total = BSR_DATA.length;
+  const span = BSR_DATA[BSR_DATA.length-1].year - BSR_DATA[0].year;
+  const avg = (span / total).toFixed(1);
+  const ts = document.getElementById("bsr-sum-total");   if(ts) ts.textContent=total;
+  const ss = document.getElementById("bsr-sum-since2000"); if(ss) ss.textContent=since2000;
+  const as = document.getElementById("bsr-sum-avg");     if(as) as.textContent=avg+"y";
+}
+function bsrInitYearAlert() {
+  const curYear = new Date().getFullYear();
+  const el = document.getElementById("bsr-year-msg");
+  if(!el) return;
+  const curEvent = BSR_DATA.find(d=>d.year===curYear);
+  if(curEvent){
+    el.innerHTML = `<strong style="color:#ffd700">${curYear}:</strong> <strong style="color:#ff6677">⚠️ ${curEvent.name}</strong> — Mức độ ${curEvent.impact}/10 · ${BSR_ALERT_LABEL[curEvent.alert]}`;
+  } else {
+    const lastEvent = [...BSR_DATA].sort((a,b)=>b.year-a.year)[0];
+    const gap = curYear - lastEvent.year;
+    el.innerHTML = `<strong style="color:#ffd700">${curYear}:</strong> Sau <strong style="color:#ffaa44">${lastEvent.name} (${lastEvent.year})</strong> — ${gap} năm trôi qua. Lịch sử cho thấy sự kiện thiên nga đen xảy ra trung bình mỗi 4–6 năm.`;
+  }
+}
+function bsrRealTimeClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,"0");
+  const m = String(now.getMinutes()).padStart(2,"0");
+  const s = String(now.getSeconds()).padStart(2,"0");
+  const el = document.getElementById("bsr-clock");
+  if(el) el.textContent = `LIVE · ${h}:${m}:${s}`;
+}
+
+// Pre-cache tất cả năm Black Swan ngay khi load
+function bsrPreCache() {
+  BSR_DATA.forEach((d,i) => {
+    setTimeout(() => bsrGetThaiAt(d.year), i * 30);
+  });
+}
+
+
+// ═══════════════════════════════════════════════════════
+//  BLACK SWAN REALTIME SCANNER
+//  Gọi Worker /scan → AI phân loại → hiển thị kết quả
+//  User có thể "Thêm vào bảng" để push event vào BSR_DATA
+// ═══════════════════════════════════════════════════════
+
+const BSR_WORKER_URL = "https://thuongvip.shadowthuong.workers.dev";
+const BSR_SCAN_CACHE_KEY = "bsr_scan_cache";
+const BSR_SCAN_CACHE_TTL = 15 * 60 * 1000; // 15 phút
+
+// Lưu events đã add để không add lại
+const bsrAddedKeys = new Set();
+
+function bsrFormatScanDate(isoOrDDMM) {
+  if (!isoOrDDMM) return "";
+  // DD/MM/YYYY → giữ nguyên
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(isoOrDDMM)) return isoOrDDMM;
+  // YYYY-MM-DD
+  const m = isoOrDDMM.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return `${m[3]}/${m[2]}/${m[1]}`;
+  return isoOrDDMM;
+}
+
+function bsrScanImpactClass(impact) {
+  if (impact >= 8) return "impact-extreme";
+  if (impact >= 6) return "impact-high";
+  return "impact-medium";
+}
+
+function bsrScanImpactColor(impact) {
+  if (impact >= 8) return "var(--red)";
+  if (impact >= 6) return "#ff8c42";
+  return "var(--yellow)";
+}
+
+function bsrRenderScanResults(events) {
+  const el = document.getElementById("bsr-scan-results");
+  if (!el) return;
+
+  if (!events || !events.length) {
+    el.innerHTML = `<div class="bsr-scan-empty">🟢 Không phát hiện sự kiện Thiên Nga Đen mới đủ ngưỡng (impact ≥ 5) trong tin tức hiện tại.</div>`;
+    return;
+  }
+
+  el.innerHTML = events.map(ev => {
+    const key = `${ev.year}-${ev.name}`;
+    const isAdded = bsrAddedKeys.has(key) || BSR_DATA.some(d => d.year === ev.year && d.name === ev.name);
+    const impactCls = bsrScanImpactClass(ev.impact);
+    const impactColor = bsrScanImpactColor(ev.impact);
+    const dateStr = bsrFormatScanDate(ev.date);
+    const tags = (ev.markets || []).map(m => `<span class="bsr-scan-tag">${m}</span>`).join("");
+    const typeBadge = BSR_TYPE_LABEL[ev.type] || ev.type || "";
+
+    return `<div class="bsr-scan-item ${impactCls}">
+      <div class="bsr-scan-item-meta">
+        <div class="bsr-scan-item-score" style="color:${impactColor}">${ev.impact}<span style="font-size:8px">/10</span></div>
+        <div class="bsr-scan-item-date">${dateStr}</div>
+        <div style="margin-top:3px"><span class="bsr-type-badge btype-${ev.type}" style="font-size:7.5px;padding:1px 4px">${typeBadge}</span></div>
+      </div>
+      <div class="bsr-scan-item-body">
+        <div class="bsr-scan-item-name">${ev.name}</div>
+        <div class="bsr-scan-item-desc">${ev.desc}</div>
+        ${tags ? `<div class="bsr-scan-item-tags">${tags}</div>` : ""}
+      </div>
+      <button class="bsr-scan-add-btn ${isAdded?"added":""}"
+        onclick="bsrScanAddEvent(${JSON.stringify(ev).replace(/"/g,"&quot;")})"
+        id="bsr-scan-add-${ev.year}-${encodeURIComponent(ev.name)}"
+      >${isAdded ? "✓ Đã thêm" : "+ Thêm"}</button>
+    </div>`;
+  }).join("");
+}
+
+function bsrScanAddEvent(ev) {
+  const key = `${ev.year}-${ev.name}`;
+  if (bsrAddedKeys.has(key)) return;
+
+  // Kiểm tra trùng
+  if (BSR_DATA.some(d => d.year === ev.year && d.name === ev.name)) {
+    bsrAddedKeys.add(key);
+    return;
+  }
+
+  // Push vào BSR_DATA
+  BSR_DATA.push({
+    year: ev.year,
+    startDate: bsrFormatScanDate(ev.date),
+    name: ev.name,
+    desc: ev.desc,
+    type: ev.type || "geopolitical",
+    impact: ev.impact || 7,
+    alert: ev.alert || "high",
+    markets: ev.markets || [],
+    _realtime: true  // đánh dấu từ realtime scan
+  });
+
+  bsrAddedKeys.add(key);
+
+  // Update button
+  const btnId = `bsr-scan-add-${ev.year}-${encodeURIComponent(ev.name)}`;
+  const btn = document.getElementById(btnId);
+  if (btn) { btn.textContent = "✓ Đã thêm"; btn.classList.add("added"); }
+
+  // Re-render bảng + summary + ticker
+  bsrApply();
+  bsrInitSummary();
+  bsrInitTicker();
+  bsrInitYearAlert();
+
+  // Flash thông báo
+  const status = document.getElementById("bsr-scan-status");
+  if (status) {
+    const prev = status.textContent;
+    status.style.color = "var(--green)";
+    status.textContent = "✓ Đã thêm vào bảng!";
+    setTimeout(() => { status.textContent = prev; status.style.color = ""; }, 2000);
+  }
+}
+
+async function bsrRunScan() {
+  const btn = document.getElementById("bsr-scan-btn");
+  const spinner = document.getElementById("bsr-scan-spinner");
+  const status = document.getElementById("bsr-scan-status");
+  const results = document.getElementById("bsr-scan-results");
+
+  if (!btn) return;
+
+  // Kiểm tra cache
+  try {
+    const cached = sessionStorage.getItem(BSR_SCAN_CACHE_KEY);
+    if (cached) {
+      const { events, ts, meta } = JSON.parse(cached);
+      if (Date.now() - ts < BSR_SCAN_CACHE_TTL) {
+        const age = Math.round((Date.now() - ts) / 60000);
+        if (status) status.textContent = `Cache ${age}m · ${meta?.articlesScanned||"?"}  bài`;
+        bsrRenderScanResults(events);
+        return;
+      }
+    }
+  } catch(e) {}
+
+  // Start loading UI
+  btn.disabled = true;
+  if (spinner) spinner.style.display = "block";
+  if (status) { status.style.color = "var(--cyan)"; status.textContent = "Đang quét..."; }
+  if (results) results.innerHTML = `<div class="bsr-scan-empty" style="color:var(--cyan)">⚡ AI đang phân tích tin tức toàn cầu...</div>`;
+
+  try {
+    const resp = await fetch(`${BSR_WORKER_URL}/scan`, { signal: AbortSignal.timeout(30000) });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+
+    const events = data.events || [];
+    const meta = data._meta || {};
+
+    // Sort by impact desc
+    events.sort((a, b) => (b.impact || 0) - (a.impact || 0));
+
+    // Cache
+    try {
+      sessionStorage.setItem(BSR_SCAN_CACHE_KEY, JSON.stringify({ events, ts: Date.now(), meta }));
+    } catch(e) {}
+
+    if (status) {
+      status.style.color = events.length > 0 ? "var(--red)" : "var(--green)";
+      const t = new Date().toLocaleTimeString("vi-VN", { hour:"2-digit", minute:"2-digit" });
+      status.textContent = `${events.length} sự kiện · ${meta.articlesScanned||"?"} bài · ${t}`;
+    }
+
+    bsrRenderScanResults(events);
+
+  } catch(err) {
+    if (status) { status.style.color = "var(--red)"; status.textContent = "Lỗi: " + err.message; }
+    if (results) results.innerHTML = `<div class="bsr-scan-empty" style="color:var(--red)">
+      ❌ Không thể kết nối scanner. Kiểm tra Worker URL và API keys.<br>
+      <span style="font-size:9px;opacity:.7">${err.message}</span>
+    </div>`;
+  } finally {
+    btn.disabled = false;
+    if (spinner) spinner.style.display = "none";
+  }
+}
+
+// Auto-scan sau 3 giây nếu có cache còn mới
+setTimeout(async () => {
+  try {
+    const cached = sessionStorage.getItem(BSR_SCAN_CACHE_KEY);
+    if (cached) {
+      const { events, ts, meta } = JSON.parse(cached);
+      if (Date.now() - ts < BSR_SCAN_CACHE_TTL) {
+        const age = Math.round((Date.now() - ts) / 60000);
+        const status = document.getElementById("bsr-scan-status");
+        if (status) status.textContent = `Cache ${age}m · ${meta?.articlesScanned||"?"} bài`;
+        bsrRenderScanResults(events);
+      }
+    }
+  } catch(e) {}
+}, 3000);
+
+
+// Init
+(function bsrInit(){
+  bsrInitTicker();
+  bsrInitSummary();
+  bsrInitYearAlert();
+  bsrApply();
+  setInterval(bsrRealTimeClock, 1000);
+  bsrRealTimeClock();
+  // Pre-cache sau 500ms để không block main thread
+  setTimeout(bsrPreCache, 500);
+})();
 
 fillToday();
 </script>
