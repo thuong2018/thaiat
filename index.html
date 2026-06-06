@@ -9094,6 +9094,143 @@ function mktLoading(){
   });
 }
 
+// ══════════════════════════════════════════════════════════════
+//  MKT FETCH — Multi-source fallback
+//  Yahoo Finance v7 đã chết từ 2024 (cần crumb/consent).
+//  Strategy: Yahoo v8 (crumbless workaround) → CoinGecko (crypto)
+//            → Binance (crypto backup) → Stooq (indices backup)
+// ══════════════════════════════════════════════════════════════
+
+// ── Map Yahoo symbol → CoinGecko id ──
+const CG_ID_MAP = {
+  'BTC-USD':'bitcoin', 'ETH-USD':'ethereum',
+};
+// ── Map Yahoo symbol → Binance symbol ──
+const BINANCE_MAP = {
+  'BTC-USD':'BTCUSDT', 'ETH-USD':'ETHUSDT',
+};
+// ── Map symbol → Stooq symbol (for indices/commodities) ──
+const STOOQ_MAP = {
+  '%5EGSPC':'^spx', '%5EIXIC':'^ndq', '%5EDJI':'^dji',
+  '%5EN225':'^nkx', '%5EHSI':'^hsi',
+  'GC%3DF':'gc.f', 'SI%3DF':'si.f', 'CL%3DF':'cl.f',
+  'EURUSD%3DX':'eurusd', 'JPY%3DX':'usdjpy',
+  '%5EVIX':'^vix', '%5ETNX':'^tnx', '%5ETYX':'^tyx', '%5EIRX':'^irx',
+};
+
+// ── Fetch CoinGecko cho crypto (free, CORS OK) ──
+async function mktFetchCoinGecko() {
+  const ids = Object.values(CG_ID_MAP).join(',');
+  const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true`;
+  const r = await fetch(url, { signal: AbortSignal.timeout(10000) });
+  if (!r.ok) throw new Error('CoinGecko HTTP ' + r.status);
+  const json = await r.json();
+  const result = {};
+  // Convert CoinGecko format → Yahoo-like format
+  for (const [sym, cgId] of Object.entries(CG_ID_MAP)) {
+    const d = json[cgId];
+    if (!d) continue;
+    const price = d.usd;
+    const chg24h = d.usd_24h_change;
+    // Tính change value từ %
+    const prevPrice = chg24h != null ? price / (1 + chg24h/100) : price;
+    const changeVal = price - prevPrice;
+    result[sym] = {
+      symbol: sym,
+      regularMarketPrice: price,
+      regularMarketChange: changeVal,
+      regularMarketChangePercent: chg24h,
+    };
+  }
+  return result;
+}
+
+// ── Fetch Binance public (fallback cho crypto) ──
+async function mktFetchBinance() {
+  const syms = Object.values(BINANCE_MAP);
+  const url = `https://api.binance.com/api/v3/ticker/24hr?symbols=${JSON.stringify(syms)}`;
+  const r = await fetch(url, { signal: AbortSignal.timeout(10000) });
+  if (!r.ok) throw new Error('Binance HTTP ' + r.status);
+  const arr = await r.json();
+  const result = {};
+  for (const d of arr) {
+    const yahooSym = Object.entries(BINANCE_MAP).find(([,b])=>b===d.symbol)?.[0];
+    if (!yahooSym) continue;
+    const price = parseFloat(d.lastPrice);
+    const prev  = parseFloat(d.prevClosePrice);
+    result[yahooSym] = {
+      symbol: yahooSym,
+      regularMarketPrice: price,
+      regularMarketChange: price - prev,
+      regularMarketChangePercent: parseFloat(d.priceChangePercent),
+    };
+  }
+  return result;
+}
+
+// ── Fetch Stooq CSV (indices, commodities, bonds — free, CORS OK qua proxy) ──
+async function mktFetchStooq(yahooSyms) {
+  const result = {};
+  // Stooq trả CSV, dùng allorigins làm CORS proxy
+  const stooqSyms = yahooSyms
+    .filter(s => STOOQ_MAP[s])
+    .map(s => ({ yahoo: s, stooq: STOOQ_MAP[s] }));
+
+  await Promise.allSettled(stooqSyms.map(async ({ yahoo, stooq }) => {
+    try {
+      const url = `https://stooq.com/q/l/?s=${stooq}&f=sd2t2ohlcv&h&e=csv`;
+      const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+      const r = await fetch(proxy, { signal: AbortSignal.timeout(8000) });
+      if (!r.ok) return;
+      const text = await r.text();
+      const lines = text.trim().split('\n');
+      if (lines.length < 2) return;
+      const cols = lines[1].split(',');
+      // CSV: Symbol,Date,Time,Open,High,Low,Close,Volume
+      const close = parseFloat(cols[6]);
+      const open  = parseFloat(cols[3]);
+      if (isNaN(close)) return;
+      const chg = close - open;
+      const pct = open ? (chg / open) * 100 : 0;
+      result[yahoo] = {
+        symbol: yahoo,
+        regularMarketPrice: close,
+        regularMarketChange: chg,
+        regularMarketChangePercent: pct,
+      };
+    } catch(_) {}
+  }));
+  return result;
+}
+
+// ── Yahoo Finance v8 với crumb workaround (attempt before fallback) ──
+async function mktFetchYahooV8(yahooSyms) {
+  // Lấy crumb bằng cách fetch trang Yahoo Finance trước
+  try {
+    const crumbProxy = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://finance.yahoo.com/quote/BTC-USD/')}`;
+    const crumbR = await fetch(crumbProxy, { signal: AbortSignal.timeout(8000) });
+    const html = await crumbR.text();
+    const crumbMatch = html.match(/"crumb":"([^"]+)"/);
+    if (!crumbMatch) throw new Error('no crumb');
+    const crumb = crumbMatch[1].replace(/\\u002F/g, '/');
+
+    const syms = yahooSyms.join('%2C');
+    const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${syms}&crumb=${encodeURIComponent(crumb)}&fields=regularMarketPrice,regularMarketChange,regularMarketChangePercent`;
+    const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    const r = await fetch(proxy, { signal: AbortSignal.timeout(10000) });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const raw = await r.json();
+    const body = JSON.parse(raw.contents);
+    const quotes = body?.quoteResponse?.result || [];
+    if (!quotes.length) throw new Error('empty');
+    const data = {};
+    quotes.forEach(q => { data[q.symbol] = q; });
+    return data;
+  } catch(e) {
+    throw e;
+  }
+}
+
 async function mktFetch(force=false){
   const now=Date.now();
   if(!force&&mktCache.ts&&now-mktCache.ts<MKT_TTL&&mktCache.data){mktRenderAll(mktCache.data);return;}
@@ -9104,30 +9241,62 @@ async function mktFetch(force=false){
   if(btn)btn.disabled=true;
   if(err)err.style.display='none';
   mktLoading();
-  const all=[...MKT_SYMS.indices,...MKT_SYMS.crypto,...MKT_SYMS.commodities,...MKT_SYMS.bonds];
-  const syms=all.map(i=>i.sym).join('%2C');
-  try{
-    const url=`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${syms}&fields=regularMarketPrice,regularMarketChange,regularMarketChangePercent`;
-    const proxy=`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-    const r=await fetch(proxy,{signal:AbortSignal.timeout(15000)});
-    if(!r.ok)throw new Error('HTTP '+r.status);
-    const raw=await r.json();
-    const body=JSON.parse(raw.contents);
-    const quotes=body?.quoteResponse?.result||[];
-    const data={};
-    quotes.forEach(q=>{data[q.symbol]=q;});
-    mktCache={ts:now,data};
-    mktRenderAll(data);
-    const t=new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
-    const upd=document.getElementById('mkt-last-update');
-    if(upd)upd.textContent=`Cập nhật ${t}`;
-  }catch(e){
-    if(err){err.textContent='Lỗi: '+e.message.slice(0,50);err.style.display='inline';}
-    if(mktCache.data)mktRenderAll(mktCache.data);
-  }finally{
-    if(spin)spin.style.display='none';
-    if(btn)btn.disabled=false;
+
+  const merged = {};
+  const allSyms = [
+    ...MKT_SYMS.indices, ...MKT_SYMS.crypto,
+    ...MKT_SYMS.commodities, ...MKT_SYMS.bonds
+  ];
+  const allYahooSyms = allSyms.map(i => i.sym);
+  const cryptoSyms   = MKT_SYMS.crypto.map(i => i.sym);
+  const nonCryptoSyms = allYahooSyms.filter(s => !cryptoSyms.includes(s));
+
+  // Chạy song song: Yahoo v8 (all), CoinGecko (crypto), Stooq (indices/commodities)
+  const [yahooResult, cgResult, stooqResult, binanceResult] = await Promise.allSettled([
+    mktFetchYahooV8(allYahooSyms),
+    mktFetchCoinGecko(),
+    mktFetchStooq(nonCryptoSyms),
+    mktFetchBinance(),
+  ]);
+
+  // Merge theo priority: Yahoo (nếu sống) > source chuyên biệt > fallback
+  let yahooOk = false;
+  if (yahooResult.status === 'fulfilled' && Object.keys(yahooResult.value).length > 3) {
+    Object.assign(merged, yahooResult.value);
+    yahooOk = true;
   }
+
+  // Crypto: CoinGecko > Binance > Yahoo
+  if (cgResult.status === 'fulfilled') {
+    Object.assign(merged, cgResult.value);
+  } else if (binanceResult.status === 'fulfilled') {
+    Object.assign(merged, binanceResult.value);
+  }
+
+  // Indices/Commodities/Bonds: Stooq nếu Yahoo chết
+  if (!yahooOk && stooqResult.status === 'fulfilled') {
+    Object.assign(merged, stooqResult.value);
+  }
+
+  if (Object.keys(merged).length === 0) {
+    // Tất cả đều fail
+    const errSources = [yahooResult, cgResult, stooqResult, binanceResult]
+      .filter(r => r.status === 'rejected')
+      .map(r => r.reason?.message || '?')
+      .join(' | ');
+    if(err){ err.textContent = 'Không lấy được dữ liệu: ' + errSources.slice(0,80); err.style.display='inline'; }
+    if(mktCache.data) mktRenderAll(mktCache.data);
+  } else {
+    mktCache = { ts: now, data: merged };
+    mktRenderAll(merged);
+    const t = new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
+    const upd = document.getElementById('mkt-last-update');
+    const srcLabel = yahooOk ? 'Yahoo' : 'CG+Stooq';
+    if(upd) upd.textContent = `Cập nhật ${t} (${srcLabel})`;
+  }
+
+  if(spin)spin.style.display='none';
+  if(btn)btn.disabled=false;
 }
 function mktRenderAll(data){
   mktRenderGroup('mkt-indices',    MKT_SYMS.indices,    data);
