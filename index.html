@@ -234,8 +234,100 @@ html, body {
 /* ══════════════════════════════════════════════════
    BLACK SWAN RADAR — Panel Styles
    ══════════════════════════════════════════════════ */
+
+/* ── BSR SLIM MODE ── */
+.bsr-slim-bar {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 14px 8px;
+  cursor: pointer;
+  user-select: none;
+}
+.bsr-slim-bar:hover { background: rgba(255,68,85,.06); }
+.bsr-slim-icon { font-size: 22px; animation: bsr-pulse 3s ease-in-out infinite; }
+.bsr-slim-clock {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: var(--red);
+  opacity: .85;
+}
+.bsr-slim-count {
+  writing-mode: vertical-rl;
+  font-size: 9px;
+  color: var(--text-dim);
+  letter-spacing: .06em;
+}
+.bsr-slim-hint {
+  writing-mode: vertical-rl;
+  font-size: 8px;
+  color: var(--text-dim);
+  opacity: .5;
+  letter-spacing: .08em;
+  margin-top: 4px;
+}
+
+/* Khi bsr-wrap ở slim mode */
+.bsr-wrap.bsr-slim-mode {
+  width: 52px !important;
+  min-width: 52px !important;
+  max-width: 52px !important;
+  overflow: hidden;
+  transition: width .3s ease, min-width .3s ease, max-width .3s ease;
+}
+.bsr-wrap.bsr-slim-mode .bsr-header,
+.bsr-wrap.bsr-slim-mode .pc-body {
+  display: none !important;
+}
+.bsr-wrap.bsr-slim-mode .bsr-slim-bar {
+  display: flex !important;
+}
+
+/* Desktop slim: thu hẹp cột BSR */
+@media (min-width: 1200px) {
+  #black-swan-panel.bsr-panel-slim {
+    width: 52px;
+    min-width: 52px;
+  }
+  /* Bù không gian cho cột chính */
+  #desktop-body.bsr-slimmed {
+    grid-template-columns: 420px 1fr 52px;
+  }
+  #desktop-body.bsr-slimmed #right-panel {
+    grid-column: 2;
+  }
+  #desktop-body.bsr-slimmed #black-swan-panel {
+    grid-column: 3;
+    grid-row: 1 / 4;
+  }
+}
+
+/* Nút slim toggle trên header */
+.bsr-slim-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,68,85,.25);
+  background: rgba(255,68,85,.06);
+  color: #ff8899;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+  flex-shrink: 0;
+}
+.bsr-slim-toggle-btn:hover { background: rgba(255,68,85,.18); color: #fff; }
+.bsr-slim-toggle-btn.active { background: rgba(255,68,85,.2); color: var(--red); }
+
 #black-swan-panel {
   padding: 0 0 40px;
+  transition: width .3s ease, min-width .3s ease;
 }
 .bsr-wrap {
   background: var(--surface2);
@@ -1525,6 +1617,19 @@ input[type=range]::-webkit-slider-thumb {
   box-shadow: 0 4px 24px rgba(0,0,0,.4), 0 0 30px rgba(255,68,85,.06) inset;
   animation: fadeSlide .4s ease both;
 }
+/* ── Trạng thái động theo điểm ── */
+.tham-hoa-block.state-ok {
+  border-color: rgba(34,221,136,.3);
+  box-shadow: 0 4px 24px rgba(0,0,0,.4), 0 0 20px rgba(34,221,136,.04) inset;
+}
+.tham-hoa-block.state-watch {
+  border-color: rgba(255,170,0,.35);
+  box-shadow: 0 4px 24px rgba(0,0,0,.4), 0 0 20px rgba(255,170,0,.05) inset;
+}
+.tham-hoa-block.state-danger {
+  border-color: rgba(255,68,85,.4);
+  box-shadow: 0 4px 24px rgba(0,0,0,.4), 0 0 30px rgba(255,68,85,.07) inset;
+}
 .tham-hoa-header {
   padding: 13px 16px;
   background: rgba(255,68,85,.06);
@@ -1536,12 +1641,17 @@ input[type=range]::-webkit-slider-thumb {
   transition: background .2s;
   position: relative;
 }
+.tham-hoa-block.state-ok    .tham-hoa-header { background: rgba(34,221,136,.05); }
+.tham-hoa-block.state-watch .tham-hoa-header { background: rgba(255,170,0,.05); }
+.tham-hoa-block.state-danger .tham-hoa-header { background: rgba(255,68,85,.07); }
 .tham-hoa-header::before {
   content:'';
   position:absolute;
   top:0;left:0;right:0;height:1px;
   background:linear-gradient(90deg,transparent,rgba(255,68,85,.6),transparent);
 }
+.tham-hoa-block.state-ok    .tham-hoa-header::before { background:linear-gradient(90deg,transparent,rgba(34,221,136,.5),transparent); }
+.tham-hoa-block.state-watch .tham-hoa-header::before { background:linear-gradient(90deg,transparent,rgba(255,170,0,.5),transparent); }
 .tham-hoa-header:active { background: rgba(255,68,85,.14); }
 .tham-hoa-header .icon { font-size: 20px; flex-shrink: 0; }
 .tham-hoa-header .info { flex: 1; }
@@ -1549,6 +1659,8 @@ input[type=range]::-webkit-slider-thumb {
   font-size: 12.5px; font-weight: 700;
   color: #ff6677; letter-spacing: .04em;
 }
+.tham-hoa-block.state-ok    .tham-hoa-header .info h3 { color: var(--green); }
+.tham-hoa-block.state-watch .tham-hoa-header .info h3 { color: #ffaa00; }
 .tham-hoa-header .info p {
   font-size: 10px; color: var(--text-dim);
   margin-top: 2px; letter-spacing: .03em;
@@ -1601,7 +1713,16 @@ input[type=range]::-webkit-slider-thumb {
   border: 1px solid rgba(255,68,85,.3);
   border-left: 3px solid var(--red);
   border-radius: 10px;
+}
+/* Chỉ item nặng (2+ điểm) mới pulse */
+.tham-hoa-item.item-danger {
   animation: pulse-red 2.4s ease-in-out infinite;
+}
+/* Item trung bình (1 điểm) — màu cam, không pulse */
+.tham-hoa-item.item-watch {
+  background: rgba(255,140,0,.05);
+  border-color: rgba(255,140,0,.25);
+  border-left-color: #ff8c00;
 }
 @keyframes pulse-red {
   0%,100% { box-shadow: 0 0 0 rgba(255,68,85,0); }
@@ -1613,6 +1734,7 @@ input[type=range]::-webkit-slider-thumb {
   font-weight: 700; font-size: 12px;
   color: #ff5566; letter-spacing: .06em; margin-bottom: 3px;
 }
+.tham-hoa-item.item-watch .tham-hoa-ten { color: #ffaa44; }
 .tham-hoa-mota { color: var(--text-dim); font-size: 10.5px; line-height: 1.6; }
 
 .tham-hoa-binh-yen {
@@ -2784,6 +2906,318 @@ input[type=range]::-webkit-slider-thumb {
 .cucs-extra-toggle.open .toggle-icon { transform: rotate(180deg); }
 #cucs-extra-group { display: none; }
 #cucs-extra-group.open { display: block; }
+
+/* ──────────────────────────────────────────────
+   PANEL CONTROLS  (nút thu/mở trên mỗi panel)
+   ──────────────────────────────────────────────*/
+.pc-bar {                         /* thanh nút nhỏ ở header */
+  display: flex; align-items: center; gap: 3px;
+  margin-left: auto; flex-shrink: 0;
+}
+.pc-btn {
+  width: 24px; height: 24px; border-radius: 6px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.04);
+  color: rgba(255,255,255,.55); font-size: 11px; line-height:1;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all .15s; flex-shrink: 0; padding: 0; user-select: none;
+}
+.pc-btn:hover { background: rgba(255,255,255,.12); color: #fff; border-color: rgba(255,255,255,.3); transform: scale(1.1); }
+.pc-btn.gold  { border-color: rgba(200,153,58,.3);  background: rgba(200,153,58,.07);  color: var(--gold);  }
+.pc-btn.gold:hover  { background: rgba(200,153,58,.18); border-color: var(--gold); }
+.pc-btn.red   { border-color: rgba(255,68,85,.3);   background: rgba(255,68,85,.07);   color: var(--red);   }
+.pc-btn.red:hover   { background: rgba(255,68,85,.18);  border-color: var(--red);  }
+.pc-btn.cyan  { border-color: rgba(0,212,255,.3);   background: rgba(0,212,255,.07);   color: var(--cyan);  }
+.pc-btn.cyan:hover  { background: rgba(0,212,255,.18);  border-color: var(--cyan);  }
+
+/* ── Collapse / Expand body ── */
+.pc-body {
+  overflow: hidden;
+  transition: max-height .36s cubic-bezier(.4,0,.2,1), opacity .25s;
+}
+.pc-collapsed .pc-body { max-height: 0 !important; opacity: 0; }
+.pc-collapsed .pc-collapse-icon { transform: rotate(180deg); }
+
+/* ── Fullscreen overlay ── */
+.pc-fullscreen {
+  position: fixed !important; inset: 0 !important; z-index: 8800 !important;
+  border-radius: 0 !important; width: 100vw !important; height: 100vh !important;
+  max-height: 100vh !important; overflow: auto !important;
+  margin: 0 !important; max-width: none !important;
+  padding-bottom: 0 !important;
+}
+.pc-fullscreen .pc-body { max-height: none !important; opacity: 1 !important; }
+.pc-fullscreen .bsr-body { max-height: calc(100vh - 280px) !important; }
+.pc-fullscreen .khay-messages { max-height: calc(100vh - 260px) !important; }
+.pc-fs-backdrop {
+  position: fixed; inset: 0; z-index: 8799;
+  background: rgba(0,0,0,.75); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+}
+
+/* ════════════════════════════════════════════
+   FOCUS MODE — khi bấm Quét Chu Kỳ
+   Các panel phụ thu nhỏ, bảng tiết khí nổi bật
+   ════════════════════════════════════════════*/
+/* Trạng thái bình thường */
+#desktop-body { transition: grid-template-columns .4s ease; }
+
+/* Focus mode: cột kết quả chiếm nhiều hơn */
+#desktop-body.focus-results {
+  /* trên ≥1200: left=320px, results=1fr, right=320px */
+}
+
+/* Panels bị "thu nhỏ" trong focus mode */
+.panel-dimmed {
+  opacity: .55;
+  transition: opacity .3s;
+}
+.panel-dimmed:hover { opacity: 1; }
+
+/* Nút thoát focus mode */
+#focus-exit-btn {
+  display: none;
+  position: fixed; bottom: 22px; right: 22px; z-index: 999;
+  padding: 8px 18px; border-radius: 20px;
+  border: 1px solid rgba(0,212,255,.4);
+  background: rgba(3,8,16,.92); color: var(--cyan);
+  font-size: 11px; cursor: pointer; backdrop-filter: blur(8px);
+  box-shadow: 0 4px 20px rgba(0,212,255,.15);
+  transition: all .2s;
+}
+#focus-exit-btn:hover { background: rgba(0,212,255,.12); }
+
+/* Bảng tiết khí kết quả — full width khi focus */
+#right-panel { transition: all .35s ease; }
+
+/* Trên desktop ≥1200: results nằm cột trái row 3,
+   trong focus mode đẩy ra span full grid */
+@media (min-width: 1200px) {
+  #desktop-body.focus-results {
+    grid-template-columns: 340px 1fr 340px;
+    grid-template-rows: auto auto auto;
+  }
+  #desktop-body.focus-results #left-panel   { grid-column: 1; grid-row: 1; }
+  #desktop-body.focus-results #khay-panel   { grid-column: 1; grid-row: 2; }
+  #desktop-body.focus-results #right-panel  { grid-column: 2; grid-row: 1 / 4; }
+  #desktop-body.focus-results #black-swan-panel { grid-column: 3; grid-row: 1 / 4; }
+
+  /* bảng tiết khí bên trong results — full width */
+  #desktop-body.focus-results #results .card table { font-size: 13px; }
+  #desktop-body.focus-results #results .card td { padding: 12px 12px; }
+}
+
+/* ── Market ruler table (giữ từ version cũ) ── */
+.mkt-group-label {
+  font-size: 8.5px; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--gold);
+  padding: 0 2px 5px; display: flex; align-items: center; gap: 5px;
+}
+.mkt-group-label::before {
+  content:''; display:block; width:2px; height:10px;
+  background: linear-gradient(180deg, var(--gold), var(--gold-light));
+  border-radius:2px;
+}
+.mkt-table { border: 1px solid rgba(255,255,255,.06); border-radius: 12px; overflow: hidden; }
+.mkt-row {
+  display: grid; grid-template-columns: 1fr 90px 72px 60px;
+  padding: 7px 10px; border-bottom: 1px solid rgba(255,255,255,.04);
+  transition: background .15s; align-items: center;
+}
+.mkt-row:last-child { border-bottom: none; }
+.mkt-row:not(.mkt-header-row):hover { background: rgba(0,212,255,.04); }
+.mkt-header-row { background: rgba(255,255,255,.03); border-bottom: 1px solid rgba(255,255,255,.07); }
+.mkt-header-row span { font-size: 8px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim); font-weight: 600; }
+.mkt-name { font-size: 11px; font-weight: 600; color: var(--text); }
+.mkt-sub  { font-size: 8.5px; color: var(--text-dim); margin-top: 1px; }
+.mkt-price { font-size: 11.5px; font-weight: 700; text-align: right; color: var(--text); font-variant-numeric: tabular-nums; }
+.mkt-chg  { font-size: 10.5px; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+.mkt-pct  { font-size: 10.5px; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+.mkt-up   { color: var(--green); }
+.mkt-dn   { color: var(--red); }
+.mkt-neu  { color: var(--text-dim); }
+.mkt-loading { padding: 14px; text-align: center; color: var(--text-dim); font-size: 10px; }
+/* Dương Cửu Bách Lục toggle */
+#block-duong-cuu .dcbl-body { display: none; }
+#block-duong-cuu.dcbl-open .dcbl-body { display: block !important; }
+#block-duong-cuu.dcbl-open > div:first-child span:last-child { transform: rotate(180deg); }
+
+/* ══════════════════════════════════════════════════
+   NHẬT LỊCH THÁNG — Calendar Panel
+   ══════════════════════════════════════════════════ */
+#panel-calendar { border-color: rgba(0,212,255,0.2); }
+
+.cal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.cal-nav-btn {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,212,255,.2);
+  background: rgba(0,212,255,.05);
+  color: var(--cyan);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+  flex-shrink: 0;
+}
+.cal-nav-btn:hover { background: rgba(0,212,255,.15); }
+.cal-month-label {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cyan);
+  letter-spacing: .08em;
+  text-align: center;
+  flex: 1;
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: 38px;
+  gap: 3px;
+}
+.cal-dow {
+  text-align: center;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: var(--text-dim);
+  padding: 4px 0 6px;
+}
+.cal-dow:last-child { color: rgba(255,68,85,.6); }
+
+.cal-day {
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all .15s;
+  position: relative;
+  height: 38px;
+  gap: 1px;
+  overflow: hidden;
+}
+.cal-day:hover { transform: scale(1.08); z-index: 2; }
+.cal-day.empty { cursor: default; pointer-events: none; }
+.cal-day-num {
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+.cal-day-dot {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Màu sắc theo cát/hung/bình */
+.cal-day.cat {
+  background: rgba(34,221,136,.09);
+  border-color: rgba(34,221,136,.22);
+}
+.cal-day.cat .cal-day-num { color: var(--green); }
+.cal-day.cat .cal-day-dot { background: var(--green); }
+
+.cal-day.hung {
+  background: rgba(255,68,85,.09);
+  border-color: rgba(255,68,85,.22);
+}
+.cal-day.hung .cal-day-num { color: var(--red); }
+.cal-day.hung .cal-day-dot { background: var(--red); }
+
+.cal-day.warn {
+  background: rgba(255,215,0,.07);
+  border-color: rgba(255,215,0,.18);
+}
+.cal-day.warn .cal-day-num { color: var(--yellow); }
+.cal-day.warn .cal-day-dot { background: var(--yellow); }
+
+.cal-day.binh {
+  background: rgba(255,255,255,.03);
+  border-color: rgba(255,255,255,.07);
+}
+.cal-day.binh .cal-day-num { color: var(--text-dim); }
+.cal-day.binh .cal-day-dot { background: rgba(255,255,255,.2); }
+
+/* Ngày hôm nay */
+.cal-day.today {
+  box-shadow: 0 0 0 2px var(--cyan);
+}
+/* Ngày đang được chọn */
+.cal-day.selected {
+  box-shadow: 0 0 0 2px var(--gold);
+  background: rgba(200,153,58,.12) !important;
+  border-color: rgba(200,153,58,.4) !important;
+}
+.cal-day.selected .cal-day-num { color: var(--gold-light) !important; }
+
+/* Ngày chủ nhật tô nhẹ */
+.cal-day.sunday .cal-day-num { opacity: .75; }
+
+/* Tooltip nhỏ khi hover */
+.cal-day .cal-tip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 5px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(5,14,35,.96);
+  border: 1px solid rgba(0,212,255,.25);
+  border-radius: 7px;
+  padding: 5px 8px;
+  font-size: 9.5px;
+  color: var(--text);
+  white-space: nowrap;
+  z-index: 10;
+  pointer-events: none;
+  text-align: center;
+  line-height: 1.5;
+  box-shadow: 0 4px 16px rgba(0,0,0,.5);
+}
+.cal-day:hover .cal-tip { display: block; }
+
+/* Legend */
+.cal-legend {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(255,255,255,.07);
+}
+.cal-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  color: var(--text-dim);
+}
+.cal-legend-dot {
+  width: 8px; height: 8px;
+  border-radius: 2px;
+}
+
+/* Loading shimmer */
+.cal-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px;
+  color: var(--text-dim);
+  font-size: 11px;
+}
+
 </style>
 </head>
 <body>
@@ -3016,33 +3450,82 @@ input[type=range]::-webkit-slider-thumb {
     <!-- CỘT TRÁI: Input + Disclaimer -->
     <div id="left-panel">
 
-      <!-- INPUT CARD -->
-      <div class="card">
-        <div class="card-title">Nhập Thời Điểm Soi Chiếu</div>
-        <div class="date-grid">
-          <div class="field">
-            <label>Năm</label>
-            <input type="number" id="inp-nam" placeholder="2026" min="1000" max="9999" inputmode="numeric">
-          </div>
-          <div class="field">
-            <label>Tháng</label>
-            <input type="number" id="inp-thang" placeholder="5" min="1" max="12" inputmode="numeric">
-          </div>
-          <div class="field">
-            <label>Ngày</label>
-            <input type="number" id="inp-ngay" placeholder="16" min="1" max="31" inputmode="numeric">
-          </div>
-          <div class="field">
-            <label>Giờ (0–23)</label>
-            <input type="number" id="inp-gio" placeholder="12" min="0" max="23" inputmode="numeric">
+      <!-- ========================================================
+           NÂNG CẤP: TRẠM ĐIỀU KHIỂN CHU KỲ VĨ MÔ 24 TIẾT KHÍ
+           ======================================================== -->
+      <div class="card" id="panel-dinh-vi" style="border-color: var(--gold); box-shadow: 0 0 20px rgba(200,153,58,0.05);">
+        <div class="card-title" style="color: var(--gold-light);">🎯 Định Vị Chu Kỳ Vĩ Mô
+          <div class="pc-bar">
+            <button class="pc-btn gold pc-collapse-icon" onclick="pcToggle('panel-dinh-vi')" title="Thu/Mở">⌃</button>
+            <button class="pc-btn gold" onclick="pcFullscreen('panel-dinh-vi')" title="Phóng to">⛶</button>
           </div>
         </div>
-        <button class="today-btn" onclick="fillToday()">📅 &nbsp;Điền Hôm Nay</button>
+        <div class="pc-body" style="max-height:600px">
+        <p style="font-size: 11px; color: var(--text-dim); margin-bottom: 12px; line-height: 1.5;">
+          Nhập năm để Engine tự động quét ma trận rủi ro và định vị các điểm nút đảo chiều vĩ mô xuyên suốt 24 Tiết Khí.
+        </p>
+
+        <div style="display: flex; gap: 12px; align-items: flex-end;">
+          <div class="field" style="flex: 1;">
+            <label style="color: var(--gold);">Năm Khảo Sát Chu Kỳ</label>
+            <input type="number" id="inp-nam" placeholder="2026" value="2026" min="1000" max="9999" inputmode="numeric" style="border-color: rgba(200,153,58,0.3); background: rgba(200,153,58,0.03); color: var(--gold-light);">
+          </div>
+          <button class="calc-btn" id="calc-btn" onclick="quetChuKyNam()" style="margin: 0; width: auto; padding: 12px 24px; white-space: nowrap; background: linear-gradient(135deg, #1a3a6e 0%, #0d2448 100%);">
+            ⚡ Quét Chu Kỳ Năm
+          </button>
+        </div>
+
+        <!-- Thanh Timeline nhanh chọn các Tiết Khí Trọng Điểm -->
+        <div style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed rgba(200,153,58,0.15);">
+          <label style="font-size: 8.5px; opacity: 0.7;">📍 Mốc Chu Kỳ Trọng Điểm:</label>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px;">
+            <button onclick="kichHoatMocNhanh(2026, 2, 4, 11, 'Lập Xuân')" class="bsr-filter-btn" style="border-color: rgba(0,212,255,0.25); color: var(--cyan);">🌿 Lập Xuân</button>
+            <button onclick="kichHoatMocNhanh(2026, 6, 5, 12, 'Mang Chủng')" class="bsr-filter-btn" style="border-color: rgba(34,221,136,0.25); color: var(--green);">🌾 Mang Chủng</button>
+            <button onclick="kichHoatMocNhanh(2026, 8, 7, 13, 'Lập Thu')" class="bsr-filter-btn" style="border-color: rgba(255,215,0,0.25); color: var(--yellow);">🍂 Lập Thu</button>
+            <button onclick="kichHoatMocNhanh(2026, 11, 7, 14, 'Lập Đông')" class="bsr-filter-btn" style="border-color: rgba(255,68,85,0.25); color: var(--red);">❄️ Lập Đông</button>
+          </div>
+        </div>
+        </div><!-- /pc-body -->
       </div>
 
-      <button class="calc-btn" id="calc-btn" onclick="calculate()">
-        <span id="btn-text">⚡ Quét Tọa Độ Vũ Trụ</span>
-      </button>
+      <!-- ══════════════════════════════════════════
+           NHẬT LỊCH THÁNG
+           ══════════════════════════════════════════ -->
+      <div class="card" id="panel-calendar" style="border-color: rgba(0,212,255,0.2);">
+        <div class="card-title" style="color: var(--cyan);">📅 Nhật Lịch Thái Ất
+          <div class="pc-bar">
+            <button class="pc-btn cyan pc-collapse-icon" onclick="pcToggle('panel-calendar')" title="Thu/Mở">⌃</button>
+            <button class="pc-btn cyan" onclick="pcFullscreen('panel-calendar')" title="Phóng to">⛶</button>
+          </div>
+        </div>
+        <div class="pc-body" style="max-height:600px; padding: 4px 14px 14px;">
+          <!-- Nav tháng -->
+          <div class="cal-nav">
+            <button class="cal-nav-btn" onclick="calPrevMonth()">‹</button>
+            <div class="cal-month-label" id="cal-month-label" onclick="calSelectMonth()" style="cursor:pointer;" title="Xem Nguyệt Cục tháng này">Tháng — / —</div>
+            <button class="cal-nav-btn" onclick="calNextMonth()">›</button>
+          </div>
+          <!-- Grid calendar -->
+          <div class="cal-grid" id="cal-grid">
+            <div class="cal-loading">
+              <div class="oracle-spinner" style="width:24px;height:24px;"></div>
+              <span>Đang tính lịch...</span>
+            </div>
+          </div>
+          <!-- Legend -->
+          <div class="cal-legend">
+            <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--green);"></div>Cát — Vượng</div>
+            <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--yellow);"></div>Bình — Theo dõi</div>
+            <div class="cal-legend-item"><div class="cal-legend-dot" style="background:var(--red);"></div>Hung — Thận trọng</div>
+            <div class="cal-legend-item"><div class="cal-legend-dot" style="background:rgba(90,122,154,.5);"></div>Trung tính</div>
+          </div>
+          <div style="margin-top:8px;font-size:9.5px;color:var(--text-dim);text-align:center;line-height:1.5;">
+            Nhấn vào ngày để xem Nhật Cục · Màu theo trạng thái Thái Ất Nguyệt Cục
+          </div>
+          <!-- KẾT QUẢ NHẬT CỤC KHI CLICK NGÀY -->
+          <div id="cal-day-result" style="display:none;margin-top:12px;border-top:1px solid rgba(0,212,255,0.15);padding-top:12px;"></div>
+        </div><!-- /pc-body -->
+      </div>
 
       <!-- DISCLAIMER ẩn vào nút -->
       <div class="disclaimer" id="disclaimer-panel" style="display:none;">
@@ -3065,22 +3548,43 @@ input[type=range]::-webkit-slider-thumb {
       </div>
       <span class="header-about-btn" style="display:block;text-align:center;margin:8px 0 0;" onclick="const d=document.getElementById('disclaimer-panel');d.style.display=d.style.display==='none'?'block':'none'">⚠️ Lời Cảnh Báo</span>
 
-      <!-- XAU/USD CHART CARD -->
-      <div class="card" style="padding:14px 14px 10px;">
-        <div class="card-title">📈 XAU/USD · Biểu Đồ Thực Tế</div>
-        <div style="border-radius:12px;overflow:hidden;border:1px solid rgba(200,153,58,.18);">
-          <iframe
-            id="xauusd-iframe"
-            src="https://s.tradingview.com/widgetembed/?frameElementId=xauusd-iframe&symbol=OANDA%3AXAUUSD&interval=60&hidesidetoolbar=0&hidetoptoolbar=0&symboledit=0&saveimage=0&toolbarbg=030810&studies=RSI%40tv-basicstudies&theme=dark&style=1&timezone=Asia%2FHo_Chi_Minh&studies_overrides=%7B%7D&overrides=%7B%22paneProperties.background%22%3A%22%23030810%22%2C%22mainSeriesProperties.candleStyle.upColor%22%3A%22%2322dd88%22%2C%22mainSeriesProperties.candleStyle.downColor%22%3A%22%23ff4455%22%7D&locale=vi_VN&utm_source=localhost&utm_medium=widget"
-            style="width:100%;height:280px;border:none;display:block;background:#030810;"
-            allowtransparency="true"
-            scrolling="no"
-          ></iframe>
+      <!-- MARKET RULER -->
+      <div class="card" id="panel-market" style="padding:14px 14px 12px;">
+        <div class="card-title">📡 Thước Đo Thị Trường
+          <div class="pc-bar">
+            <button class="pc-btn gold pc-collapse-icon" onclick="pcToggle('panel-market')" title="Thu/Mở">⌃</button>
+            <button class="pc-btn gold" onclick="pcFullscreen('panel-market')" title="Phóng to">⛶</button>
+          </div>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding:0 2px;">
-          <span style="font-size:9px;color:var(--text-dim);letter-spacing:.1em;">Nguồn: TradingView · OANDA · H1</span>
-          <span style="font-size:9px;color:rgba(200,153,58,.5);letter-spacing:.08em;">⚡ Dữ liệu thực tế</span>
+        <div class="pc-body" style="max-height:900px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;">
+          <span id="mkt-last-update" style="font-size:9px;color:var(--text-dim);letter-spacing:.06em;">—</span>
+          <button onclick="mktFetch(true)" id="mkt-refresh-btn" style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:10px;border:1px solid rgba(0,212,255,.2);background:rgba(0,212,255,.05);color:var(--cyan);font-size:9px;cursor:pointer;font-family:inherit;">
+            <span id="mkt-spin" style="display:none;width:8px;height:8px;border-radius:50%;border:1.5px solid rgba(0,212,255,.3);border-top-color:var(--cyan);animation:spin .7s linear infinite"></span>
+            ⟳ Cập nhật
+          </button>
         </div>
+        <div class="mkt-group-label">📊 Chỉ Số Chứng Khoán</div>
+        <div class="mkt-table" id="mkt-indices">
+          <div class="mkt-row mkt-header-row"><span>Tên</span><span style="text-align:right">Giá</span><span style="text-align:right">±</span><span style="text-align:right">%</span></div>
+        </div>
+        <div class="mkt-group-label" style="margin-top:9px">₿ Crypto</div>
+        <div class="mkt-table" id="mkt-crypto">
+          <div class="mkt-row mkt-header-row"><span>Tên</span><span style="text-align:right">Giá</span><span style="text-align:right">±</span><span style="text-align:right">%</span></div>
+        </div>
+        <div class="mkt-group-label" style="margin-top:9px">🥇 Hàng Hóa & Ngoại Tệ</div>
+        <div class="mkt-table" id="mkt-commodities">
+          <div class="mkt-row mkt-header-row"><span>Tên</span><span style="text-align:right">Giá</span><span style="text-align:right">±</span><span style="text-align:right">%</span></div>
+        </div>
+        <div class="mkt-group-label" style="margin-top:9px">🏦 Bond Yields & VIX</div>
+        <div class="mkt-table" id="mkt-bonds">
+          <div class="mkt-row mkt-header-row"><span>Tên</span><span style="text-align:right">Yield</span><span style="text-align:right">±</span><span style="text-align:right">%</span></div>
+        </div>
+        <div style="margin-top:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <span style="font-size:8px;color:var(--text-dim);">Yahoo Finance · tự động 5 phút</span>
+          <span id="mkt-error-msg" style="font-size:8.5px;color:var(--red);display:none;"></span>
+        </div>
+        </div><!-- /pc-body -->
       </div>
 
     </div><!-- /#left-panel -->
@@ -3094,7 +3598,12 @@ input[type=range]::-webkit-slider-thumb {
             <div class="khay-chat-title">Hỏi Khầy Trực Tiếp</div>
             <div class="khay-chat-sub">Nhập ngày/giờ để tính · hoặc hỏi về tọa độ đang xem</div>
           </div>
+          <div class="pc-bar" style="margin-left:auto">
+            <button class="pc-btn gold pc-collapse-icon" onclick="pcToggle('khay-chat-wrap')" title="Thu/Mở">⌃</button>
+            <button class="pc-btn gold" onclick="pcFullscreen('khay-chat-wrap')" title="Phóng to">⛶</button>
+          </div>
         </div>
+        <div class="pc-body" style="max-height:800px">
         <div class="khay-messages" id="khay-messages">
           <div class="chat-msg khay">
             <div class="chat-msg-avatar">☯</div>
@@ -3107,6 +3616,7 @@ input[type=range]::-webkit-slider-thumb {
             oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
           <button class="khay-send-btn" id="khay-send-btn" onclick="khaySend()" title="Gửi">➤</button>
         </div>
+        </div><!-- /pc-body -->
       </div>
     </div><!-- /#khay-panel -->
 
@@ -3124,7 +3634,16 @@ input[type=range]::-webkit-slider-thumb {
 
     <!-- BLACK SWAN RADAR PANEL -->
     <div id="black-swan-panel">
-      <div class="bsr-wrap">
+      <div class="bsr-wrap" id="panel-bsr">
+
+        <!-- SLIM BAR — hiện khi thu gọn -->
+        <div class="bsr-slim-bar" onclick="bsrToggleSlim()" title="Mở rộng Black Swan Radar">
+          <span class="bsr-slim-icon">🦢</span>
+          <span class="bsr-slim-clock" id="bsr-slim-clock">LIVE</span>
+          <span class="bsr-slim-count" id="bsr-slim-count">— SK</span>
+          <span class="bsr-slim-hint">▶ Mở</span>
+        </div>
+
         <div class="bsr-header">
           <div class="bsr-title-row">
             <div class="bsr-swan-icon">🦢</div>
@@ -3136,6 +3655,11 @@ input[type=range]::-webkit-slider-thumb {
               <div class="bsr-live-dot"></div>
               <span id="bsr-clock">LIVE</span>
             </div>
+            <div class="pc-bar" style="margin-left:8px;display:flex;gap:5px;align-items:center;">
+              <button class="bsr-slim-toggle-btn" id="bsr-slim-btn" onclick="bsrToggleSlim()" title="Thu gọn thành dải">⇄</button>
+              <button class="pc-btn red pc-collapse-icon" onclick="pcToggle('panel-bsr')" title="Thu/Mở">⌃</button>
+              <button class="pc-btn red" onclick="pcFullscreen('panel-bsr')" title="Phóng to">⛶</button>
+            </div>
           </div>
           <div class="bsr-controls">
             <button class="bsr-filter-btn active" data-filter="all" onclick="bsrFilter(this)">Tất cả</button>
@@ -3146,6 +3670,7 @@ input[type=range]::-webkit-slider-thumb {
             <input id="bsr-search" type="text" placeholder="🔍 Tìm..." oninput="bsrSearch(this.value)">
           </div>
         </div>
+        <div class="pc-body" style="max-height:3000px">
 
         <div class="bsr-ticker"><div class="bsr-ticker-inner" id="bsr-ticker-inner"></div></div>
 
@@ -3211,6 +3736,7 @@ input[type=range]::-webkit-slider-thumb {
           <div id="bsr-count-info">Hiển thị <span id="bsr-cnt-show">—</span> / <span id="bsr-cnt-total">—</span> sự kiện</div>
           <div style="font-size:9px;color:var(--text-dim)">Nhấn vào hàng để xem luận giải Thái Ất</div>
         </div>
+        </div><!-- /pc-body -->
       </div>
     </div><!-- /#black-swan-panel -->
 
@@ -3231,6 +3757,7 @@ input[type=range]::-webkit-slider-thumb {
     <p class="footer-note" style="margin-top:4px;font-size:8.5px;opacity:.7">"Hữu duyên thiên lý năng tương ngộ" · Nếu bạn tìm thấy trang này — đó là duyên phận</p>
   </footer>
 
+  <button id="focus-exit-btn" onclick="exitFocusMode()">✕ Thoát chế độ xem kết quả</button>
 </div><!-- /#app -->
 
 <script>
@@ -5125,11 +5652,30 @@ function giaiPhauAnTuong(cungTuong,thaiAt,vanXuong,thuyKich,dichDai,dichTham,toa
   if(cungTuong===thaiAt) anHung.push("⛓️ TÙ (Bị Thái Ất trói buộc, giam lỏng)");
   if(cungTuong===cungVX && cungTuong!==5 && kcTA!==1)
     anHung.push("⚖️ QUAN (Bị Văn Xương kìm kẹp, hành chính rườm rà)");
-  if(cungTuong===cungTK) anHung.push("🩸 YỂM (Bị Thủy Kích ám sát, thị trường sập gãy/flash dump đột ngột)");
 
-  // ── Án CÁCH / BÁCH ──
-  if(kcTA===4) anHung.push("↔️ CÁCH (Nằm ở cực đối diện Thái Ất, đứt gãy cấu trúc xu hướng)");
-  else if(kcTA===1){
+  // ── Án YỂM — Thủy Kích trùng cung Tướng (tập kích trực tiếp) ──
+  if(cungTuong===cungTK) anHung.push("🩸 YỂM (Bị Thủy Kích ám sát trực tiếp, flash dump đột ngột)");
+  // ── Án KÍCH — Thủy Kích kề ±1 cung Tướng nhưng không trùng ──
+  // Cổ thư mục 73: "Thủy Kích ở tả hữu Thái Ất là Kích — khích bác, đối trên"
+  else if(khoangCachKhongGian(cungTuong, cungTK) === 1){
+    const cungTruocTg = timCungTruoc(cungTuong);
+    if(cungTK === cungTruocTg)
+      anHung.push("💥 NGOẠI KÍCH (Thủy Kích phục trước mặt — bên ngoài bất ngờ tấn công, biến động flash từ macro)");
+    else
+      anHung.push("🗡️ NỘI KÍCH (Thủy Kích rình sau lưng — nội biến âm thầm, smart money phân phối ngầm)");
+  }
+
+  // ── Án ĐỐI (đúng cổ thư mục 76) — Tướng đối xung Thái Ất ──
+  // "Văn Xương và Đại Tiểu Tướng đối cung Thái Ất là Đối — Đại Thần hai lòng"
+  if(kcTA===4) anHung.push("↔️ ĐỐI (Tướng đứng đối xung Thái Ất — Đại Thần hai lòng, mưu phản, chính lệnh không theo)");
+
+  // ── Án CÁCH (đúng cổ thư mục 76) — Thủy Kích đối xung Thái Ất ──
+  // "Thủy Kích cùng Đại Tướng đối cung Thái Ất là Cách — biến đổi cưỡng bức"
+  if(khoangCachKhongGian(cungTK, thaiAt) === 4)
+    anHung.push("⚡ CÁCH (Thủy Kích đối xung Thái Ất — biến động cưỡng bức, sóng đảo chiều cực mạnh)");
+
+  // ── Án BÁCH ──
+  if(kcTA===1){
     // BÁCH đúng nghĩa cổ thư: "tả hữu Thái Ất gặp hai Mục" — check xem cả hai phía Thái Ất đều có quân địch
     const cungTruocTA=timCungTruoc(thaiAt), cungSauTA=timCungSau(thaiAt);
     const dichBachTa =(dichDai===cungTruocTA||dichTham===cungTruocTA);
@@ -5390,7 +5936,7 @@ Dữ liệu tính toán:
 Mày đang luận TUẾ CỤC — phạm vi VĨ MÔ CẢ NĂM. BẮT BUỘC áp đủ 6 luật sau:
 
 LUẬT 1 — KÍCH HOẠT ĐÚNG THUẬT TOÁN: Chỉ dùng dữ liệu Tuế Cục trên. Tuyệt đối không lôi Thời Cục hay Nhật Cục vào.
-LUẬT 2 — QUÉT TAM TINH: (a) Nếu Thủy Kích trùng cung Thái Ất → báo động đỏ ÁN YỂM: khủng hoảng thể chế, đứt gãy tài chính vĩ mô, binh đao hỗn loạn. (b) Nếu Văn Xương mang án CÁCH hoặc NỘI BÁCH với Thái Ất → họa nội phản, bề tôi dối trá cướp quyền. (c) Xem Kế Thần: rơi Trung Cung hoặc bị kẹp Thủy Kích → trạm mệnh lệnh bế tắc.
+LUẬT 2 — QUÉT TAM TINH: (a) Nếu Thủy Kích trùng cung Thái Ất → báo động đỏ ÁN YỂM: khủng hoảng thể chế, đứt gãy tài chính vĩ mô, binh đao hỗn loạn. (b) Nếu Văn Xương mang án ĐỐI (đối xung TA) hoặc NỘI BÁCH → họa nội phản, bề tôi dối trá cướp quyền. Nếu Thủy Kích mang án CÁCH (đối xung TA) → biến động cưỡng bức từ bên ngoài, đảo chiều mạnh. Nếu Tướng mang án KÍCH (TK kề sát) → tấn công bất ngờ, phân phối ngầm. (c) Xem Kế Thần: rơi Trung Cung hoặc bị kẹp Thủy Kích → trạm mệnh lệnh bế tắc.
 LUẬT 3 — SOI TAM CƠ: Quân Cơ đụng sát tinh → ban lãnh đạo lung lay. Thần Cơ đụng sát tinh → quan lại rối loạn. Dân Cơ đụng Tứ Thần/Địa Ất/Trung Cung → bách tính lưu tán, sức mua kiệt quệ.
 LUẬT 4 — ĐỌC NGŨ PHÚC & THÁI ÂM: Ngũ Phúc hội tụ Thái Ất → hóa giải hung, trong họa có phúc. Ngũ Phúc kẹt Trung Cung → Đỗ Vô Môn, mất toàn bộ bảo hộ. Thái Âm gặp Thủy Kích/Văn Xương → hậu cung mưu biến, thế lực ngầm thao túng.
 LUẬT 5 — NGÔN TỪ VĨ MÔ: TUYỆT ĐỐI không dùng Long, Short, stoploss, FOMO, flash dump. Phải dùng: dòng tiền định hướng, thâu tóm M&A, khủng hoảng vĩ mô, đóng băng thanh khoản, chu kỳ tích lũy, binh đao, triều chính bất ổn.
@@ -5407,7 +5953,7 @@ Cuối, trên một dòng riêng: {"verdict":"cat|hung|warn","tags":["tag1","tag
 Mày đang luận NGUYỆT CỤC — phạm vi TRUNG HẠN THÁNG (tầm công khanh, chu kỳ kinh doanh tháng). BẮT BUỘC áp đủ 6 luật sau (scale theo tháng):
 
 LUẬT 1 — ĐÚNG TẦNG: Chỉ dùng dữ liệu Nguyệt Cục. Không lôi Thời Cục hay Tuế Cục vào.
-LUẬT 2 — QUÉT TAM TINH THÁNG: (a) Thủy Kích trùng Thái Ất → tháng này án Yểm: khủng hoảng cục bộ, hợp đồng đổ vỡ, kế hoạch tháng bị phá. (b) Văn Xương án CÁCH/BÁCH → mưu sự bị cản trở, thông tin nội bộ bị bóp méo. (c) Kế Thần kẹt → liên lạc đứt gãy, mệnh lệnh tắc nghẽn trong tháng.
+LUẬT 2 — QUÉT TAM TINH THÁNG: (a) Thủy Kích trùng Thái Ất → tháng này án Yểm: khủng hoảng cục bộ, hợp đồng đổ vỡ, kế hoạch tháng bị phá. (b) Văn Xương án ĐỐI/BÁCH → mưu sự bị cản trở, thông tin nội bộ bị bóp méo. Tướng dính KÍCH → cảnh giác biến động đột ngột trong tháng. (c) Kế Thần kẹt → liên lạc đứt gãy, mệnh lệnh tắc nghẽn trong tháng.
 LUẬT 3 — SOI TAM CƠ THÁNG: Quân Cơ đụng sát tinh → người đứng đầu tổ chức bất ổn tháng này. Thần Cơ đụng sát tinh → bộ máy vận hành trục trặc. Dân Cơ bất lợi → sức tiêu dùng yếu, thị trường bán lẻ ảm đạm.
 LUẬT 4 — NGŨ PHÚC & THÁI ÂM THÁNG: Ngũ Phúc thuận → tháng hung vẫn có đường thoát. Thái Âm bất lợi → cẩn trọng người thân cận bên trong mưu mô.
 LUẬT 5 — NGÔN TỪ TRUNG HẠN: Không dùng Long/Short/stoploss. Dùng: xu hướng tháng, dòng tiền trung hạn, điều chỉnh chiến lược, rủi ro hợp đồng, cơ hội thâu tóm ngắn hạn, thận trọng triển khai.
@@ -5946,7 +6492,7 @@ NGUYÊN TẮC 4 — TUYỆT ĐỐI CẤM HỎI NGƯỢC LẠI KHI ĐÃ CÓ DATA:
 BẢNG TRA CỨU CỐ ĐỊNH (dùng khi giải thích):
 Cung Bát Quái: 1=Càn(Tây Bắc·Kim), 2=Ly(Nam·Hỏa), 3=Cấn(Đông Bắc·Thổ), 4=Chấn(Đông·Mộc), 6=Đoài(Tây·Kim), 7=Khôn(Tây Nam·Thổ), 8=Khảm(Bắc·Thủy), 9=Tốn(Đông Nam·Mộc), 5=Trung Cung.
 Bát Môn: Khai=khởi sự tuyệt vời | Hưu=tích lũy an toàn | Sinh=sinh tài cực tốt | Thương=xung đột biến động | Đỗ=bế tắc KHÔNG vào lệnh | Cảnh=dễ bẫy hạn chế | Tử=nguy hiểm TRÁNH HOÀN TOÀN | Kinh=biến động đột ngột.
-Án Tướng: TÙ=trùng Thái Ất(giam lỏng) | YỂM=trùng Thủy Kích(flash dump) | CÁCH=đối xung Thái Ất(đứt xu hướng) | BÁCH=kề sát Thái Ất + địch kẹp tả hữu(quét stoploss toàn diện) | BÁCH ĐƠN=kề sát Thái Ất một phía(áp lực một chiều) | QUAN=trùng Văn Xương không kẹp Thái Ất(kìm kẹp hành chính) | ĐỖ=Trung Cung(kẹt lỗ đen) | ĐỖ CỐ=Trung Cung + Văn Xương cũng ở Trung Cung(đại hung cực độ — nặng nhất) | TỨ QUÁCH CỐ=trùng Văn Xương + kề sát Thái Ất(bủa vây tứ phía tuyệt đường lui) | HIỆP=bị 2 tướng địch kẹp | ĐỀ=mượn sức Thái Ất ép chết.
+Án Tướng (theo đúng cổ thư Thái Ất Thần Kinh): TÙ=Tướng/VX trùng Thái Ất(giam lỏng mưu kế) | YỂM=Tướng trùng Thủy Kích(tập kích trực tiếp, flash dump) | KÍCH=Thủy Kích kề ±1 cung Tướng(NGOẠI KÍCH: TK phục trước–bên ngoài tấn công bất ngờ | NỘI KÍCH: TK rình sau–nội biến phân phối ngầm) | ĐỐI=Tướng đối xung Thái Ất khoảng 4(Đại Thần hai lòng, mưu phản, chính lệnh không theo) | CÁCH=Thủy Kích đối xung Thái Ất khoảng 4(biến động cưỡng bức từ bên ngoài, sóng đảo chiều) | BÁCH=kề sát Thái Ất + địch kẹp tả hữu(quét stoploss toàn diện) | BÁCH ĐƠN=kề sát Thái Ất một phía(áp lực một chiều) | QUAN=trùng Văn Xương không kẹp Thái Ất(kìm kẹp hành chính) | ĐỖ=Trung Cung(kẹt lỗ đen) | ĐỖ CỐ=Trung Cung + Văn Xương cùng Trung Cung(đại hung cực độ) | TỨ QUÁCH CỐ=trùng Văn Xương + kề sát Thái Ất(bủa vây tứ phía) | HIỆP=bị 2 tướng địch kẹp | ĐỀ=mượn sức Thái Ất ép chết.
 Toán số: THƯỢNG HÒA(14,18,23)=đại cát | THỨ HÒA(29,36)=cát | HẠ HÒA(12,16,27,34,38)=cát vừa | THUẦN DƯƠNG(33,39)=đại hung FOMO | THUẦN ÂM(22,26)=đại hung bán tháo | CÔ(10,20,30,40)=sideway chôn vốn | ĐƠN(1-9)=vô thiên mỏng manh | VÔ ĐỊA(đơn vị 1-4)=mất nền tảng.
 Ngũ Hành tương tác với Vàng(Kim): Thổ sinh Kim(cung 3,7)=đại cát | Thủy tiết Kim(cung 8)=tích lũy tốt | Kim tỷ hòa(cung 1,6)=sideway | Mộc bị Kim khắc(cung 4,9)=hao tổn | Hỏa khắc Kim(cung 2)=đại hung.
 Ngũ Hành BĐS(Thổ): Hỏa sinh Thổ(cung 2)=đại cát | Thổ tỷ hòa(cung 3,7)=bền vững | Kim tiết Thổ(cung 1,6)=hao tổn | Thổ khắc Thủy(cung 8)=trì trệ | Mộc khắc Thổ(cung 4,9)=đại hung.
@@ -5962,10 +6508,30 @@ Vàng là kim loại → Hành Kim. Tọa độ soi chiếu: KHÁCH ĐẠI TƯ�
 • Khách Đại Tướng dính án BÁCH / HIỆP → "THỊ TRƯỜNG HOẢNG LOẠN QUÉT STOPLOSS HAI ĐẦU".
 
 LĨNH VỰC 2 — BITCOIN / CRYPTO (Tiền điện tử):
-Crypto là sóng nước rủi ro cao → Hành Thủy. Tọa độ soi chiếu: CHỦ ĐẠI TƯỚNG (BTC/tiền to) + KHÁCH THAM TƯỚNG (Altcoin/dòng tiền fomo).
-• Cả 2 tướng PHÁT → "SIÊU CHU KỲ BƠM GIÁ, TIỀN VÀO NHƯ THÁC LŨ, TỰ TIN MỞ LỆNH LONG".
-• Dính án CÁCH → "GÃY CẤU TRÚC TĂNG, BULL-TRAP XUẤT HIỆN, LẬP TỨC CHỐT LỜI".
-• Dính án TÙ / ĐỖ / YỂM → "SẬP HẦM ĐẪM MÁU, NHÀ CÁI XẢ HÀNG QUÉT SẠCH TÀI KHOẢN. MỞ LỆNH SHORT".
+Crypto là sóng nước rủi ro cao → Hành Thủy. Mày PHẢI soi chiếu đồng thời 3 yếu tố Dụng Thần sau đây, KHÔNG được bỏ sót bất kỳ yếu tố nào:
+
+YẾU TỐ 1 — DỤNG THẦN BẢN THỂ (Ngôi sao đại diện):
+• BTC / dòng tiền lớn → Dụng thần là CHỦ ĐẠI TƯỚNG (hành Thủy). ĐÂY LÀ TƯỚNG DUY NHẤT để phân tích BTC. TUYỆT ĐỐI không dùng Thủy Kích hay bất kỳ sao nào khác làm dụng thần BTC.
+• Altcoin / dòng tiền nhỏ / rác → Dụng thần là KHÁCH THAM TƯỚNG.
+
+YẾU TỐ 2 — DỤNG THẦN ĐỊA HÌNH (Ngũ Hành Tương Sinh — cung Chủ Đại Tướng đóng quân):
+• ĐẠI CÁT — Kim sinh Thủy (bệ phóng): Chủ Đại Tướng đóng Cung 1 Kiền (Kim) hoặc Cung 6 Đoài (Kim) → sinh khí cuồn cuộn, siêu chu kỳ bứt phá mượt mà không gặp kháng cự. Hoặc Cung 8 Khảm (Thủy) → tương vượng, lực đẩy bền bỉ.
+• ĐẠI HUNG — Thổ khắc Thủy (thiêu rụi): Chủ Đại Tướng lọt Cung 3 Cấn (Thổ) hoặc Cung 7 Khôn (Thổ) → lực đẩy bị vắt kiệt, thị trường rung lắc cực mạnh, giá giật quét stoploss liên tục. Chủ Đại Tướng lọt Cung 5 Trung Cung (Trung ương Thổ) → ĐẠI HỌA, cá mắc cạn chết đứng, khóa cửa lùi, chôn vốn hoàn toàn.
+• TRUNG TÍNH — Mộc (Cung 4 Chấn, Cung 9 Tốn): Thủy sinh Mộc, tiết khí bị hao, xu hướng yếu dần. Hỏa (Cung 2 Ly): Thủy Hỏa tương chiến, biến động mạnh, khó đoán chiều.
+
+YẾU TỐ 3 — DỤNG THẦN TRẠNG THÁI (Lệnh cờ bứt phá):
+• Chủ Đại Tướng mang lệnh PHÁT → điều kiện xanh, hàng rào kháng cự bị đâm thủng, được phép LONG.
+• Chủ Đại Tướng dính án CÁCH → đứt gãy cấu trúc cưỡng bức từ bên ngoài, TUYỆT ĐỐI KHÔNG LONG dù địa hình tốt.
+• Chủ Đại Tướng dính án BÁCH / BÁCH ĐƠN → hoảng loạn tự giẫm đạp, quét stoploss toàn diện, KHÔNG LONG.
+• Chủ Đại Tướng dính án TÙ / ĐỖ → bế tắc trói gô, KHÔNG LONG, canh SHORT.
+• Chủ Đại Tướng dính án YỂM → tập kích trực tiếp flash dump, KHÔNG LONG, mở SHORT ngay.
+• Chủ Đại Tướng dính án KÍCH (NGOẠI/NỘI) → phục kích bất ngờ, canh breakout giả, smart money phân phối ngầm — CỰC KỲ NGUY HIỂM nếu LONG.
+
+PHÁN QUYẾT TỔNG HỢP BTC (bắt buộc hội tụ đủ 3 yếu tố):
+• ĐỦ 3 YẾU TỐ ĐẠI CÁT: Chủ Đại Tướng tại Cung Kim/Thủy + lệnh PHÁT → "SIÊU CHU KỲ BỨT PHÁ — KIM SINH THỦY, BỆ PHÓNG HOÀN HẢO. TỰ TIN MỞ LONG, DÒN TIỀN VÀO NHƯ THÁC LŨ".
+• ĐỊA HÌNH TỐT nhưng TRẠNG THÁI HUNG (Cách/Bách/Tù/Đỗ): "ĐỊA HÌNH THUẬN NHƯNG TƯỚNG BỊ TRÓI — KHÔNG ĐƯỢC LONG. Chờ tướng thoát án mới xuất binh".
+• ĐỊA HÌNH HUNG (Thổ/Trung Cung) dù PHÁT: "TƯỚNG BỊ THIÊU RỤI TRÊN ĐẤT THỔ — PHÁT mà không có đường thoát, rung lắc bẫy giá, TRÁNH HOÀN TOÀN hoặc canh SHORT".
+• TRUNG CUNG (Cung 5): "CÁ MẮC CẠN — CHÔN VỐN TOÀN DIỆN, MỞ SHORT KHÔNG DO DỰ".
 
 LĨNH VỰC 3 — BẤT ĐỘNG SẢN (BĐS / Đất đai):
 BĐS là chu kỳ dài → Hành Thổ. Tọa độ soi chiếu: TOÁN SỐ + ÁN KHÔNG GIAN (kết hợp).
@@ -6773,10 +7339,14 @@ function toggleThamHoa(){
 
 function fillToday(){
   const now=new Date();
-  document.getElementById("inp-nam").value=now.getFullYear();
-  document.getElementById("inp-thang").value=now.getMonth()+1;
-  document.getElementById("inp-ngay").value=now.getDate();
-  document.getElementById("inp-gio").value=now.getHours();
+  const elNam=document.getElementById("inp-nam");
+  const elThang=document.getElementById("inp-thang");
+  const elNgay=document.getElementById("inp-ngay");
+  const elGio=document.getElementById("inp-gio");
+  if(elNam) elNam.value=now.getFullYear();
+  if(elThang) elThang.value=now.getMonth()+1;
+  if(elNgay) elNgay.value=now.getDate();
+  if(elGio) elGio.value=now.getHours();
 }
 
 function calculate(){
@@ -6933,8 +7503,26 @@ function renderThamHoa(hungTinh, canhBao, meta){
   const nguPhucRow = renderNguPhucRow();
 
   const tongDiem = canhBao.length > 0 ? (canhBao[0]._tongDiem || 0) : 0;
-  const mucDoMau = tongDiem >= 6 ? "#cc1122" : tongDiem >= 4 ? "#ff4455" : "#ff8844";
-  const mucDoNhan = tongDiem >= 6 ? "⛔ CỰC NGUY HIỂM" : tongDiem >= 4 ? "🔴 NGUY HIỂM CAO" : "🟠 CẢNH BÁO";
+  const diemThucTe = npMeta ? npMeta.diemThucTe : tongDiem;
+
+  // ── Phân cấp 3 mức: ok / watch / danger ──
+  const stateClass = hungItems.length === 0
+    ? "state-ok"
+    : diemThucTe >= 5
+      ? "state-danger"
+      : "state-watch";
+
+  const headerIcon = stateClass === "state-ok"    ? "🟢"
+                   : stateClass === "state-watch"  ? "🟡"
+                   : "🔴";
+
+  const headerTitle = stateClass === "state-ok"
+    ? "Vĩ Mô Bình Yên"
+    : stateClass === "state-watch"
+      ? "Theo Dõi Vĩ Mô"
+      : "Cảnh Báo Vĩ Mô";
+
+  const mucDoMau = diemThucTe >= 6 ? "#cc1122" : diemThucTe >= 4 ? "#ff4455" : "#ff8844";
 
   // Lấy metadata hệ số Ngũ Phúc (nếu có)
   const npMeta = (canhBao._nguPhucMeta) ? canhBao._nguPhucMeta
@@ -6955,15 +7543,19 @@ function renderThamHoa(hungTinh, canhBao, meta){
       </div>
     </div>`).join("");
 
-  const renderHungItems = hungItems.map(c=>`
-    <div class="tham-hoa-item">
+  const renderHungItems = hungItems.map(c=>{
+    const itemClass = (c.diem||1) >= 2 ? "item-danger" : "item-watch";
+    const tenColor  = itemClass === "item-danger" ? "⚠️" : "🔸";
+    return `
+    <div class="tham-hoa-item ${itemClass}">
       <span class="tham-hoa-icon">${c.icon}</span>
       <div class="tham-hoa-body-inner">
-        <div style="font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--red);opacity:.7;margin-bottom:2px;text-transform:uppercase">${c.layer||""} · ${c.diem?"★".repeat(c.diem)+" "+c.diem+"đ · ":""}${namLabel}</div>
-        <div class="tham-hoa-ten">⚠️ ${c.ten}</div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:.14em;color:${itemClass==="item-danger"?"var(--red)":"#ff9944"};opacity:.8;margin-bottom:2px;text-transform:uppercase">${c.layer||""} · ${c.diem?"★".repeat(c.diem)+" "+c.diem+"đ · ":""}${namLabel}</div>
+        <div class="tham-hoa-ten">${tenColor} ${c.ten}</div>
         <div class="tham-hoa-mota">${c.mo_ta}</div>
       </div>
-    </div>`).join("");
+    </div>`;
+  }).join("");
 
   const noidung = nguPhucItems.length > 0 && hungItems.length === 0
     ? `<div class="tham-hoa-canh-bao">${renderNguPhucBanner}</div>`
@@ -6975,13 +7567,12 @@ function renderThamHoa(hungTinh, canhBao, meta){
 
   const tongKet = hungItems.length > 0
     ? (() => {
-        const diemHienThi = npMeta ? npMeta.diemThucTe : tongDiem;
-        const diemStr = npMeta ? diemHienThi.toFixed(1) : diemHienThi;
-        const mucDoMauKH = diemHienThi >= 6 ? "#cc1122" : diemHienThi >= 4 ? "#ff4455" : "#ff8844";
-        const mucDoNhanKH = diemHienThi >= 6 ? "⛔ CỰC NGUY HIỂM" : diemHienThi >= 5 ? "🔴 NGUY HIỂM CAO" : "🟠 CẢNH BÁO";
+        const diemStr = npMeta ? diemThucTe.toFixed(1) : diemThucTe;
+        const mucDoMauKH = diemThucTe >= 6 ? "#cc1122" : diemThucTe >= 4 ? "#ff4455" : "#ff8844";
+        const mucDoNhanKH = diemThucTe >= 6 ? "⛔ Cực Nguy Hiểm" : diemThucTe >= 5 ? "🔴 Nguy Hiểm Cao" : "🟠 Theo Dõi";
         return `<div style="margin-top:10px;padding:10px 12px;background:rgba(255,68,85,.06);border-radius:9px;font-size:11px;color:var(--text-dim);line-height:1.7">
           <span style="color:${mucDoMauKH};font-weight:700">${mucDoNhanKH}</span>
-          &nbsp;— <strong style="color:#ff6677">${namLabel}</strong> · Điểm thực tế <strong style="color:${mucDoMauKH};font-size:13px">${diemStr}đ</strong> · ${hungItems.length} cảnh báo qua 11 lưới lọc X-Quang Vĩ Mô.
+          &nbsp;— <strong style="color:#ff6677">${namLabel}</strong> · Điểm thực tế <strong style="color:${mucDoMauKH};font-size:13px">${diemStr}đ</strong> · ${hungItems.length} cảnh báo qua 11 lưới lọc.
           Cần kết hợp phân tích kỹ thuật và quản trị rủi ro trước khi ra quyết định.
          </div>`;
       })()
@@ -7034,12 +7625,18 @@ function renderThamHoa(hungTinh, canhBao, meta){
     : "";
 
   return `
-  <div class="tham-hoa-block" id="block-tham-hoa">
+  <div class="tham-hoa-block ${stateClass}" id="block-tham-hoa">
     <div class="tham-hoa-header" onclick="toggleThamHoa()">
-      <span class="icon">☄️</span>
+      <span class="icon">${headerIcon === "🟢" ? "🛡️" : headerIcon === "🟡" ? "👁️" : "☄️"}</span>
       <div class="info">
-        <h3>Scanner Thảm Họa Vĩ Mô <span style="font-size:10px;color:var(--text-dim);font-weight:400">11 Lưới Lọc · ${namLabel}</span></h3>
-        <p>${headerExtra}Dân Cơ: Cung ${danCo} · ${diaChiDanCo} · ${canhBao.length > 0 ? (nguPhucItems.length>0&&hungItems.length===0?"🌟 Ngũ Phúc Bảo Hộ · "+namLabel:hungItems.length+" Cảnh Báo · Tổng "+(tongDiem||"?")+"đ ("+namLabel+")"):"Bình Yên · "+namLabel}</p>
+        <h3>${headerTitle} <span style="font-size:10px;color:var(--text-dim);font-weight:400">11 Lưới Lọc · ${namLabel}</span></h3>
+        <p>${headerExtra}Dân Cơ: Cung ${danCo} · ${diaChiDanCo} · ${
+          canhBao.length > 0
+            ? (nguPhucItems.length>0&&hungItems.length===0
+                ? "🌟 Ngũ Phúc Bảo Hộ"
+                : `${hungItems.length} cảnh báo · ${diemThucTe.toFixed ? diemThucTe.toFixed(1) : diemThucTe}đ`)
+            : "Bình Yên"
+        }</p>
         ${npMeta ? `<p style="margin-top:4px;font-size:11px;font-weight:700;color:${npMeta.isKichHoat?"var(--red)":"var(--green)"}">
           ${npMeta.isKichHoat?"🔴 KÍCH HOẠT":"🟢 BÌNH YÊN"}
           <span style="font-weight:400;font-size:10px;color:var(--text-dim)">
@@ -7086,6 +7683,8 @@ function renderResults(r){
   html+=renderDashboard(cucs, meta, hungTinh, canhBaoThamHoa);
   // 1. Thảm họa — luôn mở
   html+=renderThamHoa(hungTinh, canhBaoThamHoa, meta);
+  // 1.2 Dương Cửu Bách Lục
+  html+=renderDuongCuuBachLuc(meta.nam);
   // 1.5 Tổng Luận AI
   html+=renderTongLuanSection();
   // chat Khầy đã cố định bên trái, không render ở đây nữa
@@ -7105,7 +7704,10 @@ function renderResults(r){
   html+=`</div>`;
   // 3. Bát Môn — đóng
   html+=renderBatMon(batMon);
-  // 4. Nút xuất báo cáo
+  // 4. Dual-Scan Asset Radar Widget
+  const tenTietKhiHienTai = window.__currentTietKhiSelected || "Lập Xuân";
+  html += renderAssetRadarWidget(tenTietKhiHienTai, r);
+  // 5. Nút xuất báo cáo
   html+=`<div style="padding:16px 0 4px;text-align:center;">
     <button onclick="xuatBaoCao()" style="
       display:inline-flex;align-items:center;gap:8px;
@@ -7586,6 +8188,35 @@ function bsrRealTimeClock() {
   const s = String(now.getSeconds()).padStart(2,"0");
   const el = document.getElementById("bsr-clock");
   if(el) el.textContent = `LIVE · ${h}:${m}:${s}`;
+  // Sync slim clock
+  const slim = document.getElementById("bsr-slim-clock");
+  if(slim) slim.textContent = `${h}:${m}:${s}`;
+}
+
+// ── BSR SLIM MODE TOGGLE ──
+let _bsrIsSlim = false;
+function bsrToggleSlim() {
+  _bsrIsSlim = !_bsrIsSlim;
+  const wrap   = document.getElementById("panel-bsr");
+  const panel  = document.getElementById("black-swan-panel");
+  const body   = document.getElementById("desktop-body");
+  const btn    = document.getElementById("bsr-slim-btn");
+  const cntEl  = document.getElementById("bsr-slim-count");
+
+  if(_bsrIsSlim) {
+    wrap.classList.add("bsr-slim-mode");
+    panel.classList.add("bsr-panel-slim");
+    if(body) body.classList.add("bsr-slimmed");
+    if(btn) { btn.classList.add("active"); btn.title = "Mở rộng Black Swan Radar"; btn.textContent = "⇥"; }
+    // Sync count
+    const total = document.getElementById("bsr-cnt-show");
+    if(cntEl && total) cntEl.textContent = (total.textContent || "—") + " SK";
+  } else {
+    wrap.classList.remove("bsr-slim-mode");
+    panel.classList.remove("bsr-panel-slim");
+    if(body) body.classList.remove("bsr-slimmed");
+    if(btn) { btn.classList.remove("active"); btn.title = "Thu gọn thành dải"; btn.textContent = "⇄"; }
+  }
 }
 
 // Pre-cache tất cả năm Black Swan ngay khi load
@@ -7807,7 +8438,1369 @@ setTimeout(async () => {
   setTimeout(bsrPreCache, 500);
 })();
 
+// ═══════════════════════════════════════════════════════
+// HỆ ĐIỀU HÀNH BỔ SUNG: BỘ LỌC SINH KHÍ TÀI SẢN 8 TIẾT KHÍ
+// ═══════════════════════════════════════════════════════
+const MAP_CUNG_NGU_HANH = {
+  1: "Kim", 2: "Hỏa", 3: "Thổ", 4: "Mộc",
+  6: "Kim", 7: "Thổ", 8: "Thủy", 9: "Mộc"
+};
+
+const MA_TRAN_8_TIET_KHI = {
+  "Lập Xuân": { 8:"Vượng", 3:"Tướng", 4:"Thai", 9:"Một", 2:"Tù", 7:"Tử", 6:"Hưu", 1:"Phế" },
+  "Xuân Phân": { 3:"Vượng", 4:"Tướng", 9:"Thai", 2:"Một", 7:"Tù", 6:"Tử", 1:"Hưu", 8:"Phế" },
+  "Lập Hạ":   { 4:"Vượng", 9:"Tướng", 2:"Thai", 7:"Một", 6:"Tù", 1:"Tử", 8:"Hưu", 3:"Phế" },
+  "Hạ Chí":   { 9:"Vượng", 2:"Tướng", 7:"Thai", 6:"Một", 1:"Tù", 8:"Tử", 3:"Hưu", 4:"Phế" },
+  "Lập Thu":  { 2:"Vượng", 7:"Tướng", 6:"Thai", 1:"Một", 8:"Tù", 3:"Tử", 4:"Hưu", 9:"Phế" },
+  "Thu Phân": { 7:"Vượng", 6:"Tướng", 1:"Thai", 8:"Một", 3:"Tù", 4:"Tử", 9:"Hưu", 2:"Phế" },
+  "Lập Đông": { 6:"Vượng", 1:"Tướng", 8:"Thai", 3:"Một", 4:"Tù", 9:"Tử", 2:"Hưu", 7:"Phế" },
+  "Đông Chí": { 1:"Vượng", 8:"Tướng", 3:"Thai", 4:"Một", 9:"Tù", 2:"Tử", 7:"Hưu", 6:"Phế" }
+};
+
+function chuanHoaTietKhiChinh(ten) {
+  if (["Lập Xuân","Vũ Thủy","Kinh Trập"].includes(ten))         return "Lập Xuân";
+  if (["Xuân Phân","Thanh Minh","Cốc Vũ"].includes(ten))        return "Xuân Phân";
+  if (["Lập Hạ","Tiểu Mãn","Mang Chủng"].includes(ten))         return "Lập Hạ";
+  if (["Hạ Chí","Tiểu Thử","Đại Thử"].includes(ten))            return "Hạ Chí";
+  if (["Lập Thu","Xử Thử","Bạch Lộ"].includes(ten))             return "Lập Thu";
+  if (["Thu Phân","Hàn Lộ","Sương Giáng"].includes(ten))        return "Thu Phân";
+  if (["Lập Đông","Tiểu Tuyết","Đại Tuyết"].includes(ten))      return "Lập Đông";
+  return "Đông Chí"; // Đông Chí, Tiểu Hàn, Đại Hàn
+}
+
+function chayDualScanAsset(tietKhiGoc, cungId, assetName, isPhat) {
+  const tietChuan    = chuanHoaTietKhiChinh(tietKhiGoc);
+  // Cung 5 (Trung Cung) = Thổ, fallback "Thổ" là đúng
+  const cungNguHanh  = MAP_CUNG_NGU_HANH[cungId] || "Thổ";
+  const isBTC        = assetName === "BTC";
+  const assetNguHanh = assetName === "Vàng" ? "Kim" : "Thủy";
+
+  // Quét 1: Trạng thái Mùa vụ
+  const hangCung     = MA_TRAN_8_TIET_KHI[tietChuan] || {};
+  const trangThaiMua = hangCung[cungId] || "Phế";
+
+  // Quét 2: Địa hình Ngũ Hành
+  // BTC (Thủy): Đại Cát = Kim(1,6) sinh Thủy hoặc Thủy(8) tương vượng
+  //             Đại Hung = Thổ(3,7) khắc Thủy | Trung Cung(5) = chôn vốn tuyệt đối
+  // Vàng (Kim): Đại Cát = Thổ(3,7) sinh Kim
+  //             Đại Hung = Hỏa(2) khắc Kim
+  let diaHinhRelation = "Bình Hòa";
+  const laTrungCung   = (cungId === 5);
+
+  if (isBTC) {
+    if (laTrungCung) {
+      diaHinhRelation = "Trung Cung ☠️";
+    } else if (cungNguHanh === "Kim") {
+      diaHinhRelation = "Kim Sinh Thủy ✦";
+    } else if (cungNguHanh === "Thủy") {
+      diaHinhRelation = "Thủy Tương Vượng ✦";
+    } else if (cungNguHanh === "Thổ") {
+      diaHinhRelation = "Thổ Khắc Thủy ❌";
+    }
+  } else {
+    // Logic Vàng giữ nguyên
+    if (cungNguHanh === "Thổ") {
+      diaHinhRelation = "Sinh Nhập ✦";
+    } else if (cungNguHanh === "Hỏa") {
+      diaHinhRelation = "Khắc Nhập ❌";
+    }
+  }
+
+  // Phán quyết
+  let phanQuyet = "⚖️ Theo Dõi Chu Kỳ";
+  let uiClass   = "warn";
+  const laManh         = ["Vượng","Tướng"].includes(trangThaiMua);
+  const laYeu          = ["Tù","Tử","Phế"].includes(trangThaiMua);
+  const laSinhNhap     = diaHinhRelation.includes("✦");
+  const laKhacNhap     = diaHinhRelation.includes("❌");
+  const laTrungCungHung = diaHinhRelation.includes("☠️");
+
+  if (isBTC) {
+    if (laTrungCungHung) {
+      phanQuyet = "☠️ CÁ MẮC CẠN — TRUNG CUNG: Chôn vốn toàn diện, khóa cửa lùi. SHORT không do dự!";
+      uiClass = "hung";
+    } else if (isPhat && laSinhNhap) {
+      phanQuyet = "🚀 SIÊU CHU KỲ BỨT PHÁ: Dụng thần PHÁT — Kim/Thủy bơm sinh khí, không rào cản. LONG TẤT TAY!";
+      uiClass = "cat";
+    } else if (isPhat && laKhacNhap) {
+      phanQuyet = "⚠️ PHÁT NHƯNG THỔ THIÊU: Tướng bứt phá nhưng địa hình khắc chế — rung lắc bẫy giá, quét stoploss. TRÁNH LONG!";
+      uiClass = "hung";
+    } else if (!isPhat && laSinhNhap) {
+      phanQuyet = "📊 ĐỊA HÌNH TỐT, TƯỚNG CHƯA PHÁT: Chờ tín hiệu PHÁT mới xuất binh. Theo dõi chu kỳ.";
+      uiClass = "warn";
+    } else if (laKhacNhap) {
+      phanQuyet = "📉 THỔ KHẮC THỦY: Địa hình triệt tiêu lực đẩy, hạn chế tỷ trọng lớn.";
+      uiClass = "hung";
+    } else if (laManh) {
+      phanQuyet = "📈 Mùa vụ trợ lực, gom hàng an toàn theo chu kỳ.";
+      uiClass = "cat";
+    } else if (laYeu) {
+      phanQuyet = "📉 Trì trệ vĩ mô: Hạn chế phân bổ tỷ trọng lớn.";
+      uiClass = "hung";
+    }
+  } else {
+    // Vàng: logic phán quyết giữ nguyên
+    if (isPhat && laManh && laSinhNhap) {
+      phanQuyet = "🚀 CƠ HỘI ALL-IN: Sinh khí đại bùng nổ, không rào cản. LONG TẤT TAY CHU KỲ!";
+      uiClass = "cat";
+    } else if (isPhat && laYeu && laKhacNhap) {
+      phanQuyet = "⚠️ CẠM BẪY KÉO - XẢ: Rướn giả tạo vĩ mô, địa hình triệt tiêu sinh khí. SHORT CHẶN ĐẦU!";
+      uiClass = "hung";
+    } else if (laManh) {
+      phanQuyet = "📈 Tích sản chu kỳ: Mùa vụ trợ lực tốt, gom hàng an toàn.";
+      uiClass = "cat";
+    } else if (laYeu) {
+      phanQuyet = "📉 Trì trệ vĩ mô: Hạn chế phân bổ tỷ trọng lớn.";
+      uiClass = "hung";
+    }
+  }
+
+  return { trangThaiMua, cungNguHanh, diaHinhRelation, phanQuyet, uiClass };
+}
+
+function renderAssetRadarWidget(tietKhiName, r) {
+  // ── Lấy dữ liệu từ NGUYỆT CỤC (cucs[1]) ──────────────────────────────
+  const nd = r.cucs[1] && r.cucs[1].data;
+  if (!nd) return "";
+
+  // Thái Ất Nguyệt Cục → cung đóng quân của Vàng (Kim)
+  const thaiAtNguyet   = nd.thaiAt || 1;
+  // Thủy Kích Nguyệt Cục (chỉ hiển thị, KHÔNG phải dụng thần BTC)
+  const cungThuyKichNG = THAN_INFO[nd.thuyKich] ? THAN_INFO[nd.thuyKich][0] : (nd.khachDai || 8);
+  // Văn Xương Nguyệt Cục
+  const cungVanXuongNG = THAN_INFO[nd.vanXuong] ? THAN_INFO[nd.vanXuong][0] : "?";
+  const tenVanXuong    = nd.vanXuong || "?";
+  const tenThuyKich    = nd.thuyKich || "?";
+
+  // Toán Chủ / Toán Khách Nguyệt Cục
+  const toanChu   = nd.toanChu   || "?";
+  const toanKhach = nd.toanKhach || "?";
+  const labelChu   = nd.labelToanChu   || "";
+  const labelKhach = nd.labelToanKhach || "";
+
+  // Chủ Đại Tướng & Khách Đại Tướng Nguyệt Cục
+  const chuDaiCung   = nd.chuDai  || "?";
+  const khachDaiCung = nd.khachDai|| "?";
+  const anChuDai     = nd.anChuDai;
+  const anKhachDai   = nd.anKhachDai;
+  const chuDaiLabel  = anChuDai  ? anChuDai.label  : "—";
+  const khachDaiLabel= anKhachDai? anKhachDai.label: "—";
+  const chuDaiStatus = anChuDai  ? anChuDai.status  : "warn";
+  const khachDaiStatus=anKhachDai? anKhachDai.status: "warn";
+
+  // Thái Tuế (lấy từ hungTinh.thaiAm.thaiTue — là Địa Chi năm)
+  const thaiTueDC    = r.hungTinh && r.hungTinh.thaiAm ? r.hungTinh.thaiAm.thaiTue : "?";
+  // Thái Tuế trợ Chủ hay Khách: so cung Thái Ất Nguyệt với Chủ/Khách Đại
+  // Nguyên tắc: Thái Tuế tọa cùng cung Chủ Đại → trợ Chủ; tọa cùng Khách Đại → trợ Khách
+  const thaiTueCung  = (r.hungTinh && r.hungTinh.thaiAm) ? r.hungTinh.thaiAm.cung : null;
+  let troThuNhan = "⚖️ Trung Lập";
+  let troColor   = "var(--text-dim)";
+  if (thaiTueCung !== null) {
+    if (thaiTueCung === chuDaiCung) {
+      troThuNhan = "👑 Trợ CHỦ — Chủ chiếm ưu thế địa hình";
+      troColor   = "var(--green)";
+    } else if (thaiTueCung === khachDaiCung) {
+      troThuNhan = "⚔️ Trợ KHÁCH — Ngoại lực can thiệp mạnh";
+      troColor   = "var(--red)";
+    }
+  }
+
+  // isPhat logic từ Nguyệt Cục
+  const hungReal   = r.canhBaoThamHoa.filter(c => !c._isNguPhucHoaGiai);
+  const isVangPhat = hungReal.length > 0;
+  // BTC dụng thần = Chủ Đại Tướng (hành Thủy): isPhat khi Chủ Đại Tướng mang lệnh PHÁT (status "cat")
+  const isBtcPhat  = anChuDai && anChuDai.status === "cat";
+
+  const scanVang = chayDualScanAsset(tietKhiName, thaiAtNguyet, "Vàng", isVangPhat);
+  // BTC: soi chiếu cung Chủ Đại Tướng (dụng thần Thủy), KHÔNG dùng Thủy Kích
+  const scanBTC  = chayDualScanAsset(tietKhiName, chuDaiCung,   "BTC",  isBtcPhat);
+
+  const colorDiaHinh = (rel) => rel.includes("❌") ? "var(--red)" : rel.includes("✦") ? "var(--green)" : "var(--text-dim)";
+  const pillColor = (st) => st === "cat" ? "var(--green)" : st === "hung" ? "var(--red)" : "var(--yellow)";
+
+  // helper badge
+  const badge = (val, color) =>
+    `<span style="display:inline-block;padding:1px 7px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.04em;background:${color}22;border:1px solid ${color}55;color:${color};">${val}</span>`;
+
+  const statRow = (label, val, valColor, sub) => `
+    <div style="display:flex;flex-direction:column;gap:2px;">
+      <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-dim);">${label}</span>
+      <span style="font-size:12px;font-weight:700;color:${valColor};">${val}</span>
+      ${sub ? `<span style="font-size:10px;color:var(--text-dim);line-height:1.3;">${sub}</span>` : ""}
+    </div>`;
+
+  const assetCard = (title, titleColor, borderColor, statA, statB, statC, statD, verdict, verdictClass) => `
+    <div style="flex:1;min-width:0;padding:12px 14px;border-radius:10px;background:rgba(255,255,255,0.025);border:1px solid ${borderColor};">
+      <div style="font-size:12px;font-weight:700;color:${titleColor};margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid ${borderColor}44;">
+        ${title}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 8px;margin-bottom:10px;">
+        ${statA}${statB}${statC}${statD}
+      </div>
+      <div class="tong-luan-verdict ${verdictClass}" style="font-size:11px;padding:7px 10px;border-radius:6px;font-weight:600;line-height:1.4;">
+        ${verdict}
+      </div>
+    </div>`;
+
+  return `
+    <div class="card" style="border-color:rgba(200,153,58,0.4);background:linear-gradient(160deg,rgba(8,18,44,0.95),rgba(4,12,32,0.98));margin-top:16px;padding:14px 16px;">
+
+      <!-- ── HEADER ── -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:14px;">🛡️</span>
+          <span style="font-size:12px;font-weight:700;color:var(--gold-light);letter-spacing:.04em;text-transform:uppercase;">Bộ Lọc Sinh Khí Tài Sản</span>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          ${badge(tietKhiName, "#c8993a")}
+          ${badge("Nguyệt Cục " + r.cucs[1].cucSo, "#00d4ff")}
+        </div>
+      </div>
+
+      <!-- ── NGUYỆT CỤC STATS — 3 hàng cân đối ── -->
+      <div style="background:rgba(0,212,255,0.03);border:1px solid rgba(0,212,255,0.1);border-radius:10px;padding:12px 14px;margin-bottom:12px;">
+
+        <!-- Hàng 1: Thái Tuế toàn chiều rộng -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:9px;margin-bottom:9px;border-bottom:1px solid rgba(255,255,255,0.05);">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:9.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-dim);">🌟 Thái Tuế</span>
+            <span style="font-size:13px;font-weight:700;color:var(--gold-light);">${thaiTueDC}</span>
+            <span style="font-size:11px;color:var(--text-dim);">→ Cung <strong style="color:var(--cyan);">${thaiTueCung !== null ? thaiTueCung : "?"}</strong></span>
+          </div>
+          <span style="font-size:11px;font-weight:700;color:${troColor};">${troThuNhan}</span>
+        </div>
+
+        <!-- Hàng 2: 4 stat cân đối 2×2 -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px 8px;margin-bottom:9px;padding-bottom:9px;border-bottom:1px solid rgba(255,255,255,0.05);">
+          ${statRow("Toán Chủ", toanChu, "var(--green)", labelChu || null)}
+          ${statRow("Toán Khách", toanKhach, "var(--red)", labelKhach || null)}
+          ${statRow("Chủ Đại Tướng", "Cung " + chuDaiCung, pillColor(chuDaiStatus), chuDaiLabel)}
+          ${statRow("Khách Đại Tướng", "Cung " + khachDaiCung, pillColor(khachDaiStatus), khachDaiLabel)}
+        </div>
+
+        <!-- Hàng 3: Văn Xương + Thủy Kích cân đối 2 cột -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          ${statRow("📜 Văn Xương", tenVanXuong, "var(--teal)", "Cung " + cungVanXuongNG)}
+          ${statRow("💧 Thủy Kích", tenThuyKich, "#ff6688", "Cung " + cungThuyKichNG)}
+        </div>
+      </div>
+
+      <!-- ── DUAL-SCAN: 2 cột song song ── -->
+      <div style="display:flex;gap:10px;">
+        ${assetCard(
+          "🟡 VÀNG · Kim · Thái Ất Cung " + thaiAtNguyet,
+          "#ffd700", "rgba(200,153,58,0.3)",
+          statRow("Ngũ Hành Cung", scanVang.cungNguHanh, "var(--gold-light)", null),
+          statRow("Mùa Vụ", scanVang.trangThaiMua, ["Vượng","Tướng"].includes(scanVang.trangThaiMua) ? "var(--green)" : ["Tù","Tử","Phế"].includes(scanVang.trangThaiMua) ? "var(--red)" : "var(--yellow)", null),
+          statRow("Địa Hình", scanVang.diaHinhRelation.replace(" ✦","").replace(" ❌",""), colorDiaHinh(scanVang.diaHinhRelation), null),
+          statRow("Tín Hiệu", scanVang.diaHinhRelation.includes("✦") ? "✦ Sinh Nhập" : scanVang.diaHinhRelation.includes("❌") ? "❌ Khắc Nhập" : "— Bình Hòa", colorDiaHinh(scanVang.diaHinhRelation), null),
+          scanVang.phanQuyet, scanVang.uiClass
+        )}
+        ${assetCard(
+          "🔵 BITCOIN · Thủy · TK Cung " + cungThuyKichNG,
+          "#00d4ff", "rgba(0,212,255,0.2)",
+          statRow("Ngũ Hành Cung", scanBTC.cungNguHanh, "var(--cyan)", null),
+          statRow("Mùa Vụ", scanBTC.trangThaiMua, ["Vượng","Tướng"].includes(scanBTC.trangThaiMua) ? "var(--green)" : ["Tù","Tử","Phế"].includes(scanBTC.trangThaiMua) ? "var(--red)" : "var(--yellow)", null),
+          statRow("Địa Hình", scanBTC.diaHinhRelation.replace(" ✦","").replace(" ❌",""), colorDiaHinh(scanBTC.diaHinhRelation), null),
+          statRow("Tín Hiệu", scanBTC.diaHinhRelation.includes("✦") ? "✦ Sinh Nhập" : scanBTC.diaHinhRelation.includes("❌") ? "❌ Khắc Nhập" : "— Bình Hòa", colorDiaHinh(scanBTC.diaHinhRelation), null),
+          scanBTC.phanQuyet, scanBTC.uiClass
+        )}
+      </div>
+
+    </div>`;
+}
+
+
+// ═══════════════════════════════════════════════════════
+//  PANEL CONTROLS
+// ═══════════════════════════════════════════════════════
+function pcToggle(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const isCol = el.classList.contains('pc-collapsed');
+  if (isCol) {
+    el.classList.remove('pc-collapsed');
+    el.querySelectorAll('.pc-body').forEach(b => {
+      b.style.maxHeight = b.dataset.mh || '2000px';
+      b.style.opacity = '1';
+    });
+  } else {
+    el.querySelectorAll('.pc-body').forEach(b => {
+      if (!b.dataset.mh) b.dataset.mh = b.style.maxHeight || '2000px';
+    });
+    el.classList.add('pc-collapsed');
+  }
+}
+
+let _fsEl=null,_fsBd=null,_fsPar=null,_fsNxt=null;
+function pcFullscreen(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (el.classList.contains('pc-fullscreen')) { _pcExitFs(); return; }
+  _fsEl=el; _fsPar=el.parentElement; _fsNxt=el.nextSibling;
+  _fsBd=document.createElement('div');
+  _fsBd.className='pc-fs-backdrop'; _fsBd.onclick=_pcExitFs;
+  document.body.appendChild(_fsBd); document.body.appendChild(el);
+  el.classList.add('pc-fullscreen'); el.classList.remove('pc-collapsed');
+  el.querySelectorAll('.pc-body').forEach(b=>{b.style.maxHeight='none';b.style.opacity='1';});
+  el.scrollTop=0; document.body.style.overflow='hidden';
+  el.querySelectorAll('.pc-btn[title="Phóng to"]').forEach(b=>{b.textContent='✕';b.title='Thu nhỏ';});
+}
+function _pcExitFs() {
+  if (!_fsEl) return;
+  if (_fsNxt) _fsPar.insertBefore(_fsEl,_fsNxt); else _fsPar.appendChild(_fsEl);
+  _fsEl.classList.remove('pc-fullscreen');
+  _fsEl.querySelectorAll('.pc-body').forEach(b=>{b.style.maxHeight=b.dataset.mh||'2000px';b.style.opacity='1';});
+  _fsEl.querySelectorAll('.pc-btn[title="Thu nhỏ"]').forEach(b=>{b.textContent='⛶';b.title='Phóng to';});
+  if(_fsBd){_fsBd.remove();_fsBd=null;} document.body.style.overflow='';
+  _fsEl=null;_fsPar=null;_fsNxt=null;
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&_fsEl)_pcExitFs();});
+
+
+// ═══════════════════════════════════════════════════════
+//  DƯƠNG CỬU BÁCH LỤC — Chu Kỳ Ách Vĩ Mô 4560 Năm
+//  Cổ thư: "4560 năm là 1 Nguyên. Ngoài số trọn vẹn sinh tai ương."
+//  9 Hội Ách: tổng tích lũy (năm), số năm tai, loại dương/âm
+// ═══════════════════════════════════════════════════════
+
+const DCBL_HOI_ACH = [
+  { hoi:1, tichLuy:106,  soNamTai:9, loai:"duong", ten:"Hạn 9 Dương"  },
+  { hoi:2, tichLuy:480,  soNamTai:9, loai:"am",    ten:"Lụt 9 Âm"     },
+  { hoi:3, tichLuy:960,  soNamTai:9, loai:"duong", ten:"Hạn 9 Dương"  },
+  { hoi:4, tichLuy:1680, soNamTai:7, loai:"am",    ten:"Lụt 7 Âm"     },
+  { hoi:5, tichLuy:2400, soNamTai:7, loai:"duong", ten:"Hạn 7 Dương"  },
+  { hoi:6, tichLuy:3000, soNamTai:5, loai:"am",    ten:"Lụt 5 Âm"     },
+  { hoi:7, tichLuy:3600, soNamTai:5, loai:"duong", ten:"Hạn 5 Dương"  },
+  { hoi:8, tichLuy:4080, soNamTai:3, loai:"am",    ten:"Lụt 3 Âm"     },
+  { hoi:9, tichLuy:4560, soNamTai:3, loai:"duong", ten:"Hạn 3 Dương"  },
+];
+
+// Tích độ dài từng hội (từ hội trước đến hội này)
+const DCBL_DO_DAI = DCBL_HOI_ACH.map((h, i) =>
+  i === 0 ? h.tichLuy : h.tichLuy - DCBL_HOI_ACH[i-1].tichLuy
+);
+
+function tinhDuongCuuBachLuc(nam) {
+  // Tích số năm (cùng hệ tính Thượng Cổ Giáp Tý)
+  // Sách: dùng Thượng Cổ Giáp Tý + sai 130 → chia 4560
+  const tichSo = 10155509 + (nam - 1592) + 130;
+
+  // Vị trí trong Nguyên (0..4559)
+  const viTriNguyen = ((tichSo % 4560) + 4560) % 4560;
+
+  // Xác định đang ở Hội Ách nào
+  let hoiHienTai = null;
+  let duTrongHoi = 0;
+  let batDauHoi = 0;
+  for (let i = 0; i < DCBL_HOI_ACH.length; i++) {
+    const ketThucHoi = DCBL_HOI_ACH[i].tichLuy;
+    if (viTriNguyen < ketThucHoi) {
+      hoiHienTai = DCBL_HOI_ACH[i];
+      batDauHoi  = i === 0 ? 0 : DCBL_HOI_ACH[i-1].tichLuy;
+      duTrongHoi = viTriNguyen - batDauHoi;
+      break;
+    }
+  }
+  if (!hoiHienTai) {
+    // Đúng mốc kết thúc nguyên → Hội 9
+    hoiHienTai = DCBL_HOI_ACH[8];
+    batDauHoi  = DCBL_HOI_ACH[7].tichLuy;
+    duTrongHoi = 4559;
+  }
+
+  const doDaiHoi    = hoiHienTai.tichLuy - batDauHoi;
+  const conLaiHoi   = doDaiHoi - duTrongHoi;
+  const phanTramHoi = Math.round((duTrongHoi / doDaiHoi) * 100);
+
+  // Xác định có đang trong "cửa sổ Dương Cửu / Bách Lục" không
+  // Dương Cửu 106: 9 năm cuối Hội 1 (năm 98–106) VÀ 9 năm đầu Hội 2 (năm 1–9 của hội kế)
+  // Cổ thư: "khoảng đầu cuối ra vào có binh cách, đói khổ"
+  const CONG_RANG = 9; // số năm tai của Hội 1 = 9
+
+  // Số năm tai nạn của Hội hiện tại
+  const soNamTai = hoiHienTai.soNamTai;
+
+  // Giai đoạn CỬA VÀO: soNamTai năm đầu Hội
+  const trongCuaVao = duTrongHoi < soNamTai;
+  // Giai đoạn CỬA RA: soNamTai năm cuối Hội
+  const trongCuaRa  = duTrongHoi >= (doDaiHoi - soNamTai);
+
+  let trangThai = "BÌNH";
+  let mauTrangThai = "var(--text-dim)";
+  let moTaTrangThai = "Ổn định, không trong cửa sổ tai biến.";
+  if (trongCuaVao || trongCuaRa) {
+    trangThai = hoiHienTai.loai === "duong" ? "HẠN" : "LỤT";
+    mauTrangThai = hoiHienTai.loai === "duong" ? "#ff8844" : "#4488ff";
+    const ViTri = trongCuaVao ? "ĐẦU HỘI" : "CUỐI HỘI";
+    moTaTrangThai = `Đang trong cửa sổ ${soNamTai} năm tai biến (${ViTri}). Cổ thư: "khoảng đầu cuối ra vào có binh cách, đói khổ, dân bỏ xứ."`;
+  }
+
+  // Dương Cửu Bách Lục cực đỉnh: khi Hội 1 (106 năm) — cổ thư đặc biệt nhấn mạnh
+  const laDuongCuu = hoiHienTai.hoi === 1 && (trongCuaVao || trongCuaRa);
+
+  // Phần trăm tiến trình cả Nguyên
+  const phanTramNguyen = Math.round((viTriNguyen / 4560) * 100);
+
+  return {
+    nam, viTriNguyen, hoiHienTai, batDauHoi, duTrongHoi,
+    doDaiHoi, conLaiHoi, phanTramHoi, phanTramNguyen,
+    trangThai, mauTrangThai, moTaTrangThai, laDuongCuu, soNamTai,
+    trongCuaVao, trongCuaRa,
+  };
+}
+
+function renderDuongCuuBachLuc(nam) {
+  const d = tinhDuongCuuBachLuc(nam);
+  const { hoiHienTai, duTrongHoi, doDaiHoi, conLaiHoi,
+          phanTramHoi, phanTramNguyen, trangThai, mauTrangThai,
+          moTaTrangThai, laDuongCuu, viTriNguyen } = d;
+
+  const isNguy = d.trongCuaVao || d.trongCuaRa;
+  const borderColor = isNguy
+    ? (hoiHienTai.loai==="duong" ? "rgba(255,136,68,.45)" : "rgba(68,136,255,.45)")
+    : "rgba(200,153,58,.2)";
+  const bgGrad = isNguy
+    ? (hoiHienTai.loai==="duong"
+        ? "linear-gradient(160deg,rgba(255,100,30,.06),rgba(8,18,44,.98))"
+        : "linear-gradient(160deg,rgba(30,80,255,.06),rgba(8,18,44,.98))")
+    : "linear-gradient(160deg,rgba(8,18,44,.95),rgba(4,12,32,.98))";
+
+  // Mini timeline 9 hội
+  const hoiTimeline = DCBL_HOI_ACH.map(h => {
+    const isHienTai = h.hoi === hoiHienTai.hoi;
+    const batDau    = h.hoi===1 ? 0 : DCBL_HOI_ACH[h.hoi-2].tichLuy;
+    const doDai     = h.tichLuy - batDau;
+    const widthPct  = Math.round((doDai / 4560) * 100);
+    const fillPct   = isHienTai ? phanTramHoi : (viTriNguyen >= h.tichLuy ? 100 : 0);
+    const clr = h.loai==="duong" ? "#ff8844" : "#4488ff";
+    return `<div style="flex:${widthPct};min-width:${Math.max(widthPct,2)}%;position:relative;" title="Hội ${h.hoi}: ${h.ten} (${doDai} năm)">
+      <div style="height:8px;border-radius:2px;background:rgba(255,255,255,.06);overflow:hidden;">
+        <div style="height:100%;width:${fillPct}%;background:${isHienTai?clr:"rgba(255,255,255,.15)"};transition:width .3s;"></div>
+      </div>
+      ${isHienTai ? `<div style="position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:9px;color:${clr};font-weight:700;white-space:nowrap;">Hội ${h.hoi}</div>` : ""}
+    </div>`;
+  }).join("");
+
+  // Thanh tiến trình nguyên
+  const progNguyen = `
+    <div style="margin:10px 0 4px;display:flex;align-items:center;gap:8px;">
+      <span style="font-size:9px;color:var(--text-dim);white-space:nowrap;">Nguyên (4560 năm)</span>
+      <div style="flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.06);overflow:hidden;">
+        <div style="height:100%;width:${phanTramNguyen}%;background:linear-gradient(90deg,var(--gold),#ff8844);"></div>
+      </div>
+      <span style="font-size:9px;color:var(--gold);white-space:nowrap;">${viTriNguyen}/${4560}</span>
+    </div>`;
+
+  const alertBanner = isNguy ? `
+    <div style="margin-top:10px;padding:9px 12px;border-radius:8px;
+      background:${hoiHienTai.loai==="duong"?"rgba(255,136,68,.1)":"rgba(68,136,255,.1)"};
+      border:1px solid ${mauTrangThai}44;">
+      <div style="font-size:11.5px;font-weight:700;color:${mauTrangThai};margin-bottom:4px;">
+        ⚠️ CỬA SỔ TAI BIẾN — ${hoiHienTai.ten.toUpperCase()}
+      </div>
+      <div style="font-size:10.5px;color:var(--text);line-height:1.6;">${moTaTrangThai}</div>
+      ${laDuongCuu ? `<div style="margin-top:5px;font-size:10px;font-weight:700;color:#ff4455;">
+        ☄️ DƯƠNG CỬU BÁCH LỤC — Hội 1 (106 năm): Cổ thư viết "Tôi giết vua, con giết cha, gầm trời rối bời." Đây là hội ách nặng nhất trong 1 Nguyên.
+      </div>` : ""}
+    </div>` : "";
+
+  return `
+  <div class="card" style="padding:14px 16px;margin-top:14px;border-color:${borderColor};background:${bgGrad};"
+       id="block-duong-cuu">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;cursor:pointer;"
+         onclick="this.closest('#block-duong-cuu').classList.toggle('dcbl-open')">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:14px;">🌀</span>
+        <span style="font-size:12px;font-weight:700;color:var(--gold-light);letter-spacing:.04em;text-transform:uppercase;">Dương Cửu Bách Lục</span>
+        <span style="font-size:10px;color:var(--text-dim);">Chu Kỳ Ách Vĩ Mô 4560 Năm</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:11px;font-weight:700;color:${isNguy?mauTrangThai:"var(--green)"};">
+          ${isNguy ? `⚠️ ${trangThai}` : "🟢 ỔN ĐỊNH"}
+        </span>
+        <span style="font-size:10px;color:var(--text-dim);">▼</span>
+      </div>
+    </div>
+
+    <div class="dcbl-body" style="display:none;">
+      <!-- Hội hiện tại -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;">
+        <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:8px 10px;">
+          <div style="font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px;">Hội Ách</div>
+          <div style="font-size:15px;font-weight:700;color:${mauTrangThai};">Hội ${hoiHienTai.hoi}/9</div>
+          <div style="font-size:10px;color:var(--text-dim);">${hoiHienTai.ten}</div>
+        </div>
+        <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:8px 10px;">
+          <div style="font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px;">Năm trong Hội</div>
+          <div style="font-size:15px;font-weight:700;color:var(--gold-light);">${duTrongHoi}/${doDaiHoi}</div>
+          <div style="font-size:10px;color:var(--text-dim);">Còn ${conLaiHoi} năm</div>
+        </div>
+        <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:8px 10px;">
+          <div style="font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px;">Cửa Sổ Tai Biến</div>
+          <div style="font-size:13px;font-weight:700;color:${isNguy?mauTrangThai:"var(--green)"};">
+            ${isNguy ? (d.trongCuaVao ? "⚠️ Cửa vào" : "⚠️ Cửa ra") : "🟢 Ngoài"}
+          </div>
+          <div style="font-size:10px;color:var(--text-dim);">${hoiHienTai.soNamTai} năm tai / hội</div>
+        </div>
+      </div>
+
+      <!-- Timeline 9 hội -->
+      <div style="margin-bottom:6px;">
+        <div style="font-size:9px;color:var(--text-dim);margin-bottom:18px;letter-spacing:.06em;">TIẾN TRÌNH 9 HỘI ÁCH</div>
+        <div style="display:flex;gap:2px;align-items:flex-end;">
+          ${hoiTimeline}
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;">
+          <span style="font-size:8.5px;color:var(--text-dim);">🔶 Dương (hạn)</span>
+          <span style="font-size:8.5px;color:var(--text-dim);">🔷 Âm (lụt)</span>
+        </div>
+      </div>
+
+      ${progNguyen}
+      ${alertBanner}
+
+      <div style="margin-top:10px;padding:8px 10px;background:rgba(255,215,0,.03);border-radius:7px;border:1px solid rgba(255,215,0,.1);">
+        <div style="font-size:9.5px;color:var(--text-dim);line-height:1.7;">
+          📖 <strong style="color:var(--gold);">Cổ thư:</strong>
+          "4560 năm là 1 Nguyên. Ngoài con số trọn vẹn 1 Nguyên thì hóa ra có tai ương nước hạn.
+          Gặp năm Yểm, Bách, Kích, Cách, Tù, Đề, Hiệp thì càng hung.
+          Nếu Dương Cửu 106 (Dương Cửu Bách Lục) cùng ra vào, hung không nói hết."
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  FOCUS MODE — khi Quét Chu Kỳ → nhường chỗ cho kết quả
+// ═══════════════════════════════════════════════════════
+function enterFocusMode() {
+  const body = document.getElementById('desktop-body');
+  if (!body) return;
+  body.classList.add('focus-results');
+
+  // Thu nhỏ (dim) left & chat panel, KHÔNG collapse hẳn
+  ['left-panel','khay-panel'].forEach(id=>{
+    const el = document.getElementById(id);
+    if (el) el.classList.add('panel-dimmed');
+  });
+
+  const btn = document.getElementById('focus-exit-btn');
+  if (btn) btn.style.display = 'block';
+
+  // Scroll đến results
+  setTimeout(()=>{
+    const r = document.getElementById('results');
+    if (r) r.scrollIntoView({behavior:'smooth', block:'start'});
+  }, 350);
+}
+
+function exitFocusMode() {
+  const body = document.getElementById('desktop-body');
+  if (body) body.classList.remove('focus-results');
+  ['left-panel','khay-panel'].forEach(id=>{
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('panel-dimmed');
+  });
+  const btn = document.getElementById('focus-exit-btn');
+  if (btn) btn.style.display = 'none';
+}
+
+// ═══════════════════════════════════════════════════════
+//  PATCH quetChuKyNam → gọi enterFocusMode sau khi render
+// ═══════════════════════════════════════════════════════
+const _origQuetChuKy = quetChuKyNam;
+quetChuKyNam = function() {
+  _origQuetChuKy.apply(this, arguments);
+  // enterFocusMode sau khi setTimeout 500ms render xong
+  setTimeout(enterFocusMode, 600);
+};
+
+// ═══════════════════════════════════════════════════════
+//  MARKET RULER — dữ liệu thị trường realtime
+// ═══════════════════════════════════════════════════════
+const MKT_SYMS = {
+  indices:[
+    {sym:'%5EGSPC',  name:'S&P 500',    sub:'US Large Cap'},
+    {sym:'%5EIXIC',  name:'NASDAQ',      sub:'Tech Index'},
+    {sym:'%5EDJI',   name:'Dow Jones',   sub:'US Blue Chip'},
+    {sym:'%5EN225',  name:'Nikkei 225',  sub:'Japan'},
+    {sym:'%5EHSI',   name:'Hang Seng',   sub:'Hong Kong'},
+    {sym:'000001.SS',name:'SSE 上证',    sub:'China'},
+    {sym:'VNINDEX.VN',name:'VN-Index',   sub:'Vietnam'},
+  ],
+  crypto:[
+    {sym:'BTC-USD',  name:'Bitcoin',     sub:'BTC/USD'},
+    {sym:'ETH-USD',  name:'Ethereum',    sub:'ETH/USD'},
+  ],
+  commodities:[
+    {sym:'GC%3DF',      name:'Vàng XAU', sub:'Gold Futures'},
+    {sym:'SI%3DF',      name:'Bạc XAG',  sub:'Silver'},
+    {sym:'CL%3DF',      name:'Dầu WTI',  sub:'Crude Oil'},
+    {sym:'EURUSD%3DX',  name:'EUR/USD',  sub:'Euro'},
+    {sym:'DX-Y.NYB',    name:'DXY',      sub:'USD Index'},
+    {sym:'JPY%3DX',     name:'USD/JPY',  sub:'Yen'},
+  ],
+  bonds:[
+    {sym:'%5ETNX', name:'US 10Y',  sub:'Treasury Yield', isYield:true},
+    {sym:'%5ETYX', name:'US 30Y',  sub:'Treasury Yield', isYield:true},
+    {sym:'%5EIRX', name:'US 3M',   sub:'T-Bill',         isYield:true},
+    {sym:'%5EVIX', name:'VIX',     sub:'Fear Index'},
+  ],
+};
+
+let mktCache={};
+const MKT_TTL=5*60*1000;
+
+function mktFmt(v,d=2){
+  if(v==null||isNaN(v))return'—';
+  if(Math.abs(v)>=1e6)return(v/1e6).toFixed(2)+'M';
+  if(Math.abs(v)>=1e3)return v.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+  return v.toFixed(d);
+}
+
+function mktRenderGroup(id, items, data){
+  const el=document.getElementById(id); if(!el)return;
+  const h=el.querySelector('.mkt-header-row');
+  el.innerHTML=''; if(h)el.appendChild(h);
+  items.forEach(item=>{
+    const sym=decodeURIComponent(item.sym);
+    const q=data[item.sym]||data[sym];
+    const row=document.createElement('div'); row.className='mkt-row';
+    if(!q){
+      row.innerHTML=`<div><div class="mkt-name">${item.name}</div><div class="mkt-sub">${item.sub}</div></div><div class="mkt-price mkt-neu">—</div><div class="mkt-chg mkt-neu">—</div><div class="mkt-pct mkt-neu">—</div>`;
+      el.appendChild(row); return;
+    }
+    const p=q.regularMarketPrice, c=q.regularMarketChange, pc=q.regularMarketChangePercent;
+    const cls=c>0?'mkt-up':c<0?'mkt-dn':'mkt-neu';
+    const arr=c>0?'▲':c<0?'▼':'—';
+    const dg=item.isYield?3:(p<10?4:p<1000?2:0);
+    row.innerHTML=`
+      <div><div class="mkt-name">${item.name}</div><div class="mkt-sub">${item.sub}</div></div>
+      <div class="mkt-price ${cls}">${mktFmt(p,dg)}${item.isYield?'%':''}</div>
+      <div class="mkt-chg ${cls}">${arr} ${mktFmt(Math.abs(c),item.isYield?3:2)}</div>
+      <div class="mkt-pct ${cls}">${pc!=null?(pc>0?'+':'')+pc.toFixed(2)+'%':'—'}</div>`;
+    el.appendChild(row);
+  });
+}
+
+function mktLoading(){
+  ['mkt-indices','mkt-crypto','mkt-commodities','mkt-bonds'].forEach(id=>{
+    const el=document.getElementById(id); if(!el)return;
+    const h=el.querySelector('.mkt-header-row'); el.innerHTML=''; if(h)el.appendChild(h);
+    const d=document.createElement('div'); d.className='mkt-loading';
+    d.innerHTML='<span style="color:var(--cyan)">⟳ Đang tải...</span>'; el.appendChild(d);
+  });
+}
+
+async function mktFetch(force=false){
+  const now=Date.now();
+  if(!force&&mktCache.ts&&now-mktCache.ts<MKT_TTL&&mktCache.data){mktRenderAll(mktCache.data);return;}
+  const spin=document.getElementById('mkt-spin');
+  const btn=document.getElementById('mkt-refresh-btn');
+  const err=document.getElementById('mkt-error-msg');
+  if(spin)spin.style.display='inline-block';
+  if(btn)btn.disabled=true;
+  if(err)err.style.display='none';
+  mktLoading();
+  const all=[...MKT_SYMS.indices,...MKT_SYMS.crypto,...MKT_SYMS.commodities,...MKT_SYMS.bonds];
+  const syms=all.map(i=>i.sym).join('%2C');
+  try{
+    const url=`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${syms}&fields=regularMarketPrice,regularMarketChange,regularMarketChangePercent`;
+    const proxy=`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    const r=await fetch(proxy,{signal:AbortSignal.timeout(15000)});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const raw=await r.json();
+    const body=JSON.parse(raw.contents);
+    const quotes=body?.quoteResponse?.result||[];
+    const data={};
+    quotes.forEach(q=>{data[q.symbol]=q;});
+    mktCache={ts:now,data};
+    mktRenderAll(data);
+    const t=new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
+    const upd=document.getElementById('mkt-last-update');
+    if(upd)upd.textContent=`Cập nhật ${t}`;
+  }catch(e){
+    if(err){err.textContent='Lỗi: '+e.message.slice(0,50);err.style.display='inline';}
+    if(mktCache.data)mktRenderAll(mktCache.data);
+  }finally{
+    if(spin)spin.style.display='none';
+    if(btn)btn.disabled=false;
+  }
+}
+function mktRenderAll(data){
+  mktRenderGroup('mkt-indices',    MKT_SYMS.indices,    data);
+  mktRenderGroup('mkt-crypto',     MKT_SYMS.crypto,     data);
+  mktRenderGroup('mkt-commodities',MKT_SYMS.commodities,data);
+  mktRenderGroup('mkt-bonds',      MKT_SYMS.bonds,      data);
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  setTimeout(()=>mktFetch(),900);
+  setInterval(()=>mktFetch(),MKT_TTL);
+});
+
 fillToday();
+
+// ═══════════════════════════════════════════════════════
+// ENGINE TỰ ĐỘNG QUÉT TOÀN DIỆN CHU KỲ 24 TIẾT KHÍ VĨ MÔ
+// ═══════════════════════════════════════════════════════
+const MOCK_TIET_KHI_DATA = [
+  { ten: "Lập Xuân", m: 2, d: 4 },  { ten: "Vũ Thủy", m: 2, d: 19 }, { ten: "Kinh Trập", m: 3, d: 5 },
+  { ten: "Xuân Phân", m: 3, d: 20 }, { ten: "Thanh Minh", m: 4, d: 4 }, { ten: "Cốc Vũ", m: 4, d: 20 },
+  { ten: "Lập Hạ", m: 5, d: 5 },   { ten: "Tiểu Mãn", m: 5, d: 21 }, { ten: "Mang Chủng", m: 6, d: 5 },
+  { ten: "Hạ Chí", m: 6, d: 21 },  { ten: "Tiểu Thử", m: 7, d: 7 },  { ten: "Đại Thử", m: 7, d: 22 },
+  { ten: "Lập Thu", m: 8, d: 7 },   { ten: "Xử Thử", m: 8, d: 23 },  { ten: "Bạch Lộ", m: 9, d: 7 },
+  { ten: "Thu Phân", m: 9, d: 22 },  { ten: "Hàn Lộ", m: 10, d: 8 },  { ten: "Sương Giáng", m: 10, d: 23 },
+  { ten: "Lập Đông", m: 11, d: 7 }, { ten: "Tiểu Tuyết", m: 11, d: 22 },{ ten: "Đại Tuyết", m: 12, d: 7 },
+  { ten: "Đông Chí", m: 12, d: 21 }, { ten: "Tiểu Hàn", m: 1, d: 5 },  { ten: "Đại Hàn", m: 1, d: 20 }
+];
+
+// Trả về { icon, label, color, cls } tóm gọn trạng thái 1 tài sản cho bảng tổng quan
+function tinhAssetMiniStatus(tietKhiName, nd, assetName, isPhat) {
+  let cungId;
+  if (assetName === "Vàng") {
+    cungId = nd.thaiAt || 1;
+  } else if (assetName === "Crypto") {
+    cungId = THAN_INFO[nd.thuyKich] ? THAN_INFO[nd.thuyKich][0] : (nd.khachDai || 8);
+  } else {
+    // BĐS — dùng Văn Xương nguyệt cục
+    const cungVX   = THAN_INFO[nd.vanXuong] ? THAN_INFO[nd.vanXuong][0] : null;
+    const cungTA   = nd.thaiAt;
+    const cungTK   = THAN_INFO[nd.thuyKich] ? THAN_INFO[nd.thuyKich][0] : null;
+    const anList   = (cungVX && cungTA && cungTK) ? xacDinhAnVanXuong(cungVX, cungTA, cungTK) : [];
+    const bdsEntry = cungVX ? VX_BDS_MAP[cungVX] : null;
+    const anHung   = anList.filter(a => a.level === "hung");
+    const anWarn   = anList.filter(a => a.level === "warn");
+    const nghTot   = [2, 3, 7].includes(cungVX);
+    const nghHung  = [4, 9].includes(cungVX);
+    if (!bdsEntry)             return { icon:"🏠", label:"—",             color:"var(--text-dim)", cls:"warn" };
+    if (anHung.length && nghTot)  return { icon:"🏠", label:"Bẫy Lồng Son", color:"var(--red)",   cls:"hung" };
+    if (anHung.length && nghHung) return { icon:"🏠", label:"Kép Đại Hung",  color:"var(--red)",   cls:"hung" };
+    if (anHung.length)            return { icon:"🏠", label:"VX Bị Án",      color:"#ff8844",      cls:"hung" };
+    if (anWarn.length && nghTot)  return { icon:"🏠", label:"Cảnh Báo Nhẹ", color:"var(--yellow)", cls:"warn" };
+    if (nghTot)  return { icon:"🏠", label:"Thuận Lợi",    color:"var(--green)", cls:"cat"  };
+    if (nghHung) return { icon:"🏠", label:"Mộc Khắc Thổ", color:"var(--red)",   cls:"hung" };
+    return             { icon:"🏠", label:"Hao Tổn",       color:"var(--cyan)",  cls:"warn" };
+  }
+
+  const scan = chayDualScanAsset(tietKhiName, cungId, assetName === "Crypto" ? "BTC" : "Vàng", isPhat);
+  const laManh = ["Vượng","Tướng"].includes(scan.trangThaiMua);
+  const laYeu  = ["Tù","Tử","Phế"].includes(scan.trangThaiMua);
+  const sinh   = scan.diaHinhRelation.includes("Sinh Nhập");
+  const khac   = scan.diaHinhRelation.includes("Khắc Nhập");
+
+  const ico = assetName === "Vàng" ? "🥇" : "₿";
+  if (laManh && sinh)  return { icon:ico, label:"Tích Sản · Sinh",  color:"var(--green)", cls:"cat"  };
+  if (laManh && !khac) return { icon:ico, label:"Mùa Thuận",         color:"var(--green)", cls:"cat"  };
+  if (laYeu  && khac)  return { icon:ico, label:"Bẫy Kéo Xả",        color:"var(--red)",   cls:"hung" };
+  if (laYeu)           return { icon:ico, label:"Trì Trệ",            color:"#ff8844",      cls:"hung" };
+  return               { icon:ico, label:"Theo Dõi",            color:"var(--yellow)", cls:"warn" };
+}
+
+function quetChuKyNam() {
+  const nam = parseInt(document.getElementById("inp-nam").value) || 2026;
+  const resultsContainer = document.getElementById("results");
+
+  if (!resultsContainer) return;
+
+  // Hiển thị trạng thái đang quét hệ thống vĩ mô
+  resultsContainer.innerHTML = `
+    <div class="luan-giai-loading" style="padding: 60px 20px;">
+      <div class="oracle-spinner" style="width:40px; height:40px;"></div>
+      <div class="luan-giai-loading-text" style="color:var(--gold); font-size:13px; margin-top:12px;">
+        Đang chạy 11 Lưới Lọc X-Quang trích xuất chu kỳ vĩ mô năm ${nam}...
+      </div>
+    </div>`;
+
+  setTimeout(() => {
+    let timelineHtml = `
+      <div class="result-header" style="border-bottom-color: rgba(200,153,58,0.2);">
+        <h2 style="color: var(--gold);">📊 Bản Đồ Chu Kỳ Tiết Khí Năm ${nam}</h2>
+        <p style="color: var(--text-dim);">Hệ Thống Định Vị Điểm Đảo Chiều & Thiên Nga Đen Vĩ Mô</p>
+      </div>`;
+
+    let chuKyCanhBaoCount = 0;
+    let tableRows = "";
+
+    // Quét tuần tự qua các điểm nút Tiết Khí quan trọng trong năm
+    MOCK_TIET_KHI_DATA.forEach(tiet => {
+      const r = compute(nam, tiet.m, tiet.d, 12);
+      const nd = r.cucs[1].data;
+
+      // isPhat = có cảnh báo thảm họa năm
+      const hungReal = r.canhBaoThamHoa.filter(c => !c._isNguPhucHoaGiai);
+      const isPhat = hungReal.length > 0;
+
+      // 3 tài sản mini status
+      const mVang   = tinhAssetMiniStatus(tiet.ten, nd, "Vàng",   isPhat);
+      const mCrypto = tinhAssetMiniStatus(tiet.ten, nd, "Crypto",  isPhat);
+      const mBDS    = tinhAssetMiniStatus(tiet.ten, nd, "BĐS",    isPhat);
+
+      // Đếm cảnh báo: nếu ít nhất 1 tài sản hung
+      if ([mVang, mCrypto, mBDS].some(m => m.cls === "hung")) chuKyCanhBaoCount++;
+
+      // Helper mini cell — compact, dùng cho layout NGANG
+      const miniCell = (m) =>
+        `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 6px;border-radius:6px;flex:1;min-width:0;` +
+        `background:${m.cls==="cat"?"rgba(34,221,136,.07)":m.cls==="hung"?"rgba(255,68,85,.08)":"rgba(255,215,0,.06)"};` +
+        `border:1px solid ${m.cls==="cat"?"rgba(34,221,136,.2)":m.cls==="hung"?"rgba(255,68,85,.25)":"rgba(255,215,0,.2)"};">` +
+        `<span style="font-size:13px;line-height:1;">${m.icon}</span>` +
+        `<span style="font-size:9px;font-weight:700;color:${m.color};text-align:center;line-height:1.2;word-break:break-word;">${m.label}</span>` +
+        `</div>`;
+
+      tableRows += `
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.03);cursor:pointer;" onclick="kichHoatMocNhanh(${nam},${tiet.m},${tiet.d},12,'${tiet.ten}')">
+          <td style="padding:10px 8px;font-weight:700;color:var(--gold-light);white-space:nowrap;">${tiet.ten}</td>
+          <td style="padding:10px 8px;color:var(--text-dim);font-size:11px;white-space:nowrap;">Ngày ${pad(tiet.d)}/${pad(tiet.m)}</td>
+          <td style="padding:6px 8px;min-width:180px;">
+            <div style="display:flex;flex-direction:row;gap:4px;align-items:stretch;">
+              ${miniCell(mVang)}
+              ${miniCell(mCrypto)}
+              ${miniCell(mBDS)}
+            </div>
+          </td>
+          <td style="padding:10px 8px;text-align:right;font-size:11px;white-space:nowrap;">
+            <span style="font-weight:600;color:var(--cyan);">Cục ${r.cucs[1].cucSo}</span>
+            <div style="font-size:10px;color:var(--text-dim);margin-top:2px;">Thái Ất ${nd.thaiAt??'?'}</div>
+          </td>
+        </tr>`;
+    });
+
+    // ── Tuế Cục đầy đủ + Dương Cửu Bách Lục ──────────────
+    const rLapXuan = compute(nam, 2, 4, 12);
+    const tueCucFull = rLapXuan.cucs[0];
+    const hungNam    = rLapXuan.canhBaoThamHoa.filter(c => !c._isNguPhucHoaGiai);
+
+    // Render Tuế Cục như 1 cục thật (dùng lại renderCuc + truyền hungTinh)
+    let tueCucHtml = "";
+    if (tueCucFull) {
+      // Gắn tamCo từ hungTinh vào cục để tamCoGrid hoạt động
+      tueCucFull.tamCo = rLapXuan.hungTinh ? rLapXuan.hungTinh.tamCo : null;
+
+      // Render cục — dùng lại renderCuc(c, idx, hungTinh)
+      // idx=0 để hiện đầy đủ (Án Văn Xương, BĐS, Tam Cơ, Vàng badge...)
+      const cucRaw = renderCuc(tueCucFull, 0, rLapXuan.hungTinh);
+
+      // Thay id="cuc-0" thành id riêng để không xung đột nếu sau đó load sa bàn ngày
+      const cucPatched = cucRaw
+        .replace(/id="cuc-0"/g, 'id="cuc-nam-lapxuan"')
+        .replace(/onclick="toggleCuc\(0\)"/g, 'onclick="this.closest(\'.cuc-block\').classList.toggle(\'open\')"')
+        .replace(/onclick="scrollToCuc\(0\)"/g, '')
+        .replace(/id="lg-cuc-0"/g, 'id="lg-cuc-nam"')
+        .replace(/id="lg-cuc-0-/g, 'id="lg-cuc-nam-');
+
+      // Bọc trong wrapper có header phân biệt
+      tueCucHtml = `
+        <div style="margin-bottom:4px;">
+          <div style="padding:10px 0 6px;display:flex;align-items:center;gap:8px;">
+            <span style="font-size:13px;">🌍</span>
+            <span style="font-size:12px;font-weight:700;color:var(--gold);letter-spacing:.07em;text-transform:uppercase;">Tuế Cục Năm ${nam}</span>
+            <span style="font-size:10px;color:var(--text-dim);">Đại diện: Lập Xuân ${nam}</span>
+            ${hungNam.length > 0
+              ? `<span style="margin-left:auto;font-size:10px;font-weight:700;color:var(--red);">🔴 ${hungNam.length} Án Hung</span>`
+              : `<span style="margin-left:auto;font-size:10px;font-weight:700;color:var(--green);">🟢 Bình Yên</span>`}
+          </div>
+          ${cucPatched}
+        </div>`;
+    }
+
+    // Block Dương Cửu Bách Lục — mở sẵn
+    const dcblHtml = (typeof renderDuongCuuBachLuc === "function")
+      ? renderDuongCuuBachLuc(nam).replace('id="block-duong-cuu"', 'id="block-duong-cuu" class="dcbl-open"')
+        .replace('<div class="dcbl-body" style="display:none;">', '<div class="dcbl-body" style="">')
+      : "";
+
+    timelineHtml += tueCucHtml + dcblHtml;
+
+    // Tổng hợp HUD hiển thị tiến trình chu kỳ
+    timelineHtml += `
+      <div class="dashboard-card" style="margin-bottom: 16px;">
+        <div class="verdict-pill ${chuKyCanhBaoCount > 4 ? 'hung' : 'warn'}" style="margin: 16px;">
+          <span class="verdict-pill-icon">📋</span>
+          <div class="verdict-pill-text">
+            <span class="verdict-pill-label">Báo Cáo Tổng Quan Chu Kỳ</span>
+            <span class="verdict-pill-main">Phát hiện ${chuKyCanhBaoCount} tiết khí có ít nhất 1 tài sản trạng thái hung trong năm ${nam}</span>
+          </div>
+        </div>
+        <div class="dash-insight" style="font-size:11.5px; line-height:1.6;">
+          <strong>💡 Chỉ dẫn chu kỳ:</strong> Hãy nhấn vào từng hàng Tiết Khí bên dưới để lập tức tải Sa Bàn Trận Pháp chi tiết và mở cổng tham mưu chiến lược phân bổ tài sản dài hạn từ Khầy AI.
+        </div>
+      </div>
+
+      <div class="card" style="padding: 0; overflow:hidden; border-color: rgba(200,153,58,0.2);">
+        <div style="overflow-x:auto; -webkit-overflow-scrolling:touch;">
+        <table style="width:100%; min-width:420px; border-collapse:collapse; text-align:left; font-size:12px;">
+          <thead>
+            <tr style="background: rgba(200,153,58,0.06); border-bottom: 1px solid rgba(200,153,58,0.2);">
+              <th style="padding: 10px 8px; color:var(--gold); white-space:nowrap;">TIẾT KHÍ</th>
+              <th style="padding: 10px 8px; color:var(--gold); white-space:nowrap;">NGÀY</th>
+              <th style="padding: 10px 8px; color:var(--gold);">🥇 VÀNG &nbsp; ₿ CRYPTO &nbsp; 🏠 BĐS</th>
+              <th style="padding: 10px 8px; color:var(--gold); text-align:right; white-space:nowrap;">NGUYỆT CỤC</th>
+            </tr>
+          </thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+        </div>
+      </div>`;
+
+    resultsContainer.innerHTML = timelineHtml;
+  }, 500);
+}
+
+function kichHoatMocNhanh(y, m, d, h, tietKhiTen) {
+  // Lưu tên Tiết Khí đang quét để Dual-Scan Widget sử dụng
+  if (tietKhiTen) window.__currentTietKhiSelected = tietKhiTen;
+  // Điền ngược thông số vào HUD điều khiển để giữ tính đồng bộ
+  document.getElementById("inp-nam").value = y;
+
+  // Thực hiện tính toán và bung toàn bộ Sa bàn trận pháp chi tiết của mốc đó
+  const r = compute(y, m, d, h);
+  renderResults(r);
+}
+
+// ═══════════════════════════════════════════════════════
+//  NHẬT LỊCH THÁNG — THÁI ẤT CALENDAR
+// ═══════════════════════════════════════════════════════
+
+
+// Render Nguyệt Cục inline trong panel calendar khi click tháng
+function renderNguyetCucInline(r, y, m) {
+  const container = document.getElementById('cal-day-result');
+  if (!container) return;
+
+  const nguyetCuc = r.cucs[1]; // index 1 = Nguyệt Cục
+  if (!nguyetCuc) { container.style.display = 'none'; return; }
+
+  const nd = nguyetCuc.data;
+  const donHeLabel = nd.tenDonHe || (r.meta.donHe === 'am' ? '🌙 Âm Độn' : '☀️ Dương Độn');
+  const MONTH_VI = ['','Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6',
+                    'Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'];
+  const thangStr = MONTH_VI[m] + ' / ' + y;
+  const pad = (n) => String(n).padStart(2,'0');
+
+  const pillColor = (status) =>
+    status === 'cat' ? 'var(--green)' : status === 'hung' ? 'var(--red)' : 'var(--yellow)';
+  const bgColor = (status) =>
+    status === 'cat' ? 'rgba(34,221,136,.07)' : status === 'hung' ? 'rgba(255,68,85,.07)' : 'rgba(255,215,0,.07)';
+
+  const row = (icon, key, val, valColor) => `
+    <div style="display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px;">
+      <span style="font-size:13px;width:20px;text-align:center;flex-shrink:0;">${icon}</span>
+      <span style="color:var(--text-dim);min-width:110px;flex-shrink:0;font-size:11px;">${key}</span>
+      <span style="color:${valColor||'var(--text)'};font-weight:500;">${val}</span>
+    </div>`;
+
+  const tuongBlock = (label, anData) => {
+    if (!anData) return '';
+    const col = pillColor(anData.status);
+    const bg  = bgColor(anData.status);
+    const anItems = (anData.anList||[]).map(a=>`<div style="font-size:10.5px;color:var(--text-dim);padding:1px 0;opacity:.85;">• ${a}</div>`).join('');
+    return `
+      <div style="padding:9px 11px;border-radius:10px;border:1px solid ${col}44;background:${bg};margin-bottom:8px;">
+        <div style="font-size:9.5px;letter-spacing:.06em;color:var(--text-dim);margin-bottom:4px;text-transform:uppercase;">${label}</div>
+        <div style="font-weight:700;color:${col};font-size:12.5px;">${anData.label}</div>
+        <div style="font-size:11px;color:var(--text-dim);margin:3px 0 4px;">${anData.mota||''}</div>
+        ${anItems}
+      </div>`;
+  };
+
+  // Vàng & BTC scan từ Asset Radar
+  const scanVangHtml = (() => {
+    const thaiAtNG = nd.thaiAt;
+    const cungVX   = THAN_INFO[nd.vanXuong] ? THAN_INFO[nd.vanXuong][0] : '?';
+    const isVangPhat = nd.anKhachDai && nd.anKhachDai.status === 'cat';
+    const scan = chayDualScanAsset('Lập Xuân', thaiAtNG, 'Vàng', isVangPhat);
+    const col = scan.uiClass === 'cat' ? 'var(--green)' : scan.uiClass === 'hung' ? 'var(--red)' : 'var(--yellow)';
+    return `<div style="padding:8px 11px;border-radius:10px;border:1px solid ${col}44;background:${col}11;margin-bottom:7px;">
+      <div style="font-size:9.5px;color:var(--text-dim);margin-bottom:3px;letter-spacing:.06em;">🥇 VÀNG · Khách Đại Tướng Cung ${nd.khachDai}</div>
+      <div style="font-weight:700;color:${col};font-size:11.5px;">${scan.phanQuyet}</div>
+      <div style="font-size:10px;color:var(--text-dim);margin-top:3px;">Địa hình: ${scan.diaHinhRelation} · Mùa vụ: ${scan.trangThaiMua}</div>
+    </div>`;
+  })();
+
+  const scanBtcHtml = (() => {
+    const isBtcPhat = nd.anChuDai && nd.anChuDai.status === 'cat';
+    const scan = chayDualScanAsset('Lập Xuân', nd.chuDai, 'BTC', isBtcPhat);
+    const col = scan.uiClass === 'cat' ? 'var(--cyan)' : scan.uiClass === 'hung' ? 'var(--red)' : 'var(--yellow)';
+    return `<div style="padding:8px 11px;border-radius:10px;border:1px solid ${col}44;background:${col}11;margin-bottom:7px;">
+      <div style="font-size:9.5px;color:var(--text-dim);margin-bottom:3px;letter-spacing:.06em;">₿ BTC · Chủ Đại Tướng Cung ${nd.chuDai}</div>
+      <div style="font-weight:700;color:${col};font-size:11.5px;">${scan.phanQuyet}</div>
+      <div style="font-size:10px;color:var(--text-dim);margin-top:3px;">Địa hình: ${scan.diaHinhRelation} · Mùa vụ: ${scan.trangThaiMua}</div>
+    </div>`;
+  })();
+
+  container.style.display = 'block';
+  container.innerHTML = `
+    <!-- Tiêu đề tháng -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--gold);">📅 Nguyệt Cục · ${thangStr}</div>
+        <div style="font-size:10px;color:var(--text-dim);margin-top:2px;">${donHeLabel} · Cục ${nguyetCuc.cucSo} · Thái Ất Cung ${nd.thaiAt} (${CUNG_NAME[nd.thaiAt]||nd.thaiAt})</div>
+      </div>
+      <button onclick="document.getElementById('cal-day-result').style.display='none'"
+        style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;
+               color:var(--text-dim);font-size:11px;padding:4px 9px;cursor:pointer;">✕</button>
+    </div>
+
+    <!-- Thần Sát -->
+    <div style="font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid rgba(200,153,58,.2);">🌟 Thần Sát Tọa Độ</div>
+    ${row('🌟','Thái Ất (Vua)',`Cung ${nd.thaiAt} · ${CUNG_NAME[nd.thaiAt]||''} · ${getNguHanh(String(nd.thaiAt))}`, 'var(--gold-light)')}
+    ${row('🔑','Kế Thần (Gián)',`${nd.keThan} · ${getNguHanh(nd.keThan)}`)}
+    ${row('👁','Văn Xương (Mưu)',`${nd.vanXuong} · Cung ${THAN_INFO[nd.vanXuong][0]} · ${getNguHanh(nd.vanXuong)}`)}
+    ${row('⚔️','Thủy Kích (Ám)',`${nd.thuyKich} · Cung ${THAN_INFO[nd.thuyKich][0]} · ${getNguHanh(nd.thuyKich)}`)}
+
+    <!-- Toán Số -->
+    <div style="font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin:12px 0 8px;padding-bottom:4px;border-bottom:1px solid rgba(200,153,58,.2);">📊 Toán Số · Nội Lực & Ngoại Lực</div>
+    <div style="font-size:10px;color:var(--text-dim);margin-bottom:3px;">⚖️ Nội Lực · Toán Chủ: <strong style="color:var(--text);">${nd.toanChu} quân</strong></div>
+    <div class="vol-row ${volClass(nd.labelToanChu)}" style="margin-bottom:8px;">${nd.labelToanChu}</div>
+    <div style="font-size:10px;color:var(--text-dim);margin-bottom:3px;">🌐 Ngoại Lực · Toán Khách: <strong style="color:var(--text);">${nd.toanKhach} quân</strong></div>
+    <div class="vol-row ${volClass(nd.labelToanKhach)}">${nd.labelToanKhach}</div>
+
+    <!-- Tướng Tinh -->
+    <div style="font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin:12px 0 8px;padding-bottom:4px;border-bottom:1px solid rgba(200,153,58,.2);">🎯 Tướng Tinh & Án Phạt</div>
+    <div style="font-size:10px;font-weight:700;color:var(--red);margin-bottom:6px;">⚖️ TOÁN CHỦ · NỘI LỰC</div>
+    ${tuongBlock('Chủ Đại Tướng · Cung '+nd.chuDai+' · '+getNguHanh(String(nd.chuDai)), nd.anChuDai)}
+    ${tuongBlock('Chủ Tham Tướng · Cung '+nd.chuTham+' · '+getNguHanh(String(nd.chuTham)), nd.anChuTham)}
+    <div style="font-size:10px;font-weight:700;color:var(--green);margin:6px 0 6px;">🌐 TOÁN KHÁCH · NGOẠI LỰC</div>
+    ${tuongBlock('Khách Đại Tướng · Cung '+nd.khachDai+' · '+getNguHanh(String(nd.khachDai)), nd.anKhachDai)}
+    ${tuongBlock('Khách Tham Tướng · Cung '+nd.khachTham+' · '+getNguHanh(String(nd.khachTham)), nd.anKhachTham)}
+
+    <!-- Dụng thần tài sản -->
+    <div style="font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin:12px 0 8px;padding-bottom:4px;border-bottom:1px solid rgba(200,153,58,.2);">🎯 Dụng Thần Tài Sản Tháng</div>
+    ${scanVangHtml}
+    ${scanBtcHtml}
+
+    <!-- Nút hỏi Khầy -->
+    <button id="cal-ask-khay-month-btn" style="
+      width:100%;margin-top:12px;padding:10px;border-radius:10px;cursor:pointer;
+      background:linear-gradient(135deg,rgba(200,153,58,.12),rgba(200,153,58,.06));
+      border:1px solid rgba(200,153,58,.4);color:var(--gold-light);
+      font-size:11.5px;font-weight:700;letter-spacing:.06em;
+      display:flex;align-items:center;justify-content:center;gap:7px;
+    ">☯ Hỏi Khầy phân tích ${MONTH_VI[m]} ${y}</button>`;
+
+  // Gán onclick cho nút Khầy
+  setTimeout(() => {
+    const btn = document.getElementById('cal-ask-khay-month-btn');
+    if (btn) btn.onclick = function() {
+      const inp = document.getElementById('khay-input');
+      if (inp) {
+        inp.value = 'Phân tích xu hướng tháng ' + m + '/' + y;
+        inp.style.height = 'auto';
+        inp.style.height = inp.scrollHeight + 'px';
+        khaySend();
+      }
+    };
+  }, 50);
+
+  // Cập nhật context Khầy
+  _khayChatContext = r;
+}
+
+// Render Nhật Cục inline trong panel calendar khi click ngày
+function renderNhatCucInline(r, y, m, d) {
+  const container = document.getElementById('cal-day-result');
+  if (!container) return;
+
+  const nhatCuc = r.cucs[2]; // index 2 = Nhật Cục
+  if (!nhatCuc) { container.style.display = 'none'; return; }
+
+  const nd = nhatCuc.data;
+  const donHeLabel = nd.tenDonHe || (r.meta.donHe === 'am' ? '🌙 Âm Độn' : '☀️ Dương Độn');
+  const pad = (n) => String(n).padStart(2,'0');
+  const ngayStr = `${pad(d)}/${pad(m)}/${y}`;
+
+  // Màu sắc trạng thái
+  const pillColor = (status) =>
+    status === 'cat' ? 'var(--green)' : status === 'hung' ? 'var(--red)' : 'var(--yellow)';
+  const bgColor = (status) =>
+    status === 'cat' ? 'rgba(34,221,136,.07)' : status === 'hung' ? 'rgba(255,68,85,.07)' : 'rgba(255,215,0,.07)';
+
+  // Row helper
+  const row = (icon, key, val, valColor) => `
+    <div style="display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px;">
+      <span style="font-size:13px;width:20px;text-align:center;flex-shrink:0;">${icon}</span>
+      <span style="color:var(--text-dim);min-width:110px;flex-shrink:0;font-size:11px;">${key}</span>
+      <span style="color:${valColor||'var(--text)'};font-weight:500;">${val}</span>
+    </div>`;
+
+  // Tướng block
+  const tuongBlock = (label, anData, side) => {
+    if (!anData) return '';
+    const col = pillColor(anData.status);
+    const bg  = bgColor(anData.status);
+    const anItems = (anData.anList||[]).map(a=>`<div style="font-size:10.5px;color:var(--text-dim);padding:1px 0;opacity:.85;">• ${a}</div>`).join('');
+    return `
+      <div style="padding:9px 11px;border-radius:10px;border:1px solid ${col}44;background:${bg};margin-bottom:8px;">
+        <div style="font-size:9.5px;letter-spacing:.06em;color:var(--text-dim);margin-bottom:4px;text-transform:uppercase;">${label} · ${side}</div>
+        <div style="font-weight:700;color:${col};font-size:12.5px;">${anData.label}</div>
+        <div style="font-size:11px;color:var(--text-dim);margin:3px 0 4px;">${anData.mota||''}</div>
+        ${anItems}
+      </div>`;
+  };
+
+  // Trạng thái tổng cho tiêu đề
+  const chuDaiStatus = nd.anChuDai ? nd.anChuDai.status : 'warn';
+  const headerBg = bgColor(chuDaiStatus);
+  const headerBorder = pillColor(chuDaiStatus);
+
+  container.style.display = 'block';
+  container.innerHTML = `
+    <!-- Tiêu đề ngày -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--cyan);">☀️ Nhật Cục · ${ngayStr}</div>
+        <div style="font-size:10px;color:var(--text-dim);margin-top:2px;">${donHeLabel} · Cục ${nhatCuc.cucSo} · Thái Ất Cung ${nd.thaiAt} (${CUNG_NAME[nd.thaiAt]||nd.thaiAt})</div>
+      </div>
+      <button onclick="document.getElementById('cal-day-result').style.display='none'"
+        style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;
+               color:var(--text-dim);font-size:11px;padding:4px 9px;cursor:pointer;">✕</button>
+    </div>
+
+    <!-- Thần Sát -->
+    <div style="font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid rgba(0,212,255,.12);">🌟 Thần Sát Tọa Độ</div>
+    ${row('🌟','Thái Ất (Vua)',`Cung ${nd.thaiAt} · ${CUNG_NAME[nd.thaiAt]||''} · ${getNguHanh(String(nd.thaiAt))}`)}
+    ${row('🔑','Kế Thần (Gián)',`${nd.keThan} · ${getNguHanh(nd.keThan)}`)}
+    ${row('👁','Văn Xương (Mưu)',`${nd.vanXuong} · Cung ${THAN_INFO[nd.vanXuong][0]} · ${getNguHanh(nd.vanXuong)}`)}
+    ${row('⚔️','Thủy Kích (Ám)',`${nd.thuyKich} · Cung ${THAN_INFO[nd.thuyKich][0]} · ${getNguHanh(nd.thuyKich)}`)}
+
+    <!-- Toán Số -->
+    <div style="font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);margin:12px 0 8px;padding-bottom:4px;border-bottom:1px solid rgba(0,212,255,.12);">📊 Toán Số · Nội Lực & Ngoại Lực</div>
+    <div style="font-size:10px;color:var(--text-dim);margin-bottom:3px;">⚖️ Nội Lực · Toán Chủ: <strong style="color:var(--text);">${nd.toanChu} quân</strong></div>
+    <div class="vol-row ${volClass(nd.labelToanChu)}" style="margin-bottom:8px;">${nd.labelToanChu}</div>
+    <div style="font-size:10px;color:var(--text-dim);margin-bottom:3px;">🌐 Ngoại Lực · Toán Khách: <strong style="color:var(--text);">${nd.toanKhach} quân</strong></div>
+    <div class="vol-row ${volClass(nd.labelToanKhach)}">${nd.labelToanKhach}</div>
+
+    <!-- Tướng Tinh -->
+    <div style="font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);margin:12px 0 8px;padding-bottom:4px;border-bottom:1px solid rgba(0,212,255,.12);">🎯 Tướng Tinh & Án Phạt</div>
+    <div style="font-size:10.5px;font-weight:700;color:var(--red);margin-bottom:6px;letter-spacing:.04em;">⚖️ TOÁN CHỦ · NỘI LỰC</div>
+    ${tuongBlock('Chủ Đại Tướng · Cung '+nd.chuDai, nd.anChuDai, 'Hành '+getNguHanh(String(nd.chuDai)))}
+    ${tuongBlock('Chủ Tham Tướng · Cung '+nd.chuTham, nd.anChuTham, 'Hành '+getNguHanh(String(nd.chuTham)))}
+    <div style="font-size:10.5px;font-weight:700;color:var(--green);margin:6px 0 6px;letter-spacing:.04em;">🌐 TOÁN KHÁCH · NGOẠI LỰC</div>
+    ${tuongBlock('Khách Đại Tướng · Cung '+nd.khachDai, nd.anKhachDai, 'Hành '+getNguHanh(String(nd.khachDai)))}
+    ${tuongBlock('Khách Tham Tướng · Cung '+nd.khachTham, nd.anKhachTham, 'Hành '+getNguHanh(String(nd.khachTham)))}
+
+    <!-- Nút hỏi Khầy -->
+    <button id="cal-ask-khay-btn" style="
+      width:100%;margin-top:12px;padding:10px;border-radius:10px;cursor:pointer;
+      background:linear-gradient(135deg,rgba(200,153,58,.12),rgba(200,153,58,.06));
+      border:1px solid rgba(200,153,58,.4);color:var(--gold-light);
+      font-size:11.5px;font-weight:700;letter-spacing:.06em;
+      display:flex;align-items:center;justify-content:center;gap:7px;
+    ">☯ Hỏi Khầy phân tích ngày này</button>`;
+
+  // Gán onclick sau khi DOM đã có nút
+  setTimeout(() => {
+    const btn = document.getElementById('cal-ask-khay-btn');
+    if (btn) btn.onclick = function() {
+      const inp = document.getElementById('khay-input');
+      if (inp) {
+        inp.value = 'Phân tích giao dịch ngày ${pad(d)}/${pad(m)}/${y}';
+        inp.style.height = 'auto';
+        inp.style.height = inp.scrollHeight + 'px';
+        khaySend();
+      }
+    };
+  }, 50);
+
+  // Cập nhật context cho Khầy
+  _khayChatContext = r;
+}
+
+(function(){
+
+  const CAL_DOW = ['T2','T3','T4','T5','T6','T7','CN'];
+
+  // Cache kết quả tính theo tháng/năm để không tính lại
+  const calCache = {};
+
+  // Trạng thái hiện tại
+  let calYear  = new Date().getFullYear();
+  let calMonth = new Date().getMonth() + 1; // 1-based
+  let calSelected = null; // {y,m,d}
+
+  // Tính điểm nhanh cho 1 ngày → trả về cls + label dựa theo NHẬT CỤC
+  function calDayStatus(y, m, d) {
+    try {
+      const r = compute(y, m, d, 12);
+      const nd = r.cucs[2] ? r.cucs[2].data : null; // cucs[2] = Nhật Cục
+
+      if (!nd) return { cls: 'binh', label: 'Không xác định', thaiAt: '?', chuDaiLabel: '—', chuDaiStatus: 'binh', anList: [] };
+
+      const thaiAt = nd.thaiAt || '?';
+      const chuDai = nd.anChuDai || null;
+      const chuDaiLabel  = chuDai ? chuDai.label  : '—';
+      const chuDaiStatus = chuDai ? chuDai.status : 'binh';
+      const anList = chuDai ? (chuDai.anList || []) : [];
+
+      // Phân loại màu: dựa vào trạng thái Chủ Đại Tướng (dụng thần ngày)
+      let cls, label;
+      if (chuDaiStatus === 'hung') {
+        cls = 'hung';
+        label = chuDaiLabel;
+      } else if (chuDaiStatus === 'cat') {
+        cls = 'cat';
+        label = chuDaiLabel;
+      } else {
+        // fallback: xét mùa vụ Nhật Cục
+        const trangThai = nd.trangThaiMua || '';
+        if (['Vượng','Tướng'].includes(trangThai)) { cls = 'cat';  label = trangThai; }
+        else if (['Tù','Tử','Phế'].includes(trangThai)) { cls = 'warn'; label = trangThai; }
+        else { cls = 'binh'; label = 'Bình'; }
+      }
+
+      return { cls, label, thaiAt, chuDaiLabel, chuDaiStatus, anList,
+               toanChu: nd.toanChu, toanKhach: nd.toanKhach,
+               chuDaiCung: nd.chuDai, khachDaiCung: nd.khachDai,
+               khachDaiLabel: nd.anKhachDai ? nd.anKhachDai.label : '—',
+               trangThaiMua: nd.trangThaiMua || '' };
+    } catch(e) {
+      return { cls: 'binh', label: '—', thaiAt: '?', chuDaiLabel: '—', chuDaiStatus: 'binh', anList: [] };
+    }
+  }
+
+  // Tính cả tháng (cache)
+  function calComputeMonth(y, m) {
+    const key = `${y}-${m}`;
+    if (calCache[key]) return calCache[key];
+
+    const daysInMonth = new Date(y, m, 0).getDate();
+    const result = [];
+    for (let d = 1; d <= daysInMonth; d++) {
+      result.push(calDayStatus(y, m, d));
+    }
+    calCache[key] = result;
+    return result;
+  }
+
+  // Vẽ lại calendar
+  function calRender() {
+    const grid = document.getElementById('cal-grid');
+    const label = document.getElementById('cal-month-label');
+    if (!grid || !label) return;
+
+    const monthNames = ['','Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6',
+                        'Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'];
+    label.textContent = `${monthNames[calMonth]} · ${calYear}`;
+
+    // Loading state
+    grid.innerHTML = `<div class="cal-loading" style="grid-column:1/-1"><div class="oracle-spinner" style="width:20px;height:20px;"></div><span>Đang tính...</span></div>`;
+
+    // Defer tính toán để không block UI
+    setTimeout(() => {
+      const today = new Date();
+      const todayY = today.getFullYear();
+      const todayM = today.getMonth() + 1;
+      const todayD = today.getDate();
+
+      const firstDOW = new Date(calYear, calMonth - 1, 1).getDay(); // 0=Sun
+      // Chuyển sang Monday-first: 0(Sun)→6, 1(Mon)→0, ...
+      const offset = firstDOW === 0 ? 6 : firstDOW - 1;
+      const daysInMonth = new Date(calYear, calMonth, 0).getDate();
+
+      const statuses = calComputeMonth(calYear, calMonth);
+
+      let html = '';
+      // Header ngày trong tuần
+      CAL_DOW.forEach(dow => {
+        html += `<div class="cal-dow">${dow}</div>`;
+      });
+
+      // Ô trống đầu tháng
+      for (let i = 0; i < offset; i++) {
+        html += `<div class="cal-day empty"></div>`;
+      }
+
+      // Các ngày
+      for (let d = 1; d <= daysInMonth; d++) {
+        const s = statuses[d - 1];
+        const isToday    = (calYear === todayY && calMonth === todayM && d === todayD);
+        const isSelected = calSelected && calSelected.y === calYear && calSelected.m === calMonth && calSelected.d === d;
+        const isSunday   = (new Date(calYear, calMonth - 1, d).getDay() === 0);
+
+        const extraCls = [
+          s.cls,
+          isToday    ? 'today'    : '',
+          isSelected ? 'selected' : '',
+          isSunday   ? 'sunday'   : '',
+        ].filter(Boolean).join(' ');
+
+        // Màu tooltip theo trạng thái
+        const tipAccent = s.cls === 'cat' ? 'var(--green)' : s.cls === 'hung' ? 'var(--red)' : s.cls === 'warn' ? 'var(--yellow)' : 'var(--text-dim)';
+        const anTags = (s.anList||[]).slice(0,3).map(a =>
+          `<span style="display:inline-block;padding:1px 5px;border-radius:4px;font-size:9px;background:${tipAccent}22;border:1px solid ${tipAccent}44;color:${tipAccent};margin:1px 2px 1px 0;">${a}</span>`
+        ).join('');
+
+        html += `
+          <div class="cal-day ${extraCls}" onclick="calSelectDay(${calYear},${calMonth},${d})" title="${d}/${calMonth}/${calYear}">
+            <span class="cal-day-num">${d}</span>
+            <span class="cal-day-dot"></span>
+            <div class="cal-tip">
+              <strong style="color:var(--cyan)">${d}/${calMonth}/${calYear}</strong>
+              <div style="margin:4px 0 3px;font-size:9.5px;color:var(--text-dim);">☯ Nhật Cục · Thái Ất Cung <strong style="color:var(--gold)">${s.thaiAt}</strong></div>
+              <div style="font-weight:700;color:${tipAccent};font-size:11px;margin-bottom:3px;">${s.label}</div>
+              ${s.trangThaiMua ? `<div style="font-size:9.5px;color:var(--text-dim);">Mùa vụ: <span style="color:${tipAccent}">${s.trangThaiMua}</span></div>` : ''}
+              ${s.chuDaiCung ? `<div style="font-size:9.5px;color:var(--text-dim);margin-top:2px;">Chủ Đại Tướng · Cung ${s.chuDaiCung}</div>` : ''}
+              ${anTags ? `<div style="margin-top:4px;">${anTags}</div>` : ''}
+              ${s.toanChu ? `<div style="font-size:9px;color:var(--text-dim);margin-top:3px;border-top:1px solid rgba(255,255,255,.08);padding-top:3px;">Chủ ${s.toanChu} · Khách ${s.toanKhach} quân</div>` : ''}
+            </div>
+          </div>`;
+      }
+
+      grid.innerHTML = html;
+    }, 30);
+  }
+
+  // Public API
+  window.calPrevMonth = function() {
+    calMonth--;
+    if (calMonth < 1) { calMonth = 12; calYear--; }
+    calRender();
+  };
+
+  window.calNextMonth = function() {
+    calMonth++;
+    if (calMonth > 12) { calMonth = 1; calYear++; }
+    calRender();
+  };
+
+  window.calSelectMonth = function() {
+    // Tính Nguyệt Cục cho ngày 1 của tháng đang xem
+    const r = compute(calYear, calMonth, 1, 12);
+    renderNguyetCucInline(r, calYear, calMonth);
+    const dayResult = document.getElementById('cal-day-result');
+    if (dayResult) {
+      setTimeout(() => dayResult.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+    }
+  };
+
+  window.calSelectDay = function(y, m, d) {
+    calSelected = { y, m, d };
+    calRender(); // redraw để highlight
+
+    // Tính và hiển thị Nhật Cục ngay trong panel calendar
+    const r = compute(y, m, d, 12);
+    renderNhatCucInline(r, y, m, d);
+
+    // Cuộn xuống kết quả ngay trong panel
+    const dayResult = document.getElementById('cal-day-result');
+    if (dayResult) {
+      setTimeout(() => dayResult.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+    }
+  };
+
+  // Khởi động sau khi page load
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(calRender, 400);
+  });
+
+  // Nếu DOMContentLoaded đã qua
+  if (document.readyState !== 'loading') {
+    setTimeout(calRender, 400);
+  }
+
+})();
 </script>
 <!-- BÁO CÁO MODAL -->
 <div id="baocao-modal" onclick="if(event.target===this)closeBaoCao()">
