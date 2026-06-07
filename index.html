@@ -5979,6 +5979,26 @@ Dữ liệu tính toán:
 - Thái Âm (Hậu Cung): ${hungTinh.thaiAm?.diaChi??"-"} → Cung ${hungTinh.thaiAm?.cung??"-"} | ${hungTinh.thaiAm?.phanDoan??""}
 - Đại Du Thái Ất: Cung ${hungTinh.daiDu}
 - Cảnh báo thảm họa: ${canhBao && canhBao.length > 0 ? canhBao.filter(c=>!c._isNguPhucHoaGiai).map(c=>c.ten).join("; ") : "Bình yên — không có cảnh báo"}`;
+
+    // Thêm dữ liệu cổ thư 144 cục
+    try {
+      const _cucSo = meta ? ((10155509 + (meta.nam - 1592)) % 3600) % 72 || 72 : null;
+      if (_cucSo) {
+        const _jsonData = await _load144Cuc();
+        const _cucInfo  = _timCucTrongJson(_jsonData, _cucSo, "duong");
+        if (_cucInfo) {
+          context += `
+
+── CỔ THƯ 144 CỤC — Tuế Cục Dương Độn số ${_cucSo} ──
+- Can Chi: ${Array.isArray(_cucInfo.can_chi) ? _cucInfo.can_chi.join(", ") : _cucInfo.can_chi || "—"}
+- Toán Chủ (cổ thư): ${_cucInfo.toan_chu || "—"}
+- Toán Khách (cổ thư): ${_cucInfo.toan_khach || "—"}
+- Toán Đinh (cổ thư): ${_cucInfo.toan_dinh || "—"}
+- Tọa Độ Sao Tướng: ${_cucInfo.toa_do_sao_tuong || "—"}
+- Luận Giải Cổ Thư: ${_cucInfo.luan_giai || "—"}`;
+        }
+      }
+    } catch(e) { /* bỏ qua nếu không load được */ }
   }
 
   // ── Prompt hướng dẫn luận giải — scale theo từng cục ──
@@ -7203,6 +7223,8 @@ function renderCuc(c,idx,hungTinh){
 
       ${renderRadarChart(d, c.ten)}
 
+      ${idx === 0 ? `<div id="tue-144cuc-block" style="margin-top:4px;"></div>` : ""}
+
       ${renderLuanGiaiSection(c.ten, d, null, null, null, `lg-cuc-${idx}`)}
     </div>
   </div>`;
@@ -7778,6 +7800,19 @@ function renderResults(r){
 
   // ── Kích hoạt async loading ──
   setTimeout(() => {
+    // Load 144 cục cổ thư cho Tuế Cục
+    const tueBlock = document.getElementById("tue-144cuc-block");
+    if (tueBlock && cucs[0]) {
+      (async () => {
+        try {
+          const jsonData = await _load144Cuc();
+          const cucInfo  = _timCucTrongJson(jsonData, cucs[0].cucSo, "duong");
+          tueBlock.innerHTML = _render144CucHtml(cucInfo, "duong");
+        } catch(e) {
+          tueBlock.innerHTML = `<div style="font-size:10px;color:var(--text-dim);padding:8px;">Không tải được dữ liệu 144 Cục.</div>`;
+        }
+      })();
+    }
     // Tổng luận
     loadTongLuan(cucs, meta, hungTinh, canhBaoThamHoa);
     // Store data cho tất cả cục
