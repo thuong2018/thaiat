@@ -5162,8 +5162,17 @@ function quetThamHoaDanCo(tichSoNam, extraAnChu, extraAnKhach){
 
 function demQuan(startThan, taPalace){
   const [cungStart, loaiThan] = THAN_INFO[startThan];
-  if(cungStart === taPalace) return cungStart;
-  let idx = MAP_CUNG_IDX[cungStart];
+  const idx0 = MAP_CUNG_IDX[cungStart];
+  // ── Đồng cung: Văn Xương / Thủy Kích cùng cung với Thái Ất ──
+  if(cungStart === taPalace){
+    if(loaiThan==="2nd") return LAC_THU[idx0];     // số Lạc Thư của cung đó
+    if(loaiThan==="1st") return 1;                  // chỉ phần khởi đầu "+1"
+    // "3rd": đi một vòng đầy đủ qua 7 cung còn lại
+    let tot=1, i=(idx0+1)%8;
+    while(i!==idx0){ tot+=LAC_THU[i]; i=(i+1)%8; }
+    return tot;
+  }
+  let idx = idx0;
   const taIdx = MAP_CUNG_IDX[taPalace];
   let total = 0;
   if(loaiThan==="1st"||loaiThan==="3rd"){
@@ -5739,7 +5748,10 @@ function giaiPhauAnTuong(cungTuong,thaiAt,vanXuong,thuyKich,dichDai,dichTham,toa
 
 function tinhCuc(tichSo,cucSo,donHe,tichSoNam){
   const idxTA=Math.floor(((cucSo-1)%24)/3);
-  const thaiAt=DUONG_PALACES[idxTA];
+  // Dương độn: Thái Ất đi XUÔI [1,2,3,4,6,7,8,9]
+  // Âm độn:   Thái Ất đi NGƯỢC [9,8,7,6,4,3,2,1]
+  const AM_PALACES=[9,8,7,6,4,3,2,1];
+  const thaiAt=(donHe==="am"?AM_PALACES:DUONG_PALACES)[idxTA];
   let mapVX, mapKT, tenDonHe;
   if(donHe==="duong"){
     mapVX={1:"Thân",2:"Dậu",3:"Tuất",4:"Càn",5:"Càn",6:"Hợi",7:"Tý",8:"Sửu",9:"Cấn",10:"Dần",11:"Mão",12:"Thìn",13:"Tốn",14:"Tỵ",15:"Ngọ",16:"Mùi",17:"Khôn",0:"Khôn"};
@@ -7541,6 +7553,15 @@ function renderThamHoa(hungTinh, canhBao, meta){
   }
   const nguPhucRow = renderNguPhucRow();
 
+  // Lấy metadata hệ số Ngũ Phúc (nếu có) — phải khai báo TRƯỚC khi dùng
+  const npMeta = (canhBao._nguPhucMeta) ? canhBao._nguPhucMeta
+    : (canhBao.length > 0 && canhBao[0]._nguPhucMeta) ? canhBao[0]._nguPhucMeta
+    : null;
+
+  // Tách mảng: Ngũ Phúc lên đầu (class riêng), hung tinh xuống dưới
+  const nguPhucItems = canhBao.filter(c=>c._isNguPhucHoaGiai);
+  const hungItems    = canhBao.filter(c=>!c._isNguPhucHoaGiai);
+
   const tongDiem = canhBao.length > 0 ? (canhBao[0]._tongDiem || 0) : 0;
   const diemThucTe = npMeta ? npMeta.diemThucTe : tongDiem;
 
@@ -7562,15 +7583,6 @@ function renderThamHoa(hungTinh, canhBao, meta){
       : "Cảnh Báo Vĩ Mô";
 
   const mucDoMau = diemThucTe >= 6 ? "#cc1122" : diemThucTe >= 4 ? "#ff4455" : "#ff8844";
-
-  // Lấy metadata hệ số Ngũ Phúc (nếu có)
-  const npMeta = (canhBao._nguPhucMeta) ? canhBao._nguPhucMeta
-    : (canhBao.length > 0 && canhBao[0]._nguPhucMeta) ? canhBao[0]._nguPhucMeta
-    : null;
-
-  // Tách mảng: Ngũ Phúc lên đầu (class riêng), hung tinh xuống dưới
-  const nguPhucItems = canhBao.filter(c=>c._isNguPhucHoaGiai);
-  const hungItems    = canhBao.filter(c=>!c._isNguPhucHoaGiai);
 
   const renderNguPhucBanner = nguPhucItems.map(c=>`
     <div class="tham-hoa-item" style="border-left-color:#ffd700;background:rgba(255,215,0,.06);border-color:rgba(255,215,0,.3);">
@@ -9144,11 +9156,2291 @@ function calRender() {
   }, 20);
 }
 
-function calClickDay(d, silent) {
+// ═══════════════════════════════════════════════════════
+//  144 CỤC ÂM DƯƠNG ĐỘN — Load JSON một lần, cache lại
+// ═══════════════════════════════════════════════════════
+const _144CucData = {
+  "mo_ta": "144 Cục Âm và Dương Độn - Kỳ Môn Độn Giáp",
+  "ghi_chu": "Các cục Âm Độn 11-20 không có trong văn bản gốc được cung cấp.",
+  "duong_don": {
+    "mo_ta": "72 Cục Dương Độn",
+    "tong_so": 72,
+    "danh_sach": [
+      {
+        "so_cuc": 1,
+        "can_chi": [
+          "Giáp Tý",
+          "Bính Tý",
+          "Mậu Tý",
+          "Canh Tý",
+          "Nhâm Tý"
+        ],
+        "toan_chu": "7, không hòa, dương đơn, không trời",
+        "toan_khach": "13 - dài hòa",
+        "toan_dinh": "13",
+        "toa_do_sao_tuong": "Ất cả cung 1, âm tuyệt . Văn tới Thân, Mắt đất Kích . Đại chủ cung 7, mắt đất Ếm . Tham chủ, cung 1, Giam . Đại khách cung 3, phát . Tham khách cung 9, cách . Thần kể Dần . Mới kích tới Vũ lớn, Ếm Đại chủ .",
+        "luan_giai": "Khối này, toán khách, dài hoà, cửa đủ, tướng phát . Lợi về khách . Ngoài trận lợi đông trước . Ra quân, Đông bắc . Chiến, lợi Tây nam . Lợi trận cong, phất cờ đen . Khí mây theo Đông bắc lại, khách thắng . Theo Đông nam lại, hướng về Tây bắc mà đi, mau sửa soạn chiến lớn . Nghe địch dự bị Tây nam . Binh kỳ, Tây nam . Binh phục, lợi giờ Tuất Hợi, tin thắng thời rút . Ất cả tuy trợ chủ, Đại tướng chủ, mắt khách Ếm . Toán không hòa, không lợi cho chủ . Nghe địch dự bị Tây nam ."
+      },
+      {
+        "so_cuc": 2,
+        "can_chi": [
+          "Ất Sửu",
+          "Đinh Sửu",
+          "Kỷ Sửu",
+          "Tân Sửu",
+          "Quý Sửu"
+        ],
+        "toan_chu": "6, không hòa, dương đơn, không trời",
+        "toan_khach": "1, không hòa",
+        "toan_dinh": "1, dương đơn, không đất",
+        "toa_do_sao_tuong": "Ất cả cung 1 . Văn tới Dậu, cung trong ép, Kích . Đại chủ cung 6, trong ép . Tham chủ cung 8, ngoài cắp, ép . Đại khách cung 1, chủ trong cấp . Tham khách cung 3, phát . Thần kể Sửu . Mới kích tới Chủ âm, thời kích .",
+        "luan_giai": "Khối này Đại tiểu tướng cắp . Đại tướng khách giam . Chủ khách đều không lợi, đều nên cố giữ . Chủ nghe địch dự bị chính Đông . Khách nghe địch dự bị Tây bắc ."
+      },
+      {
+        "so_cuc": 3,
+        "can_chi": [
+          "Bính Dần",
+          "Mậu Dần",
+          "Canh Dần",
+          "Nhâm Dần",
+          "Giáp Dần"
+        ],
+        "toan_chu": "1 Đơn",
+        "toan_khach": "16 - dài hòa",
+        "toan_dinh": "31",
+        "toa_do_sao_tuong": "Ất cả cung 1 . Văn tới Tuất, thời ép . Đại chủ cung 1, cung 3, phát . Đại khách cung 4, phát . Tham khách cung 2, phát . Thần kể Tý . Mới kích tới Nghĩa lớn, ngoài Thời phát .",
+        "luan_giai": "Khối này . Ất cả trợ khách . Toán khách dài hoà, cửa đủ, tướng phát . Lợi về khách . Ngoài trận lợi động trước . Ra quân, nên chính Đông . Chiến lợi chính Tây . Lợi trận sắc bén . phất cờ đó . Khí mây theo chính Đông lại, khách thắng . Nghe địch dự bị chính Tây bấc . Bình kỳ, Tây bắc . Binh phục, lợi giờ Tuất Hợi . Mất chủ thời Ép, không hòa, toán ngắn . Đại tướng Giam, nên cố giữ . Nghe địch dự bị Tây bắc ."
+      },
+      {
+        "so_cuc": 4,
+        "can_chi": [
+          "Đinh Mão",
+          "Ất Mão",
+          "Quý Mão",
+          "Tân Mão",
+          "Kỷ Mão"
+        ],
+        "toan_chu": "25 — cửa đóng",
+        "toan_khach": "17 - không hòa",
+        "toan_dinh": "10",
+        "toa_do_sao_tuong": "Ất cả ở cung 2, khí rời . Văn tới Kiển . Đại khách cung 7, ngoài Ép . Tham khách cung 1, phát, văn Ếm . Thần kể Hợi . Mới kích tới Đức dương .",
+        "luan_giai": "Khối này, bên chủ đóng tấc, không lợi . Toán không hòa, Đại tướng khách ngoài ép . Chủ khách đều không lợi . Khách nên cố giữ . Chủ nghe địch dự bị Tây bắc . Khách nghe địch dự bị Đông bắc ."
+      },
+      {
+        "so_cuc": 5,
+        "can_chi": [
+          "Mậu Thìn",
+          "Bính Thìn",
+          "Giáp Thìn",
+          "Nhâm Thìn",
+          "Canh Thìn"
+        ],
+        "toan_chu": "25 — cửa đóng",
+        "toan_khach": "14 - hòa - không đất",
+        "toan_dinh": "1 - dương đơn - không đất",
+        "toa_do_sao_tuong": "Ất cả cung 2 . Văn tới Kiển . Đại khách cung 4, phát . Tham khách cung 2, Giam . Thần kể Tuất . Mới kích tới Lã thân .",
+        "luan_giai": "Khối này, Ất cả trợ khách . Toán khách dài, hòa, Đại tướng phát lợi về khách . Ngoài trận, lợi đông trước . Ra quân, nên chính Đông . Chiến, lợi chính Tây . Lợi trận sắc bén, phất cờ trắng khí mây theo chính Đông thắng . Theo chính Bắc lại rồi đi về Nam, kíp dự bị chiến lớn . Nghc địch dự bị Đông bắc Binh Kỳ, Đông bắc . Binh phục, lợi giờ Tị Ngọ Vị . Toán chủ đóng lấp, không cửa, không lợi, nên cố giữ . Nghe địch dự bị Tây Bắc ."
+      },
+      {
+        "so_cuc": 6,
+        "can_chi": [
+          "Kỷ Tị",
+          "Đinh Tị",
+          "Ất Tị",
+          "Quý Tị",
+          "Tân Tị"
+        ],
+        "toan_chu": "25 — cửa đóng",
+        "toan_khach": "10 — Dương cô - Không người",
+        "toan_dinh": "32, giữa hòa - không đất",
+        "toa_do_sao_tuong": "Ất cả ở cung 2 - Văn tới Hợi . Đại khách cung 1, phát . Tham khách cung 3, phát . Thần kể Dậu . Mới kích tới Âm cả .",
+        "luan_giai": "Khối này, Ất cả trợ khách . Đại tiểu tướng khách phát . Lợi về khách . Ngoài trận, lợi động trước . Ra quân, nên Tây bắc . Chiến, lợi Đông nam . Lợi trận cong, phất cờ đỏ . Khí mây theo Tây bắc lại khách thắng . Theo chính Bắc lại, đi về Nam, kíp dự bị chiến lớn . Nghe địch, dự bị Đông nam . Binh Kỳ, Đông bắc . Binh phục, lợi giờ Tị Ngọ Vị . Được lợi khi rút, không nên lại kích . Bên chủ đóng lấp, không cửa, không lợi . Nên cố giữ, nghc địch, dự bị Tây Bắc ."
+      },
+      {
+        "so_cuc": 7,
+        "can_chi": [
+          "Canh Ngọ",
+          "Mậu Ngọ",
+          "Bính Ngọ",
+          "Giáp Ngọ",
+          "Nhâm Ngọ"
+        ],
+        "toan_chu": "8, không hòa",
+        "toan_khach": "25, đóng",
+        "toan_dinh": "9, Dương đơn",
+        "toa_do_sao_tuong": "Ất cả ở cung 3 . Văn tới Khảm, cung trong ép . Đại chủ cung 3 trong ép . Tham chủ cung 4, ngoài ép . Đại khách cung 9, phát . Tham khách cung 7, cách . Thần kể Thân . Mới kích tới Thần lớn .",
+        "luan_giai": "Khối này, Đại tiểu tướng chủ ép . Bên khách đóng lấp, không cửa . Chủ khách đều không lợi . Đều nên cố giữ . Chủ nghe địch, dự bị chính Bắc . Khách nghc địch, dự bị Đông nam ."
+      },
+      {
+        "so_cuc": 8,
+        "can_chi": [
+          "Tân Vị",
+          "Kỷ Vị",
+          "Đinh Vị",
+          "Ất Vị",
+          "Quý Vị"
+        ],
+        "toan_chu": "1, dương đơn, không đất",
+        "toan_khach": "22, đơn âm",
+        "toan_dinh": "3, dương đơn, không đất",
+        "toa_do_sao_tuong": "Ất cả ở cung 3 . Văn đến Sửu, thời ép . Đại chủ cung 1, phát . Tham chủ cung 3, giam . Đại khách cung 2, giam . Tham khách cung 6, phát . Thần kể vị . Mới Kích tới Vũ lớn .",
+        "luan_giai": "Khối này, toán khách dài hòa, cửa đủ, tướng phát, Lợi về khách . Ngoài trận, lợi đông trước . Ra trận, nên chính Nam, Chiến, lợi chính Tây . Khí mây theo chính Nam lại, khách thắng . Nghe địch, dự bị Tây nam . Binh kỳ, Tây nam Binh phục, lợi giờ Sửu Dần . Mắt Chủ ép, toán ngắn . Tham tướng giam . Chủ không lợi, nên cố giữ . Nghe địch, dự bị Tây bắc ."
+      },
+      {
+        "so_cuc": 9,
+        "can_chi": [
+          "Nhâm Thân",
+          "Canh Thân",
+          "Mậu Thân",
+          "Bính Thân",
+          "Giáp Thân"
+        ],
+        "toan_chu": "3, không hòa",
+        "toan_khach": "15, Dương trùng, không đất",
+        "toan_dinh": "33",
+        "toa_do_sao_tuong": "Ất cả cung 3 . Văn tới Cấn, giam . Đại chủ cung 3, giam . Tham chủ cung 9, phát . Thần kể Ngọ . Mới Kích tới Nhóm cả .",
+        "luan_giai": "Khối này, Mắt Chủ, Đại tướng giam . Khách, đóng lấp, không cửa chủ khách đểu không lợi, Khách nên cố giữ . Chủ nghe địch dự bị Đông bắc . Khách nghe địch dự bị chính Tây ."
+      },
+      {
+        "so_cuc": 10,
+        "can_chi": [
+          "Tân Dậu",
+          "Kỷ Dậu",
+          "Đinh Dậu",
+          "Ất Dậu",
+          "Quý Dậu"
+        ],
+        "toan_chu": "1 ~ Dương đơn - không đất",
+        "toan_khach": "12 — dài hòa - không đất",
+        "toan_dinh": "25, đóng",
+        "toa_do_sao_tuong": "Ất cả ở cung 4, khí tuyệt . Văn tới Dần, thời Kích . Đại chủ cung 1, ếm . Tham chủ cung 3, trong ép . Đại khách cung 2, phát . Tham khách cung 3, cách . Thần kể Tị . Mới Kích tới Đức Âm .",
+        "luan_giai": "Khối này . toán khách dài hòa . Đại tướng phát . Lợi về khách . Ngoài mặt trận lợi động trước . Ra quân, nên chính nam, Chiến, lợi chính Bắc . Lợi trận tròn, phất cờ vàng . Khí mây theo từ chính Nam lại, khách thắng . Nghe địch, dự bị Tây bắc . Binh kỳ, Tây Bắc . Binh phục, lợi giờ Dần, Mão, Thìn . Tướng không khí, hễ thắng thì thôi chiến . Mắt Chủ, Tham tướng ép . Ất cả tuy trợ chủ, Toán chủ ngắn, không lợi, nên cố giữ . Nghe địch, dự bị Đông nam ."
+      },
+      {
+        "so_cuc": 11,
+        "can_chi": [
+          "Nhâm Tuất",
+          "Canh Tuất",
+          "Mậu Tuất",
+          "Bính Tuất",
+          "Giáp Tuất"
+        ],
+        "toan_chu": "4 — không hòa, âm đơn, không đất",
+        "toan_khach": "4 — không hòa",
+        "toan_dinh": "13, âm tạp, trùng",
+        "toa_do_sao_tuong": "Ất cả ở cung 4. Văn tới Mão, ép. Đại chủ cung 4, giam. Tham chủ cung 2, phát. Đại khách cung 4, ngăn, giam, cấp Ất cả. Tham khách cung 2, Tham chủ ngăn. Thần kể Thìn. Mới Kích tới Đức Dương.",
+        "luan_giai": "Khối này, đại tướng chủ khách đều giam, ngăn. Chủ đất đều không lợi. Mắt trời bỏ Mất đất vậy. Chủ khách đều nên cố giữ. Chủ nghe địch dự bị chính Đông. Khách nghe địch dự bị Đông bắc."
+      },
+      {
+        "so_cuc": 12,
+        "can_chi": [
+          "Quý Hợi",
+          "Tân Hợi",
+          "Kỷ Hợi",
+          "Đinh Hợi",
+          "Ất Hợi"
+        ],
+        "toan_chu": "37, dài, hòa - Dương tạp trùng - đủ",
+        "toan_khach": "1 — Dương đơn - không đất",
+        "toan_dinh": "4 - Âm đơn - không đất",
+        "toa_do_sao_tuong": "Ất cả ở cung 4, Văn tới Thìn, Thời ngoài ép. Đại chủ cung 7, phát. Tham chủ cung 1, phát, giam. Đại khách cung 1, Tham chủ ngăn. Tham khách cung 3, trong ép. Thần kể Mão. Mới Kích tới Lã Thân, Thời trong Kích.",
+        "luan_giai": "Khối này, Ất cả trợ chủ. Toán chủ dài, hòa, cửa đủ, tướng phát. Ngoài trận lợi động sau. Ra quân, nên Tây nam. Chiến, lợi Đông bắc. Dùng trận vuông, phất cờ trắng. Khí mây theo Tây nam lại, chủ thắng. Nghe địch dự bị Đông nam. Binh phục, lợi giờ Dần Mão Thìn. Toán Khách ngắn. Mắt Khách, Thời Kích. Tham tướng ép. không lợi cho khách, nên cố giữ. Nghe địch dự bị Đông bắc."
+      },
+      {
+        "so_cuc": 13,
+        "can_chi": [
+          "Giáp Tý",
+          "Nhâm Tý",
+          "Canh Tý",
+          "Mậu Tý",
+          "Bính Tý"
+        ],
+        "toan_chu": "18, trên hòa, đủ",
+        "toan_khach": "19, âm trùng tạp",
+        "toan_dinh": "19, dương trùng tạp, đủ",
+        "toa_do_sao_tuong": "Ất cả ở cung 6, khí tuyệt, Văn tới Tốn. Đại chủ cung 5, phát. Tham chủ cung 4, cách, đối. Đại khách cung 9, phát, Văn ngăn. Tham khách cung 7, trong ép, phát. Thần kể Dần. Mới Kích tới Dương cả.",
+        "luan_giai": "Khối này, toán chủ dài hòa. Tham tướng tuy phát, Đại tướng phát, lợi về chủ. Ngoài trận lợi động sau. Ra quân nên chính Bắc. Chiến, lợi chính Nam. Lợi trận cong, phất cờ đen. Khí mây từ chính Bắc lại, chủ thắng. Nghe địch dự bị Đông nam. Binh kỳ, Đông nam. Binh phục, lợi giờ Thân Dậu Tuất. Ất cả trợ khách, cửa đủ, tướng phát. Lợi về khách. Ngoài trận lợi động trước. Ra quân nên Đông nam. Chiến, lợi Tây bắc. Lợi trận nhọn, phất cờ đỏ. Khí mây theo Đông nam lại, khách thắng. Nghe địch dự bị Đông nam. Binh kỳ, Đông nam. Binh phục, lợi giờ Thân Dậu Tuất."
+      },
+      {
+        "so_cuc": 14,
+        "can_chi": [
+          "Ất Sửu",
+          "Quý Sửu",
+          "Tân Sửu",
+          "Kỷ Sửu",
+          "Đinh Sửu"
+        ],
+        "toan_chu": "10 — dương cô, không người",
+        "toan_khach": "9, Hòa",
+        "toan_dinh": "9 — Dương đơn ~ Không trời",
+        "toa_do_sao_tuong": "Ất cả ở cung 6, Văn tới Tị, Mắt đất Kích. Đại chủ cung 1, ngoài ép. Tham chủ cung 3, phát. Đại khách cung 9. Tham khách cung 7, trong ép. Thần kể Sửu. Mới Kích đến Oai lớn.",
+        "luan_giai": "Khối này, Ất cả trợ khách. Toán khách hòa, Đại tướng phát. Lợi về khách. Ngoài trận, lợi đông trước. Ra quân, nên Đông nam. Chiến, lợi Tây bắc. Lợi trận sắc bén, phất cờ đỏ. Khí mây theo Đông nam lại, khách thắng. Nghe địch dự bị chính Nam. Binh kỳ, Tây nam. Binh phục, lợi giờ Thân Dậu Tuất. Toán chủ 10, Dương cô. Đại tướng ép. Không lợi về chủ, nên cố giữ. Nghe địch dự bị Đông nam."
+      },
+      {
+        "so_cuc": 15,
+        "can_chi": [
+          "Bính Dần",
+          "Giáp Dần",
+          "Nhâm Dần",
+          "Canh Dần",
+          "Mậu Dần"
+        ],
+        "toan_chu": "9 hòa — Đơn dương",
+        "toan_khach": "7",
+        "toan_dinh": "6 - đơn âm",
+        "toa_do_sao_tuong": "Ất cả ở cung 6. Văn tới Ngọ. Đại chủ cung 9, phát. Tham chủ cung 7, trong ép, ếm. Đại khách cung 7, trong ngăn, ép. Tham khách cung 1, ngoài ép. Thần kể Tý. Mới Kích tới Vũ lớn, cung trong Kích.",
+        "luan_giai": "Khối này, Ất cả trợ chủ. Toán chủ hòa. Đại tướng phát. Lợi về chủ. Ngoài trận lợi động sau. Ra quân, nên Đông nam. Chiến, lợi Tây bắc. Lợi trận sắc bén, phất cờ đỏ. Khí mây từ Đông nam lại, chủ thắng. Nghe địch, dự bị chính Nam. Binh kỳ, chính Nam. Binh phục, lợi giờ Thân Dậu Tuất. Có thể án quân ở nơi hiểm yếu, bất chợt mà ra là thắng trận. Mắt khách Kích Ất cả. Mắt chủ cấp. Đại tiểu tướng khách ép không lợi, nên cố giữ. Nghe địch dự bị Tây bắc."
+      },
+      {
+        "so_cuc": 16,
+        "can_chi": [
+          "Đinh Mão",
+          "Ất Mão",
+          "Quý Mão",
+          "Tân Mão",
+          "Kỷ Mão"
+        ],
+        "toan_chu": "1 ~ Dương đơn - không đất",
+        "toan_khach": "33 — Đơn dương - dương trùng - không đất",
+        "toan_dinh": "26, thuần âm",
+        "toa_do_sao_tuong": "Ất cả ở cung 7. Văn tới Vị, Thời Kích, ép. Đại chủ cung 1-ngoài ép, phát, kích. Tham chủ cung 3, cách. Đại khách cung 3, cách. Tham khách cung 9, phát. Thần kể Hợi. Mới Kích tới Nhóm cả, ngoài Kích.",
+        "luan_giai": "Khối này, Ất cả trợ khách. Đại tướng tuy cách, Tham tướng phát. Toán khách dài hòa. Lợi về khách. Ngoài trận, lợi động trước. Ra quân nên Đông bắc. Chiến, lợi Tây nam. Lợi trận thẳng, phất cờ xanh. Khí mây theo Đông bắc lại, khách thắng. Nghe địch dự bị chính Nam. Binh kỳ, chính Nam, lợi giờ Vị Thân. Không nên giao phong đánh lớn. Mắt chủ, thời Kích, toán ngắn. Tham tướng cách, Không lợi, nên cố giữ. Nghe địch, dự bị Tây nam."
+      },
+      {
+        "so_cuc": 17,
+        "can_chi": [
+          "Nhâm Thìn",
+          "Canh Thìn",
+          "Mậu Thìn",
+          "Bính Thìn",
+          "Giáp Thìn"
+        ],
+        "toan_chu": "7, không hòa",
+        "toan_khach": "27, không hòa",
+        "toan_dinh": "16, dưới hòa ~ đủ",
+        "toa_do_sao_tuong": "Ất cả cung 7. Văn tới Khôn, trong. Đại chủ cung 7, ép, trong ngăn. Tham chủ cung 9, phát. Đại khách cung 7, trong ngăn. Tham khách cung 1, ngăn. Thần kể Tuất. Mới Kích tới Nghĩa lớn.",
+        "luan_giai": "Khối này Mắt chủ giam, Tham tướng. Đại tướng chủ khách giam. Đều không lợi. Tham tướng ngăn, chủ khách đều không lợi. Đã làm gì đều nên cố giữ. Chủ nghe địch dự bị Tây nam. Khách nghe địch dự bị Tây bắc."
+      },
+      {
+        "so_cuc": 18,
+        "can_chi": [
+          "Kỷ Tị",
+          "Đinh Tị",
+          "Ất Tị",
+          "Quý Tị",
+          "Tân Tị"
+        ],
+        "toan_chu": "7 - không hòa",
+        "toan_khach": "26 ~ không hòa - Dương thuần, đủ",
+        "toan_dinh": "11 — Dương trùng - không đất",
+        "toa_do_sao_tuong": "Ất cả ở cung 7. Văn tới Khôn, giam. Đại chủ cung 7, giam. Tham chủ cung 1, khách cắp. Đại khách cung 4, khách, ép. Tham khách cung 8, ngăn. Thần kể Dậu. Mới Kích tới Chủ đất.",
+        "luan_giai": "Khối này, Ất cả Đại tiểu tướng chủ cấp. Đại tiểu tướng khách ngoài ép. Đại tiểu tướng khách lại cấp Tham tướng chủ. Chủ khách đều không lợi, đều nên cố giữ. Chủ nghe địch dự bị Tây nam. Khách nghe địch dự bị chính Bắc."
+      },
+      {
+        "so_cuc": 19,
+        "can_chi": [
+          "Canh Ngọ",
+          "Mậu Ngọ",
+          "Bính Ngọ",
+          "Giáp Ngọ",
+          "Nhâm Ngọ"
+        ],
+        "toan_chu": "8 — không hòa",
+        "toan_khach": "32 — Dài hòa - Đủ",
+        "toan_dinh": "14 — Hòa ~ không đất",
+        "toa_do_sao_tuong": "Ất cả ở cung 8 khí rời. Văn tới Thân, khách cấp. Đại chủ cung 8, tù - Kích ngoại, giam. Tham chủ cung 4, phát. Đại khách cung 2, phát, cách. Tham khách cung 6, phát. Thần kể Thân. Mới Kích tới Đức hòa, chủ cấp, Kích ngoài.",
+        "luan_giai": "Khối này. Ất cả, Đại tướng khách tuy phát, cách, toán hòa, Đại tiểu tướng cấp Bài văn, khách lợi. Ngoài trận lợi động sau. Ra quân nên chính Nam. Chiến, lợi chính Bắc. Lợi trận tròn, phất cờ vàng. Khí mây từ chính Tây lại, khách được. Nghe địch dự bị Đông bắc. Binh kỳ, Đông bắc. Binh phục, lợi giờ Hợi Tý Sửu. Bên chủ toán ngắn. Mắt trời bị khách cấp. Ất cả giam. Ất cả tuy trợ chủ, không lợi cho chủ, nên cố giữ. Nghe địch dự bị Tây nam."
+      },
+      {
+        "so_cuc": 20,
+        "can_chi": [
+          "Tân Vị",
+          "Kỷ Vị",
+          "Đinh Vị",
+          "Ất Vị",
+          "Quý Vị"
+        ],
+        "toan_chu": "7 - hòa",
+        "toan_khach": "26 - Dương thuần đủ",
+        "toan_dinh": "11 — Dương đơn - không đất",
+        "toa_do_sao_tuong": "Ất cả ở cung 8, Văn tới Dậu. Đại chủ, cung 7, phát. Tham chủ cung 1, trong ép. Đại khách cung 6, văn ếm, chủ cấp. Tham khách cung 8, giam. Thần kể Vị. Mới Kích tới Dương cả.",
+        "luan_giai": "Khối này, Ất cả trợ chủ. Đại tiểu tướng chủ cấp Đại tướng khách. Toán chủ hòa. Đại tướng phát, khỏi mong lợi chủ. Ngoài trận, động sau. Ra quân, nên Tây nam. Chiến, lợi Đông bắc. Lợi trận, vuông phất cờ trắng. Khí mây theo Tây nam lại, chủ thắng. Nghe địch dự bị chính Tây. Binh phục, lợi giờ Hợi Tý Sửu. Đại tiểu tướng khách bị Đại tiểu tướng chủ cấp, không lợi cho khách nên cố giữ. Nghe địch dự bị Đông nam."
+      },
+      {
+        "so_cuc": 21,
+        "can_chi": [
+          "Nhâm Thân",
+          "Canh Thân",
+          "Mậu Thân",
+          "Bính Thân",
+          "Giáp Thân"
+        ],
+        "toan_chu": "2, dương đơn, không đất",
+        "toan_khach": "17, dài, dương trùng, đủ",
+        "toan_dinh": "33, dương thuần, không đất",
+        "toa_do_sao_tuong": "Ất cả ở cung 8. Văn tới Tuất, Đại chủ cung 2, cách, Kích. Tham chủ cung 6, cắp. Đại khách cung 7, chủ cắp. Tham khách cung 1, trong ép. Thần kể Ngọ. Mới Kích tới Thần lớn .",
+        "luan_giai": "Khối này, Đại tiểu tướng chủ cấp Đại tiểu tướng khách. Khách không lợi. Đại tiểu tướng chủ cách, toán ngắn. Chủ khách thế đều nhau. Khách nên cố giữ. Chủ nghe địch dự bị Tây bắc. Khách nghe địch dự bị Đông nam ."
+      },
+      {
+        "so_cuc": 22,
+        "can_chi": [
+          "Quý Dậu",
+          "Tân Dậu",
+          "Kỷ Dậu",
+          "Đinh Dậu",
+          "Ất Dậu"
+        ],
+        "toan_chu": "16, hòa",
+        "toan_khach": "30, dương cô, không hòa",
+        "toan_dinh": "1, dương đơn",
+        "toa_do_sao_tuong": "Ất cả cung 9. Văn tới Kiền, cách. Đại chủ cung 6, phát. Tham chủ cung 8, phát. Đại khách cung 3, phát. Tham khách cung 9 giam. Thần kể Tị. Mới Kích tới Đạo trời .",
+        "luan_giai": "Khối này, đại tiểu tướng chủ, cửa đổ, tướng phát. Lợi về chủ. Ngoài trận, lợi động sau. Ra quân, nên chính Tây. Chiến, lợi chính Đông. Lợi trận vuông, phất cờ trắng. Khí mây từ chính Tây lại, chủ thắng. Binh kỳ, chính Tây. Binh phục, lợi giờ Thìn Tị . Toán khách, dương cô, không hòa. Tham tướng giam, không lợi, nên giữ. Nghe địch dự bị Tây bắc ."
+      },
+      {
+        "so_cuc": 23,
+        "can_chi": [
+          "Giáp Tuất",
+          "Nhâm Tuất",
+          "Canh Tuất",
+          "Mậu Tuất",
+          "Bính Tuất"
+        ],
+        "toan_chu": "16, hòa",
+        "toan_khach": "23, dài, hòa",
+        "toan_dinh": "32, giữa hòa",
+        "toa_do_sao_tuong": "Ất cả ở cung 9. Văn tới Kiển, cách. Đại chủ cung 6, phát. Mất trời Cấp Kích. Tham chủ cung 8, phát. Tham khách cung 9, giam. Thần kể Thìn. Mới Kích tới Đức Võ .",
+        "luan_giai": "Khối này, Ất cả, chủ khách đều không lợi. Bên chủ toán hòa, cửa đủ, tướng phát, lợi về chủ. Gặp trận lợi động sau. Ra quân nên chính Tây. Chiến, lợi chính Đông. Lợi trận vuông, phất cờ trắng. Khí mây từ chính Tây lại, chủ thắng. Nghe địch dự bị mặt Tây bắc. Binh phục, lợi giờ Thìn Tị . Toán khách dài. Ất cả trợ. Tham tướng tuy giam, đại tướng phát lợi về khách. Gặp trận, lợi động trước. Ra quân, nên Đông bắc. Chiến, lợi Tây nam. Lợi trận thẳng, phất cờ xanh. Khí mây từ Đông bắc lại, khách thắng. Nghe địch, dự bị Tây bắc. Binh phục, lợi giờ Thìn Tị ."
+      },
+      {
+        "so_cuc": 24,
+        "can_chi": [
+          "Ất Hợi",
+          "Quý Hợi",
+          "Tân Hợi",
+          "Kỷ Hợi",
+          "Đinh Hợi"
+        ],
+        "toan_chu": "16, dài, hạ hòa",
+        "toan_khach": "17, âm trung trùng dương",
+        "toan_dinh": "23, giữa hòa, không đất",
+        "toa_do_sao_tuong": "Ất cả cung 9, Văn tới Hợi. Đại chủ cung 6, Khách Kích, cấp. Tham chủ cung 8, phát. Đại khách cung 7, phát. Tham khách cung 1, cách. 2 Mắt cắp. Thần kể Mão. Mới Kích tới Chủ âm .",
+        "luan_giai": "Khối này, Đại tiểu khách cấp Đại tướng chủ. Ất cả trợ khách. Toán khách dài hòa, cửa đủ, tướng phát. Lợi về khách. Gặp trận lợi động trước. Ra quân, nên Tây nam. Chiến, lợi Đông bắc. Lợi trận vuông, phất cờ trắng. Khí mây từ Tây nam lại, khách thắng. Nghe địch dự bị Tây bắc. Binh kỳ, Tây bắc. Binh phục lợi giờ Thìn Tị . Toán chủ ngắn. Đại tiểu tướng khách cấp, không lợi, nên cố giữ. Nghc địch dự bị Tây bắc ."
+      },
+      {
+        "so_cuc": 25,
+        "can_chi": [
+          "Bính Tý",
+          "Giáp Tý",
+          "Nhâm Tý",
+          "Canh Tý",
+          "Mậu Tý"
+        ],
+        "toan_chu": "39, dương thuần",
+        "toan_khach": "40, dương cô, không người",
+        "toan_dinh": "40, dương cô, không người",
+        "toa_do_sao_tuong": "Ất cả cung 1. Văn tới Khảm, Kích, ép. Đại chủ cung 9, Khách cấp. Tham chủ cung 7, phát. Đại khách cung 4, phát. Tham khách cung 2, Văn cách, chủ cắp. Thần kể Dần. Mới Kích tới Nghĩa lớn, Thời Kích .",
+        "luan_giai": "Khối này, toán khách dài, cửa đủ, tướng phát. Lợi về khách gặp trận lợi động trước. Ra quân, nên chính Đông. Chiến, lợi chính Tây. Lợi trận nhọn, phất cờ đỏ. Khí mây từ chính Đông lại, khách thắng. Nghe địch dự bị Tây bắc. Binh phục, lợi giờ Tuất Hợi . Đại tướng chủ cách. Ất cả tuy trợ chủ. Đại tướng chủ bị Đại tiểu tướng khách cắp, không lợi, nên cố giữ. Nghe địch dự bị chính Bắc , ."
+      },
+      {
+        "so_cuc": 26,
+        "can_chi": [
+          "Đinh Sửu",
+          "Ất Sửu",
+          "Quí Sửu",
+          "Tân Sửu",
+          "Kỷ Sửu"
+        ],
+        "toan_chu": "32, dài, hòa trung",
+        "toan_khach": "31, Dương trùng, tạp, không đất",
+        "toan_dinh": "31, Dương trùng, tạp, không đất",
+        "toa_do_sao_tuong": "Ất cả cung 1, Văn tới Sửu, cách. Đại khách cung 2, phát. Tham chủ cung 6, trong ép. Đại khách cung l, giam. Tham khách cung 3, kích ếm Văn. Thần kể Sửu, Mới kích tới Đức Hoà .",
+        "luan_giai": "Khối này Ất cả trợ chủ, toán dài. Đại tướng phát. Lợi về chủ gặp trận, lợi động sau. Ra quân, nên chính Nam. Chiến, lợi chính bắc. Lợi trận tròn, phất cờ vàng. Khí mây từ chính Nam lại, chủ thắng. Nghe địch, dự bị Đông bắc. Binh kỳ, Đông bắc Bình phục, lợi giờ Tuất Hợi. Đại tướng khách giam, toán ngắn, không lợi nên cố giữ, Nghe địch dự bị Đông bắc ."
+      },
+      {
+        "so_cuc": 27,
+        "can_chi": [
+          "Mậu Dần",
+          "Bính Dần",
+          "Giáp Dần",
+          "Nhâm Dần",
+          "Canh Dần"
+        ],
+        "toan_chu": "31, Dưới hòa, dương trùng, không đất",
+        "toan_khach": "28, dương trùng, tạp",
+        "toan_dinh": "24, Dương thuần, không đất",
+        "toa_do_sao_tuong": "Ất cả cung 1. Văn tới Cấn, khách cấp. Đại chủ cung 1, giam. Tham chủ cung 3, khách cấp, Văn ngắn. Đại khách cung 8, chủ cấp. Tham khách cung 4, phát, kích, ếm. Thần kể Tý. Mới Kích tới Tùng cao .",
+        "luan_giai": "Khối này, Ất cả trợ chủ, Đại tướng giam. Tham tướng lại cùng Mất trời ngăn. Đại tiểu tướng chủ cấp Đại tướng khách. Chủ khách đều không lợi. Đều nên cố giữ. Chủ nghe địch dự bị Đông bắc, khách nghe địch dự bị chính Đông ."
+      },
+      {
+        "so_cuc": 28,
+        "can_chi": [
+          "Kỷ Mão",
+          "Đinh Mão",
+          "Ất Mão",
+          "Quý Mão",
+          "Tân Mão"
+        ],
+        "toan_chu": "14, trên hòa, Không đất",
+        "toan_khach": "9, Dương đơn, Vô thiên",
+        "toan_dinh": "38, Hạ hòa, Đủ",
+        "toa_do_sao_tuong": "Ất cả cung 2, Văn tới Dần. Đại chủ cung 4, phát. Tham chủ cung 2, giam, Khách cấp, kích. Đại khách cung 9, trong ép chủ ếm. Tham khách cung 7, ngoài ép. Thần kể Hợi. Mới kích tới Sáng lớn .",
+        "luan_giai": "Khối này, Ất cả tuy trợ khách, Đại tiểu tướng chủ cùng Ất cả để cấp Đại tướng khách, Đại tiểu tướng khách cắp Ất cả cùng Tham tướng chủ. Chủ khách đều không lợi. Đều nên cố giữ. Chủ nghe địch dự bị Đông bắc. Khách nghe địch dự bị Đông nam ."
+      },
+      {
+        "so_cuc": 29,
+        "can_chi": [
+          "Canh Thìn",
+          "Mậu Thìn",
+          "Bính Thìn",
+          "Giáp Thìn",
+          "Nhâm Thìn"
+        ],
+        "toan_chu": "13, Dương trùng, tạp",
+        "toan_khach": "39, Dương thuần",
+        "toan_dinh": "26, Dương thuần",
+        "toa_do_sao_tuong": "Ất cả cung 2, Khách cấp. Văn tới Mão, Đại chủ cung 3, phát. Tham chủ cung 9, trong ép. Đại khách cung 9, trong ép. Tham khách cung 7, ngoài ép. Thần kể Tuất. Mới Kích tới Đạo trời, ngoài Kích .",
+        "luan_giai": "Khối này, toán chủ hòa. Đại tướng phát. Lợi về chủ. Gặp trận lợi động sau. Ra quân, nên Đông Bắc. Chiến, lợi Tây nam. Lợi trận thẳng, phất cờ xanh. Khí mây từ Đông bắc lại, chủ thắng. Nghe địch dự bị chính Đông. Binh phục, lợi giờ Tị Ngọ Vị , . Mất khách Kích. Đại tiểu tướng tuy cùng ép. Ất cả tuy trợ khách, không lợi cho khách, nên cố giữ. Nghe địch, dự bị Tây nam ."
+      },
+      {
+        "so_cuc": 30,
+        "can_chi": [
+          "Tân Tị",
+          "Kỷ Tị",
+          "Đinh Tị",
+          "Ất Tị",
+          "Quý Tị"
+        ],
+        "toan_chu": "10, Dương cô, Không người",
+        "toan_khach": "32, Dài, hòa",
+        "toan_dinh": "17, Dương trùng, đủ",
+        "toa_do_sao_tuong": "Ất cả cung 2, Văn tới Thìn. Đại chủ cung 1, phát. Tham chủ cung 2, phát. Đại khách cung 2, giam. Tham khách cung 6, phát. Thần kể Dậu. Mới Kích tới Đức Võ .",
+        "luan_giai": "Khối này, Đại tiểu tướng chủ, cửa đủ, tướng phát. Lợi về chủ. Gặp trận lợi động sau. Ra quân, nên Tây bắc. Chiến, lợi Đông nam. Lợi trận cong, phất cờ đen. Khí mây từ Tây bắc lại, chủ thắng. Nghe địch dự bị Đông nam. Binh kỳ, Đông nam. binh phục, lợi giờ Tị Ngọ Vị . Ất cả tuy trợ khách. Đại tướng giam, Không lợi cho khách. Nên cố giữ. Nghe địch dự bị Tây nam ."
+      },
+      {
+        "so_cuc": 31,
+        "can_chi": [
+          "Giáp Ngọ",
+          "Nhâm Ngọ",
+          "Canh Ngọ",
+          "Mậu Ngọ",
+          "Bính Ngọ"
+        ],
+        "toan_chu": "33, Dương thuần",
+        "toan_khach": "10, Dương cô",
+        "toan_dinh": "34, không hòa",
+        "toa_do_sao_tuong": "Ất cả tại cung 8. Văn tới Cấn, giam. Đại chủ cung 8, giam. Tham chủ cung 4, phát. Đại khách cung 4, phát. Tham khách cung 1, trong ép. Thần kể Thân. Mới Kích tới Thần lớn.",
+        "luan_giai": "Khối này, toán khách dài hòa. Tham tướng tuy ép. Đại tướng phát. Lợi về khách. Gặp trận. lợi động trước. Ra quân, nên Tây nam. Chiến, lợi Đông bắc. Lợi trận vuông, phất cờ trắng. Khí mây từ Tây bắc lại, khách thắng. Nghe địch, dự bị Đông nam. Bình kỳ, Đông nam. Binh phục, lợi giờ Hợi Tý Sửu. Toán chủ ngắn, không hòa. Đại tướng giam. Không lợi. Nên cố giữ. Nghe địch dự bị chính Bắc."
+      },
+      {
+        "so_cuc": 32,
+        "can_chi": [
+          "Ất Vị",
+          "Quý Vị",
+          "Tân Vị",
+          "Kỷ Vị",
+          "Đinh Vị"
+        ],
+        "toan_chu": "25, cửa đóng",
+        "toan_khach": "8, Dương đơn",
+        "toan_dinh": "24, Dương thuần",
+        "toa_do_sao_tuong": "Ất cả cung 3, khách cắp. Văn tới Tị. Đại khách cung 8, trong ép. Tham khách cung 4, ngoài ép. Thần kể Vị. Mới kích tới Chủ đất, trong kích.",
+        "luan_giai": "Khối này, bên chủ đóng lấp, không cửa, không lợi. Đại tiểu tướng ép, toán ngắn. Chủ khách đều không lợi. Đều nên cố giữ. Chủ nghe địch dự bị Đông nam, khách nghe địch dự bị Đông bắc."
+      },
+      {
+        "so_cuc": 33,
+        "can_chi": [
+          "Bính Thân",
+          "Giáp Thân",
+          "Nhâm Thân",
+          "Canh Thân",
+          "Mậu Thân"
+        ],
+        "toan_chu": "24, Dương tạp",
+        "toan_khach": "3, Dương đơn",
+        "toan_dinh": "15, Cửa đóng",
+        "toa_do_sao_tuong": "Ất cả ở cung 3. Văn tới Ngọ. Đại chủ cung 4, ngoài ép, Khách cấp. Tham chủ cung 2, phát, ngăn. Đại khách cung 3, giam. Tham khách cung 9, cắp. Thần kể Ngọ. Mới kích tới Đức Hoà.",
+        "luan_giai": "Khối này, Ất cả tuy trợ chủ. Chủ không lợi. Đại tướng giam, Đại tiểu tướng khách cắp Đại tướng chủ. Đại tiểu tướng chủ cắp Tham tướng khách. Chủ khách đều không lợi. Đều nên cố giữ. Chủ nghe địch dự bị chính Nam. Khách nghe địch dự bị Đông bắc."
+      },
+      {
+        "so_cuc": 34,
+        "can_chi": [
+          "Đinh Dậu",
+          "Ất Dậu",
+          "Quý Dậu",
+          "Tân Dậu",
+          "Kỷ Dậu"
+        ],
+        "toan_chu": "26, Thuần Âm",
+        "toan_khach": "4, Âm đơn",
+        "toan_dinh": "11, không hòa",
+        "toa_do_sao_tuong": "Ất cả cùng 3. Văn tới Vị. Đại chủ cung 6, cách. Tham chủ cung 8, phát. Đại khách cung 4, giam, kích, ếm. Tham khách cung 2, phát. Thần kể Vị. Mới kích tới Tùng cao, ếm.",
+        "luan_giai": "Khối này, Ất cả trợ chủ. Đại tướng tuy cách, toán dài hòa. Tham tướng phát. Lợi về chủ, Gặp trận, lợi động sau. Ra quân, nên chính tây. Chiến, lợi chính Đông. Lợi trận vuông, phất cờ trắng. Khí mây từ chính Tây lại, chủ thắng. Nghe địch dự bị tây nam. Binh kỳ, Tây nam. Binh phục, lợi giờ Dần Mão. Mắt khách ếm. Đại khách giam. Không lợi cho khách, nên cố giữ. Nghe địch, dự bị chính Đông."
+      },
+      {
+        "so_cuc": 35,
+        "can_chi": [
+          "Mậu Tuất",
+          "Bính Tuất",
+          "Giáp Tuất",
+          "Nhâm Tuất",
+          "Canh Tuất"
+        ],
+        "toan_chu": "25, Cửa đóng",
+        "toan_khach": "28, Dương trùng, tạp",
+        "toan_dinh": "1",
+        "toa_do_sao_tuong": "Ất cả cung 4. Văn tới Khôn, Đại Khách cung 8, phát. Tham khách cung 4, trong ép tù. Thần kế Thìn. Mới kích tới Thần lớn.",
+        "luan_giai": "Khối này, toán khách dài. Đại tướng phát. Lợi về khách. Gặp trận lợi động trước. Ra quân nên chính Bắc. Chiến, lợi chính Nam. Lợi trận vuông, phất cờ đen. Khí theo chính Bắc lại, khách thắng. Nghe địch dự bị Đông nam. Binh phục lợi giờ Dẫn Mão Thìn. Toán chủ đóng lấp, không cửa, không lợi. Nên cố giữ. Nghe địch dự bị Tây bắc."
+      },
+      {
+        "so_cuc": 36,
+        "can_chi": [
+          "Kỷ Hợi",
+          "Đinh Hợi",
+          "Ất Hợi",
+          "Quý Hợi",
+          "Tân Hợi"
+        ],
+        "toan_chu": "25, Cửa đóng",
+        "toan_khach": "27, dài hòa",
+        "toan_dinh": "36, giữa hòa",
+        "toa_do_sao_tuong": "Ất cả cung 4. Văn tới Khôn. Đại khách cung 7, phát. Văn ếm. Tham khách cung 1, phát. Thần kể Mão. Mới Kích tới Nghĩa lớn.",
+        "luan_giai": "Khối này, toán khách dài hòa. Đại tiểu tướng khách, cửa đủ tướng phát. Lợi về khách. Gặp trận, lợi động trước. Ra quân nên Tây nam. Chiến, lợi Đông bấc. Lợi trận vuông, phất cờ trắng. Khí mây từ Tây nam lại, khách thắng. Nghe địch dự bị chính Nam. Binh kỳ, chính Nam. Binh phục, lợi giờ Dần Mão Thìn. Toán chủ đóng lấp, không cửa, không lợi. Nên cố giữ. Nghe địch dự bị Tây nam."
+      },
+      {
+        "so_cuc": 37,
+        "can_chi": [
+          "Canh Tý",
+          "Mậu Tý",
+          "Bính Tý",
+          "Giáp Tý",
+          "Nhâm Tý"
+        ],
+        "toan_chu": "1, Dương đơn",
+        "toan_khach": "7, Dương đơn",
+        "toan_dinh": "3",
+        "toa_do_sao_tuong": "Ất cả cung 6. Văn tới Thân, trong thời ép. Đại chủ cung ngoài ép. Tham chủ cung 3, phát. Đại khách cung 7, trong ép. Tham khách cung 1, ngoài ép. Thần kể Dần. Mới Kích tới Vũ lớn, trong ép, Kích.",
+        "luan_giai": "Khối này, toán chủ ngắn. Đại tướng ép, không lợi cho chủ. Đại tiểu tướng khách ép. Tuy có Ất cả trợ, toán khách dương đơn, không hòa. Chủ khách đều không lợi. Đều nên cố giữ. Nghe địch dự bị Tây nam."
+      },
+      {
+        "so_cuc": 38,
+        "can_chi": [
+          "Tân Sửu",
+          "Kỷ Sửu",
+          "Đinh Sửu",
+          "Ất Sửu",
+          "Quý Sửu"
+        ],
+        "toan_chu": "6, Âm đơn",
+        "toan_khach": "35, đóng lấp, không cửa",
+        "toan_dinh": "25",
+        "toa_do_sao_tuong": "Ất cả cung 6. Văn tới Dậu, ép. Đại chủ cung 6, giam. Tham chủ cung 8. Thần kể Sửu. Mới Kích tới Chủ âm ngoài thời Kích.",
+        "luan_giai": "Khối này, Mắt chủ Đại tướng giam. Khách đóng lấp, không cửa. Chủ khách đều không lợi. Đều nên cố giữ. Chủ nghe địch dự bị chính Tây. Khách nghe địch, dự bị Tây bắc."
+      },
+      {
+        "so_cuc": 39,
+        "can_chi": [
+          "Nhâm Dần",
+          "Giáp Dần",
+          "Bính Dần",
+          "Mậu Dần",
+          "Canh Dần"
+        ],
+        "toan_chu": "35, cửa đóng",
+        "toan_khach": "34, Không hòa",
+        "toan_dinh": "26",
+        "toa_do_sao_tuong": "Ất cả cung 6. Văn tới Tuất, ép. Đại khách cung 4, cách. Tham khách cung 2, phát. Thần kể Tý. Mới Kích tới Nghĩa lớn.",
+        "luan_giai": "Khối này, Ất cả. Đại khách tuy cách, toán hòa, Ất cả trợ khách. Gặp trận, lợi động trước. Ra quân, nên chính Đông. Chiến, lợi chính Tây. Lợi trận sắc bén, phất cờ đỏ. Khí mây từ chính Đông lại, khách thắng. Nghe địch, dự bị Tây bắc. Binh kỳ, Tây bắc. Bình phục, lợi giờ Thân Dậu Tuất. Toán chủ, đóng lấp, không cửa, không lợi cho chủ, nên cố giữ. Nghc địch, dự bị Tây bắc."
+      },
+      {
+        "so_cuc": 40,
+        "can_chi": [
+          "Quý Mão",
+          "Ất Mão",
+          "Đinh Mão",
+          "Kỷ Mão",
+          "Tân Mão"
+        ],
+        "toan_chu": "27, Hạ hòa",
+        "toan_khach": "19, Dương trùng, tạp",
+        "toan_dinh": "12, Hạ hòa",
+        "toa_do_sao_tuong": "Ất cả cung 7. Văn tới Kiển. Đại chủ cung 7, giam. Tham chủ cung 1, phát, giam. Đại khách cung 9, phát, Văn ếm. Tham khách cung 7, giam. Thần kể Hợi. Mới Kích tới Đức Dương.",
+        "luan_giai": "Ất cả trợ khách. Toán khách hòa. Đại tướng phát. Lợi về khách. Gặp trận, lợi động trước. Ra quân, nên Đông nam. Chiến, lợi Tây bắc. Lợi trận sắc bén, phất cờ đỏ. Khí mây từ Đông nam lại, khách thắng. Nghe địch dự bị Đông bắc. Binh kỳ, Đông bắc. Bình phục, lợi giờ Vị Thân. Toán chủ hạ hòa. Đại tướng giam. Không lợi cho chủ, nên cố giữ. Nghe địch dự bị Tây bắc."
+      },
+      {
+        "so_cuc": 41,
+        "can_chi": [
+          "Giáp Thìn",
+          "Bính Thìn",
+          "Mậu Thìn",
+          "Canh Thìn",
+          "Nhâm Thìn"
+        ],
+        "toan_chu": "27, hạ hòa",
+        "toan_khach": "16, không hòa",
+        "toan_dinh": "3",
+        "toa_do_sao_tuong": "Ất cả cung 7. Văn tới Kiền. Đại chủ cung 7, ép, giam. Tham chủ cung 1, phát, Văn ngăn, khách cắp. Đại khách cung 6, chủ cắp, ngoài ép. Tham khách cung 8. Thần kể Tuất. Mới Kích tới Lã Thân.",
+        "luan_giai": "Khối này, Đại tướng chủ giam. Đại tướng khách ép. Đại tướng chủ, khách giam. Đại tiểu tướng lại cấp. Mắt chủ cùng tham tướng chủ. Chủ khách đều không lợi, đều nên cố giữ. Chủ nghe địch dự bị Tây bắc. Khách nghe địch dự bị Đông bắc."
+      },
+      {
+        "so_cuc": 42,
+        "can_chi": [
+          "Ất Tị",
+          "Đinh Tị",
+          "Kỷ Tị",
+          "Tân Tị",
+          "Quý Tị"
+        ],
+        "toan_chu": "27, Hạ hòa",
+        "toan_khach": "12, Hạ hòa",
+        "toan_dinh": "34",
+        "toa_do_sao_tuong": "Ất cả cung 7, khách cắp. Văn tới Hợi. Đại chủ cung 7, giam. Tham chủ cung 1, phát. Đại khách cung 2, giam, ép. Tham khách cung 6, ngoài ép, Chủ cắp. Thần kể Dậu, ngoài ép. Mới Kích tới Dương cả.",
+        "luan_giai": "Khối này, Đại tiểu tướng khách cấp Ất cả. Đại tướng chủ, giam Đại tiểu tướng khách, trong ngoài ép. Chủ khách đều không lợi, đều nên cố giữ. Chủ nghe địch, dự bị Tây bấc. Khách nghe địch dự bị Đông nam."
+      },
+      {
+        "so_cuc": 43,
+        "can_chi": [
+          "Bính Ngọ",
+          "Mậu Ngọ",
+          "Canh Ngọ",
+          "Nhâm Ngọ",
+          "Giáp Ngọ"
+        ],
+        "toan_chu": "8, Âm đơn",
+        "toan_khach": "17, Dương trùng tạp",
+        "toan_dinh": "1",
+        "toa_do_sao_tuong": "Ất cả tại cung 8. Văn tới Cấn, giam. Đại chủ cung 8, giam. Tham chủ cung 4, phát. Đại khách cung 4, phát. Tham khách cung 1, trong ép. Thần kể Thân. Mới Kích tới Thần lớn.",
+        "luan_giai": "Khối này, toán khách dài hòa. Tham tướng tuy ép. Đại tướng phát. Lợi về khách. Gặp trận, lợi động trước. Ra quân, nên Tây nam. Chiến, lợi Đông bắc. Lợi trận vuông, phất cờ trắng. Khí mây từ Tây bắc lại, khách thắng. Nghe địch, dự bị Đông nam. Bình kỳ, Đông nam. Binh phục, lợi giờ Hợi Tý Sửu. Toán chủ ngắn, không hòa. Đại tướng giam. Không lợi. Nên cố giữ. Nghe địch, dự bị chính Bắc."
+      },
+      {
+        "so_cuc": 44,
+        "can_chi": [
+          "Đinh Vị",
+          "Kỷ Vị",
+          "Tân Vị",
+          "Quý Vị",
+          "Ất Vị"
+        ],
+        "toan_chu": "33, dương trùng, Không đất",
+        "toan_khach": "14, Trên hòa",
+        "toan_dinh": "32",
+        "toa_do_sao_tuong": "Ất cả cung 8, tới Sửu ngoài ép. Đại chủ cung 3, ngoài ép, Tham cung 9, Khách cấp. Đại khách cung 4, chủ cấp. Tham khách cung 2. Thần kể Vị. Mới Kích tới Vũ lớn.",
+        "luan_giai": "Khối này, Mắt chủ tướng ép. Tham tướng bị Đại tiểu tướng khách áp. Đại tiểu tướng khách lại bị Đại tiểu tướng chủ cấp. Tham tướng, cách. Chủ khách đều không lợi. Đều nên cố giữ. Chủ nghe địch dự bị Đông bắc. Khách nghe địch dự bị Tây bắc."
+      },
+      {
+        "so_cuc": 45,
+        "can_chi": [
+          "Mậu Thân",
+          "Canh Thân",
+          "Nhâm Thân",
+          "Giáp Thân",
+          "Bính Thân"
+        ],
+        "toan_chu": "32, hòa, không đất",
+        "toan_khach": "7, Dương đơn, không trời",
+        "toan_dinh": "25",
+        "toa_do_sao_tuong": "Ất cả cung 8. Văn tới Cấn, ngoài ép. Đại chủ cung 2, cách. Tham chủ cung 6, Khách cắp, Mất đất cắp. Đại khách cung 7, chủ cấp. Tham khách cung 1, trong ép. Thần kể Ngọ. Mới Kích tới Nhóm cả.",
+        "luan_giai": "Khối này, Đại tướng chủ tuy cách, Tham tướng phát. Ất cả trợ chủ. Toán chủ dài, hòa. Lợi về chủ. Gặp trận, lợi động sau. Ra quân, nên chính Nam. Chiến, lợi chính Bắc. Lợi trận tròn, phất cờ vàng. Khí mây từ Nam lại, chủ thắng. Nghe địch dự bị Đông bắc. Binh kỳ, Đông bắc. Bình phục, lợi giờ Hợi Tý Sửu. Nhưng vì Đại tướng chủ cách, ở cung Rời Tuyệt gặp khí giam. Tham tướng chủ bị Mắt khách ếm, cách, lại gặp khí chết. Cũng không nên ra quân đông lớn. Đại tướng khách bị Đại tiểu tướng chủ cấp. Tham tướng khách trong ép, toán ngắn không hòa, không lợi cho khách. Nên cố giữ. Nghe địch dự bị chính Tây."
+      },
+      {
+        "so_cuc": 46,
+        "can_chi": [
+          "Kỷ Dậu",
+          "Tân Dậu",
+          "Quý Dậu",
+          "Ất Dậu",
+          "Đinh Dậu"
+        ],
+        "toan_chu": "12, Dưới hòa",
+        "toan_khach": "26, giữa hòa",
+        "toan_dinh": "37",
+        "toa_do_sao_tuong": "Ất cả cung 4. Văn tới Kiền. Đại chủ cung 2, phát, Kích. Tham chủ cung 6, cách. Đại khách cung 6, cách. Tham khách cung 8, phát. Thần kể Tị. Mới kích tới Đạo trời.",
+        "luan_giai": "Khối này, Ất cả trợ chủ. Toán chủ hòa. Đại tướng phát. Lợi về chủ. Gặp trận, lợi động sau. Ra quân nên chính Tây. Chiến, lợi chính Đông. Lợi trận tròn, phất cờ vàng. Khí mây từ chính Đông lại, chủ thắng. Phòng địch, mặt Tây bắc. Bình kỳ Tây nam. Bình phục, lợi giờ Dần Mão Thìn."
+      },
+      {
+        "so_cuc": 47,
+        "can_chi": [
+          "Canh Tuất",
+          "Nhâm Tuất",
+          "Giáp Tuất",
+          "Bính Tuất",
+          "Mậu Tuất"
+        ],
+        "toan_chu": "12, Dưới hòa",
+        "toan_khach": "19, Dương trùng, tạp",
+        "toan_dinh": "28",
+        "toa_do_sao_tuong": "Ất cả cung 4. Văn tới Kiển, Đại chủ cung 2, cấp. Tham chủ cung 6, Kích. Đại khách cung 9, ép. Tham khách cung 7, cắp. Thần kế Thìn. Mới kích tới Đức võ.",
+        "luan_giai": "Khối này, Ất cả trợ chủ. Toán chủ dài, hòa. Tham tướng tuy ép, Đại tướng phát. Lợi về chủ. Gặp trận, lợi động sau. Ra quân, nên chính Tây. Chiến, lợi chính Đông. Lợi trận vuông phất cờ trắng. Khí mây từ chính Đông lại, chủ thắng. Phòng địch mặt Tây nam. Binh kỳ, Tây nam. Binh phục, lợi giờ Dần Mão Thìn."
+      },
+      {
+        "so_cuc": 48,
+        "can_chi": [
+          "Tân Hợi",
+          "Quý Hợi",
+          "Ất Hợi",
+          "Đinh Hợi",
+          "Kỷ Hợi"
+        ],
+        "toan_chu": "12, Không hòa",
+        "toan_khach": "13, Dương trùng, tạp",
+        "toan_dinh": "19",
+        "toa_do_sao_tuong": "Ất cả cung 4, Văn tới Hợi. Đại chủ cung 2, phát. Tham chủ cung 6, cách, Kích. Đại khách cung 3, ép trong. Tham khách cung 9, ngoài ép. Thần kể phát, giam. Mới kích tới Chủ âm.",
+        "luan_giai": "Khối này, Ất cả trợ chủ. Toán chủ hòa, Cửa đủ, tướng phát. Lợi về chủ. Gặp trận, lợi động sau. Ra quân, nên chính Nam. Chiến, lợi chính Bắc. Lợi trận tròn, phất cờ vàng. Khí mây từ chính Nam lại, chủ thắng. Nghe địch dự bị Tây bắc. Binh kỳ, Tây bắc. Binh phục lợi giờ Dần Mão Thìn. Toán khách không hòa. Đại tiểu tướng ép, không lợi. Nên cố giữ. Nghe địch, dự bị mặt Tây bắc."
+      },
+      {
+        "so_cuc": 49,
+        "can_chi": [
+          "Nhâm Tý",
+          "Giáp Tý",
+          "Bính Tý",
+          "Mậu Tý",
+          "Canh Tý"
+        ],
+        "toan_chu": "33, Dương thuần",
+        "toan_khach": "34, Hạ hòa",
+        "toan_dinh": "34, Hạ hòa",
+        "toa_do_sao_tuong": "Ất cả cung 6. Văn tới Tý. Đại chủ cung 3, phát. Tham chủ cung 9, cấp khách. Đại khách cung 4, cách, Chủ cắp. Tham khách cung 2, phát. Thần kể Dân. Mới kích tới Nghĩa lớn.",
+        "luan_giai": "Khối này, toán chủ dài, hòa. Tham tướng chủ tuy bị khách cấp, Đại tướng phát. Lợi về chủ. Gặp trận, lợi động sau. Ra quân nên Đông bắc. Chiến, lợi Tây nam. Lợi trận cong, phất cờ đen. Khí mây từ Đông bắc lại, chủ thắng. Nghe địch dự bị mặt chính Bắc. Bình kỳ chính Bắc. Binh phục, lợi giờ Thân Dậu Tuất. Ất cả tuy trợ khách. Đại tướng khách bị Đại tiểu tướng chủ cấp, lại cách. Không lợi. Nên cố giữ. Nghe địch dự bị mặt Tây bắc."
+      },
+      {
+        "so_cuc": 50,
+        "can_chi": [
+          "Quý Sửu",
+          "Ất Sửu",
+          "Đinh Sửu",
+          "Kỷ Sửu",
+          "Tân Sửu"
+        ],
+        "toan_chu": "26, Dương thuần",
+        "toan_khach": "25, cửa đóng",
+        "toan_dinh": "25",
+        "toa_do_sao_tuong": "Ất cả cung 6. Văn tới Sửu. Kích. Đại chủ cung 6, giam. Tham chủ cung 8, phát. Thần kể Sửu. Mới kích tới Đức Hòa.",
+        "luan_giai": "Khối này, Đại tướng chủ, giam. Khách, đóng lấp, không cửa. Chủ khách đều không lợi. Nên cố giữ. Nghe địch dự bị mặt Đông bắc."
+      },
+      {
+        "so_cuc": 51,
+        "can_chi": [
+          "Nhâm Dần",
+          "Canh Dần",
+          "Mậu Dần",
+          "Bính Dần",
+          "Giáp Dần"
+        ],
+        "toan_chu": "15, Cửa đóng",
+        "toan_khach": "13, dương trùng, không đất",
+        "toan_dinh": "15",
+        "toa_do_sao_tuong": "Ất cả cung 1. Văn tới Ngọ, Kích. Đại khách cung 3. phát. Tham khách cung 5, cách. Thần kể Tý. Mới Kích tới Võ lớn.",
+        "luan_giai": "Khối này, toán khách trường hòa. Đại tướng phát. Lợi về khách. Gặp trận, lợi động trước, Ra quân nên Đông bấc. Chiến, lợi Tây nam. Lợi trận thẳng. phất cờ xanh. Khí mây theo Đông bấc lại, khách thắng. Nghe địch dự bị Tây nam. Binh kỳ Tây nam. Binh phục, lợi giờ Tuất Hợi. Bên chủ, đóng lấp không cửa, không lợi. Nên cố thủ. Nghe địch dự bị chính Nam."
+      },
+      {
+        "so_cuc": 52,
+        "can_chi": [
+          "Quý Mão",
+          "Tân Mão",
+          "Kỷ Mão",
+          "Đinh Mão",
+          "Ất Mão"
+        ],
+        "toan_chu": "39, Dương trùng",
+        "toan_khach": "31, Dương trùng, tạp",
+        "toan_dinh": "24",
+        "toa_do_sao_tuong": "Ất cả cùng 2, Văn tới Vị, ngoài ép. Đại chủ cung 9, trong ép. Tham chủ cung 7, cấp, ngoài ép. Đại khách cung 1, phát. Tham khách cung 3, phát. Thần kể Sửu, Mới kích tới Nhóm cả.",
+        "luan_giai": "Khối này, Ất cả trợ khách. Toán khách hòa. Đại tiểu tướng khách cửa đủ tướng phát, lợi cho khách. Gặp trận, lợi động trước. Ra quân, nên Tây bắc. Chiến, lợi Đông nam. Lợi trận cong, phất cờ đen. Khí mây từ Tây bắc lại, khách thắng. Nghe địch dự bị chính Tây, Binh kỳ, chính Tây. Bình phục lợi giờ Tị Ngọ Vị. Đại tiểu tướng chủ ép, không lợi về chủ. Nên cố giữ. Nghc địch dự bị Tây nam."
+      },
+      {
+        "so_cuc": 53,
+        "can_chi": [
+          "Giáp Thìn",
+          "Nhâm Thìn",
+          "Canh Thìn",
+          "Mậu Thìn",
+          "Bính Thìn"
+        ],
+        "toan_chu": "1",
+        "toan_khach": "25",
+        "toan_dinh": "14",
+        "toa_do_sao_tuong": "Ất cả cung 2. Văn tới Khôn, ép. Đại chủ cung 8, cách, Kích. Tham chủ cung 4, phát. Thần kể Tuất. Mới kích tới Nghĩa lớn.",
+        "luan_giai": "Khối này, toán chủ dài hòa. Đại tướng tuy cách, Tham tướng phát. Lợi về chủ. Gặp trận, lợi động sau. Ra quân, nên chính Bắc. Chiến, lợi chính Đông. Lợi trận cong, phất cờ đen. Khí mây từ chính Bắc lại, chủ thắng. Nghe địch dự bị Tây nam. Binh kỳ, Tây bấc. Binh phục lợi giờ Tị Ngọ Vị. Toán khách, đóng lấp, không cửa, không lợi. Nên cố giữ, Nghe địch dự bị Tây bắc."
+      },
+      {
+        "so_cuc": 54,
+        "can_chi": [
+          "Ất Tị",
+          "Quý Tị",
+          "Tân Tị",
+          "Kỷ Tị",
+          "Đinh Tị"
+        ],
+        "toan_chu": "38 — dưới hòa",
+        "toan_khach": "24, Âm trùng tạp",
+        "toan_dinh": "9",
+        "toa_do_sao_tuong": "Ất cả cung 2. Văn tới Khôn, ép. Đại chủ cung 8, cách. Tham chủ cung 4, phát, khách ngăn. Đại khách cung 4, chủ ngăn. Tham khách cung 2, giam. Thần kể Dậu. Mới kích tới Chủ đất.",
+        "luan_giai": "Khối này, Ất cả trợ khách. Toán khách hòa. Đại tướng phát lợi về khách. Gặp trận, lợi động trước. Ra quân, nên chính Đông. Chiến, lợi chính Tây. Lợi trận sắc bén, phất cờ đỏ. Khí mây từ Đông nam lại, khách thắng. Nghe địch, dự bị chính Bắc. Binh kỳ, chính Bắc. Binh phục, lợi giờ Tị Ngọ vị. Tướng chủ cách. Mắt chủ ép. Không lợi về chủ. Nghe địch dự bị Tây nam."
+      },
+      {
+        "so_cuc": 55,
+        "can_chi": [
+          "Bính Ngọ",
+          "Giáp Ngọ",
+          "Nhâm Ngọ",
+          "Canh Ngọ",
+          "Mậu Ngọ"
+        ],
+        "toan_chu": "16, Dưới hòa",
+        "toan_khach": "3, Dương đơn, Không đất",
+        "toan_dinh": "22",
+        "toa_do_sao_tuong": "Ất cả cung 2. Văn tới Thân. Đại chủ cung 6, phát. Tham chủ cùng 8, ép. Đại khách cung 3, giam. Tham khách cung 9, phát. Thần kể Thân. Mới kích tới Đức Hòa, ếm.",
+        "luan_giai": "Khối này, Ất cả trợ chủ. Toán chủ hòa. Đại tướng phát. Lợi về chủ. Gặp trận, lợi động sau. Ra quân, nên chính Tây. Chiến, lợi chính Đông. Lợi trận vuông, phất cờ trắng. Khí mây từ Tây lại, chủ thắng. Nghe địch dự bị Tây nam. Binh kỳ, Tây nam. Bình phục, lợi giờ Sửu Dần Vị. Mắt khách ếm, Kích. Đại tướng giam. Không lợi. Nên cố giữ. Nghe địch dự bị Đông bấc."
+      },
+      {
+        "so_cuc": 56,
+        "can_chi": [
+          "Đinh Vị",
+          "Ất Vị",
+          "Quý Vị",
+          "Tân Vị",
+          "Kỷ Vị"
+        ],
+        "toan_chu": "15, cửa đóng",
+        "toan_khach": "34 — không hòa",
+        "toan_dinh": "12, dài hòa",
+        "toa_do_sao_tuong": "Ất cả cung 3. Văn tới Dậu. Đại khách cung 4, ngoài ép. Tham khách cung 2, phát. Thần kế Vị. Mới kích tới Dương cả.",
+        "luan_giai": "Khối này, toán khách, dài, hòa. Đại tướng tuy ép. Tham tướng phát. Gặp khí giam. Có mã chim, gió theo chính Đông lại, là trời trợ. Tham tướng ra quân, hướng chính Đông. Gặp địch, dẫn quân hướng chính Tây. Kích trước, thắng lớn. Bình kỳ dự bị Đông nam. Sửu Dần có thể đặt binh phục, được trận thì rút, vì tướng không có khí tốt. Toán chủ, đóng lấp, không cửa, không lợi. Nên cố giữ. Nghc địch dự bị chính Tây."
+      },
+      {
+        "so_cuc": 57,
+        "can_chi": [
+          "Mậu Thân",
+          "Bính Thân",
+          "Giáp Thân",
+          "Nhâm Thân",
+          "Canh Thân"
+        ],
+        "toan_chu": "10, Dương cô, Không người",
+        "toan_khach": "25, cửa đóng",
+        "toan_dinh": "21",
+        "toa_do_sao_tuong": "Ất cả cung 3. Văn tới Tuất. Đại chủ cung 1, phát. Tham chủ cung 3, giam. Thần kể Ngọ. Mới kích tới Thần lớn.",
+        "luan_giai": "Khối này, Ất cả trợ chủ. Toán chủ hòa. Đại tướng phát. Lợi về chủ. Gặp trận, lợi động sau. Ra quân, nên Tây bắc. Chiến, lợi Đông nam. Lợi trận cong, phất cờ đen. Khí mây từ Tây bắc lại. Bình phục lợi giờ Sửu Dần. Toán khách, đóng lấp, không cửa, không lợi. Nên cố giữ. Phòng bị địch Đông nam."
+      },
+      {
+        "so_cuc": 58,
+        "can_chi": [
+          "Kỷ Dậu",
+          "Đinh Dậu",
+          "Ất Dậu",
+          "Quý Dậu",
+          "Tân Dậu"
+        ],
+        "toan_chu": "12, Dưới hòa, Không đất",
+        "toan_khach": "26, giữa hòa",
+        "toan_dinh": "37",
+        "toa_do_sao_tuong": "Ất cả cung 4. Văn tới Kiền. Đại chủ cung 2, phát, Kích. Tham chủ cung 6, cách. Đại khách cung 6, cách. Tham khách cung 8, phát. Thần kể Tị. Mới kích tới Đạo trời.",
+        "luan_giai": "Khối này, Ất cả trợ chủ. Toán chủ hòa. Đại tướng phát. Lợi về chủ. Gặp trận, lợi động sau. Ra quân nên chính Tây. Chiến, lợi chính Đông. Lợi trận tròn, phất cờ vàng. Khí mây từ chính Đông lại, chủ thắng. Phòng địch, mặt Tây bắc. Bình kỳ Tây nam. Bình phục, lợi giờ Dần Mão Thìn."
+      },
+      {
+        "so_cuc": 59,
+        "can_chi": [
+          "Canh Tuất",
+          "Mậu Tuất",
+          "Bính Tuất",
+          "Giáp Tuất",
+          "Nhâm Tuất"
+        ],
+        "toan_chu": "12, Dưới hòa, Không đất",
+        "toan_khach": "19, Dương trùng, tạp",
+        "toan_dinh": "28",
+        "toa_do_sao_tuong": "Ất cả cung 4. Văn tới Kiển, Đại chủ cung 2, cấp. Tham chủ cung 6, Kích. Đại khách cung 9, ép. Tham khách cung 7, cắp. Thần kế Thìn. Mới kích tới Đức vỏ.",
+        "luan_giai": "Khối này, Ất cả trợ chủ. Toán chủ dài, hòa. Tham tướng tuy ép, Đại tướng phát. Lợi về chủ. Gặp trận, lợi động sau. Ra quân, nên chính Tây. Chiến, lợi chính Đông. Lợi trận vuông phất cờ trắng. Khí mây từ chính Đông lại, chủ thắng. Phòng địch mặt Tây nam. Binh kỳ, Tây nam. Binh phục, lợi giờ Dần Mão Thìn."
+      },
+      {
+        "so_cuc": 60,
+        "can_chi": [
+          "Tân Hợi",
+          "Kỷ Hợi",
+          "Đinh Hợi",
+          "Ất Hợi",
+          "Quý Hợi"
+        ],
+        "toan_chu": "12, Không hòa, Không đất",
+        "toan_khach": "13, Dương trùng, tạp",
+        "toan_dinh": "19",
+        "toa_do_sao_tuong": "Ất cả cung 4, Văn tới Hợi. Đại chủ cung 2, phát. Tham chủ cung 6, cách, Kích. Đại khách cung 3, ép trong. Tham khách cung 9, ngoài ép. Thần kể phát, giam. Mới kích tới Chủ âm.",
+        "luan_giai": "Khối này, Ất cả trợ chủ. Toán chủ, hòa, Cửa đủ, tướng phát. Lợi về chủ. Gặp trận, lợi động sau. Ra quân, nên chính Nam. Chiến, lợi chính Bắc. Lợi trận tròn, phất cờ vàng. Khí mây từ chính Nam lại, chủ thắng. Nghe địch dự bị Tây bắc. Binh kỳ, Tây bắc. Binh phục lợi giờ Dần Mão Thìn. Toán khách không hòa. Đại tiểu tướng ép, không lợi. Nên cố giữ. Nghe địch, dự bị mặt Tây bắc."
+      },
+      {
+        "so_cuc": 61,
+        "can_chi": [
+          "Nhâm Tý",
+          "Canh Tý",
+          "Mậu Tý",
+          "Bính Tý",
+          "Giáp Tý"
+        ],
+        "toan_chu": "33, Dương thuần",
+        "toan_khach": "34, Hạ hòa",
+        "toan_dinh": "34, Hạ hòa",
+        "toa_do_sao_tuong": "Ất cả cung 6. Văn tới Tý. Đại chủ cung 3, phát. Tham chủ cung 9, cấp khách. Đại khách cung 4, cách, Chủ cắp. Tham khách cung 2, phát. Thần kể Dân. Mới kích tới Nghĩa lớn.",
+        "luan_giai": "Khối này, toán chủ, dài, hòa. Tham tướng chủ tuy bị khách cấp. Đại tướng phát. Lợi về chủ. Gặp trận, lợi động sau. Ra quân nên Đông bắc. Chiến, lợi Tây nam, Lợi trận cong, phất cờ đen. Khí mây từ Đông bắc lại, chủ thắng. Nghe địch dự bị mặt chính Bắc. Bình kỳ chính Bắc. Binh phục, lợi giờ Thân Dậu Tuất. Ất cả tuy trợ khách. Đại tướng khách bị Đại tiểu tướng chủ cấp, lại cách. Không lợi. Nên cố giữ. Nghe địch dự bị mặt Tây bắc."
+      },
+      {
+        "so_cuc": 62,
+        "can_chi": [
+          "Quý Sửu",
+          "Tân Sửu",
+          "Kỷ Sửu",
+          "Đinh Sửu",
+          "Ất Sửu"
+        ],
+        "toan_chu": "26, Dương thuần",
+        "toan_khach": "25, cửa đóng",
+        "toan_dinh": "25",
+        "toa_do_sao_tuong": "Ất cả cung 6. Văn tới Sửu. Kích. Đại chủ cung 6, giam. Tham chủ cung 8, phát. Thần kể Sửu. Mới kích tới Đức Hòa.",
+        "luan_giai": "Khối này, Đại tướng chủ, giam. Khách, đóng lấp, không cửa. Chủ khách đều không lợi. Nên cố giữ. Nghe địch dự bị mặt Đông bắc."
+      },
+      {
+        "so_cuc": 63,
+        "can_chi": [
+          "Giáp Dần",
+          "Nhâm Dần",
+          "Canh Dần",
+          "Mậu Dần",
+          "Bính Dần"
+        ],
+        "toan_chu": "25 cửa đóng",
+        "toan_khach": "22, âm thuần",
+        "toan_dinh": "18",
+        "toa_do_sao_tuong": "Ất cả cung 6. Văn tới Cấn. Đại khách cung 2, phát. Tham khách cung 6, giam. Thần kể Tý. Mới kích tới Tùng Cao, Kích.",
+        "luan_giai": "Khối này, Ất cả trợ khách. Toán khách dài, hòa. Đại tướng phát. Lợi về khách. Gặp trận, lợi động trước. Ra quân nên chính Nam. Chiến, lợi chính Bắc. Lợi trận tròn, phất cờ vàng. Khí mây từ chính Nam lại. khách thắng. Nghc địch dự bị mặt chính Đông. Binh kỳ chính Đông. Binh phục, lợi giờ Thân Tuất. Cũng vì Mắt khách bị Ất cả cách, Tham tướng giam, không phải là toàn lợi. Toán chủ đóng lấp. không cửa. Không lợi. Nên cố giữ. Nghe địch dự bị mặt Đông bắc."
+      },
+      {
+        "so_cuc": 64,
+        "can_chi": [
+          "Ất Mão",
+          "Quý Mão",
+          "Tân Mão",
+          "Kỷ Mão",
+          "Đinh Mão"
+        ],
+        "toan_chu": "16",
+        "toan_khach": "11, Trong âm trùng dương",
+        "toan_dinh": "17",
+        "toa_do_sao_tuong": "Ất cung 7. Văn tới Dần. Đại chủ cung 6, ngoài ép. Tham chủ cũng 8, khách cắp chủ. Đại khách cung 1, chủ cấp.",
+        "luan_giai": "Khối này, Ất cả cách. Đại tiểu tướng chủ cấp. Đại tưởng khách, Toán chủ không hòa. Đại tướng ép. Chủ khách đều không lợi. Đều nên cố giữ. Chủ nghe địch dự bị mặt Đông bắc. Khách nghe địch dự bị mặt Đông nam."
+      },
+      {
+        "so_cuc": 65,
+        "can_chi": [
+          "Bính Thìn",
+          "Giáp Thìn",
+          "Nhâm Thìn",
+          "Canh Thìn",
+          "Mậu Thìn"
+        ],
+        "toan_chu": "15",
+        "toan_khach": "1",
+        "toan_dinh": "28",
+        "toa_do_sao_tuong": "Ất cả cung 7. Văn tới Mão. Đại khách cung 1, phát. Tham khách cung 2, cắp. Thần kể Tuất. Mới Kích tới Đạo trời. Thời trong Kích.",
+        "luan_giai": "Khối này, Mắt khách tuy chịu Kích, Ất trời trợ khách. Đại tướng khách phát. Lợi về khách. Gặp trận, lợi động trước. Ra quân, nên Tây bắc. Chiến, lợi Đông nam. Lợi trận cong, phất cờ đen. Khí mây từ Tây bắc lại, khách thắng. Nghe địch dự bị chính Đông. Binh kỳ chính Đông. Binh phục, lợi giờ Vị Thân. Chú, đóng lấp, không cửa. Không lợi, nên cố giữ. Nghe địch dự bị mặt chính Đông."
+      },
+      {
+        "so_cuc": 66,
+        "can_chi": [
+          "Đinh Tị",
+          "Ất Tị",
+          "Quý Tị",
+          "Tân Tị",
+          "Kỷ Tị"
+        ],
+        "toan_chu": "1",
+        "toan_khach": "34, dưới hòa, không đất",
+        "toan_dinh": "19",
+        "toa_do_sao_tuong": "Ất cả cung 7, chủ cấp. Văn tới tới Thìn. Đại chủ cung 2, ép. Tham chủ cung 6, ép. Đại khách cung 4, phát. Tham khách cung 2, trong ép. Thần kể Dậu, Mới kích tới Đức võ, ngoài Kích.",
+        "luan_giai": "Khối này, Ất cả trợ khách. Toán khách dài, hòa. Đại tướng phát. Lợi về khách. Gặp trận, lợi động trước. Ra quân, nên chính Đông. Chiến, lợi chính Tây. Lợi trận sắc bén, phất cờ đỏ. Khí mây từ chính Đông lại, khách thắng. Nghe địch dự bị Tây nam. Binh kỳ, Tây nam. Bình phục, lợi giờ Vị Thân. Nhưng vì Đại khách ở cung khí tuyệt. Tham khách còn chịu Kích, lại cùng Đại tướng khách ngăn nhau. Cũng chẳng nên dấy quân, cất lớn. Đại tiểu tướng chủ ép, không lợi. Nghe địch dự bị mặt Đông Bắc Nam."
+      },
+      {
+        "so_cuc": 67,
+        "can_chi": [
+          "Mậu Ngọ",
+          "Bính Ngọ",
+          "Giáp Ngọ",
+          "Nhâm Ngọ",
+          "Canh Ngọ"
+        ],
+        "toan_chu": "25",
+        "toan_khach": "2",
+        "toan_dinh": "26",
+        "toa_do_sao_tuong": "Ất cả cung 8, Văn tới Tốn, Đại khách cung 2, cách. Tham khách cung 6. phát. Thần kể Thần. Mới kích tới Chủ âm.",
+        "luan_giai": "Khối này. Ất cả trợ khách. Toán khách hòa. Đại tướng tuy cách, Tham tướng phút. Lợi về khách. Gặp trận, lợi động trước. Ra quận nên chính Nam. Chiến. lợi chính Bác. Lựi trận tròn. phất cờ vàng, Khí mây từ chính Nam lại, khách thắng. Nghe địch dự bị mặt Tây bắc. Binh kỳ. Tây bấc. Binh phục lợi giờ Hợi Tý Sửu. Nhưng mà toán khách ngắn, không lựi. Đại tướng Ở nơi khí giam. Tham tướng chịu Mút khách Kích thời, lại gặp kbí chết, cũng không gọi là toán lợi được. Chủ, đóng tấp, không cửa. Không lợi. Nên cố giữ. Nghe địch dự bị mặt Đông nam."
+      },
+      {
+        "so_cuc": 68,
+        "can_chi": [
+          "Kỷ Vị",
+          "Đinh Vị",
+          "Ất Vị",
+          "Quí Vị",
+          "Tân Vị"
+        ],
+        "toan_chu": "17, Trong âm trùng dương",
+        "toan_khach": "8",
+        "toan_dinh": "16",
+        "toa_do_sao_tuong": "Ất cả cung 8 Văn tới Tị. Đại chủ cụng 7, phát, Tham chủ cung ép ưong. Đại khách cụng 8, giam. Tham khách cung + phát. Thần kế Vị, Mới kích tới Chủ đất, ếm.",
+        "luan_giai": "Khối này, toán chủ dài, hòa, Ất cả trợ chủ. Đại tướng phát, Lợi về chủ. Gặp trận, lợi động sau. Ra quần, nên Tây nam. Chiến, lợi Đông bắu. Lợi trận vuông. phất cờ trắng. Khí mây từ Tây nam lại, chủ thắng. Nghe địch dự bị Đông nam. Bình kỳ Đông nam. Binh phục. lợi tgiờ Hợi Tý Sứu, Nhưng vì Đại tướng chủ gặp khí giam. Tham tướng ép. gặp khí thôi. Chỉ nên dàn quân cự. địch. không nên dấy quân cất lớn. Tuoán khách ngắn, Mất ếm, không hòa. Đại tướng giam khỏng lợi, nên cố giữ. Nghe địch dự bị chính Bắc."
+      },
+      {
+        "so_cuc": 69,
+        "can_chi": [
+          "Canh Thân",
+          "Mậu Thân",
+          "Bính Thân",
+          "Giáp Thân",
+          "Nhâm Thân"
+        ],
+        "toan_chu": "16, dưới hòa",
+        "toan_khach": "32, giữa hòa",
+        "toan_dinh": "7",
+        "toa_do_sao_tuong": "Ất cả cung 8, Văn tới Ngọ, cách. Đại chủ cung 6, phát, khách ngăn. Tham chủ cung 8, giam. Đại khách cung 2, cách. Tham khách cung 6, phát. chủ thắng. Thần kể Ngọ. Mới kích tới Đức Hòa, ngoài Kích.",
+        "luan_giai": "Khối này, Ất cả trợ chủ. Hai toán chủ khách tuy dài, hòa. Mắt chủ cách. Mất khách chịu Kích. Đại tiểu 4 tướng đều giam ngăn, cách, lại khí giam, chết, đều nên cố giữ. Chủ nghe địch dự bị mặt Đông bắc. Ứng vào năm Kiến An 20, Giáp Thân, tuế tích 10.154.101 Phù Kiên xuất quân đánh Tấn mà bại. Ứng vào Tứ Quách Cố."
+      },
+      {
+        "so_cuc": 70,
+        "can_chi": [
+          "Tân Dậu",
+          "Kỷ Dậu",
+          "Đinh Dậu",
+          "Ất Dậu",
+          "Quý Dậu"
+        ],
+        "toan_chu": "30 Dương cô",
+        "toan_khach": "1, đơn",
+        "toan_dinh": "15",
+        "toa_do_sao_tuong": "Ất cả cung 9, Văn tới Vị. Đại chủ cung 3, phát. Tham chủ cung 9, giam, khách cắp. Đại khách cung 4, ép, chủ cắp. Tham khách cung 2, ép ngoài. Thần kể Tị. Mới Kích tới Tùng cao.",
+        "luan_giai": "Khối này, Ất cả, trợ chủ. Tham tướng tuy giam, Đại tướng phát, Lợi về chủ. Gặp trận lợi động sau. Ra quân, nên Đông bắc. Chiến, lợi Tây nam. Lợi trận cong, phất cờ đen. Khí mây từ Đông bất lại, chủ thắng. Nghe địch dự bị Tây nam. Binh kỳ Tây nam. Binh phục, lợi giờ Thìn TỊ. Mất khách, Đại tiểu tướng đều chịu ép. Đại tướng chủ lại cấp. Đại tướng khách. Không lợi, nên cố giữ. Nghe địch dự bị chính Đông."
+      },
+      {
+        "so_cuc": 71,
+        "can_chi": [
+          "Nhâm Tuất",
+          "Canh Tuất",
+          "Mậu Tuất",
+          "Bính Tuất",
+          "Giáp Tuất"
+        ],
+        "toan_chu": "29, giữa hòa, đủ",
+        "toan_khach": "32, giữa hòa, không đất",
+        "toan_dinh": "5",
+        "toa_do_sao_tuong": "Ất củ cung 9, Văn tới Khôn, khách cấp. Đại chủ cung 9, giam, Tham chủ cung 7, khách cắp. Đại khách cung 2, ép, chủ cấp. Tham khách cung 6. phát. Thần kể Thìn. Mới kích tới Thần lớn, Kích ngoài.",
+        "luan_giai": "Khối này, Ất cả Mắt trời. Đại tiểu tướng lại cấp mất khách Đại tướng. Đại tiểu tướng khách lại cắp. Tham tướng chủ. Đại tướng chủ, giam. Khách nên cố giữ. Chủ nghe địch dự bị Tây nam. Khách nghe địch dự bị Đông nam."
+      },
+      {
+        "so_cuc": 72,
+        "can_chi": [
+          "Quý Hợi",
+          "Tân Hợi",
+          "Kỷ Hợi",
+          "Đinh Hợi",
+          "Ất Hợi"
+        ],
+        "toan_chu": "29",
+        "toan_khach": "31, Dương trùng",
+        "toan_dinh": "9",
+        "toa_do_sao_tuong": "Ất cả cung 9. Văn tới Khôn. Đại chủ cung 9, giam. Tham chủ cung 7, Văn ngăn. Kích. Đại khách cung 1, cách. Tham khách cung 3, phát. Thần kế Mãu. Mới kích tới Sáng lớn, ngoài ép, Kích.",
+        "luan_giai": "Khối này. Ất củ trợ khách. Toán khách dài, hòa. Đại tướng tuy cách, Tham tướng phát. Lợi về khách. Gặp trận, lợi động trước. Ra quản nên Tây bắc. Chiến, lợi Đông nam. Lợi trận cong, phất cờ đen. Khí mây từ Tây bắc lại, khách thắng. Nghe địch dự bị Tây nam. Bình kỳ, Tây nam. Binh phục lợi giờ Thìn Tị. Nhưng vì Mắt khách ngoài ép, lại bị Mấắt chủ Ất cả. Đại tướng chủ cấp, không thể toàn lợi được. Đại tướng chủ giam, Mất chủ cấp Tham khách không lợi. Nên cố giữ. Nghe địch, dự bị mặt Tây nam."
+      }
+    ]
+  },
+  "am_don": {
+    "mo_ta": "72 Cục Âm Độn",
+    "tong_so": 72,
+    "danh_sach": [
+      {
+        "so_cuc": 1,
+        "can_chi": [
+          "Giáp Tý",
+          "Bính Tý",
+          "Mậu Tý",
+          "Canh Tý",
+          "Nhâm Tý"
+        ],
+        "toan_chu": "5 - 8 cửa đóng",
+        "toan_khach": "29 - dài hòa",
+        "toan_dinh": "7",
+        "toa_do_sao_tuong": "Ất cả cung 9, văn tới Dần. Đại Khách cung 9, giam, Tham khách phát. Mắt đất chặn - Thần Kể Thân. Mới kích vào Vũ lớn.",
+        "luan_giai": "Khối này toán khách dài hòa, Đại tướng tuy giam. Tham tướng phát, lợi cho khách, gặp trận, lợi động trước. Ra quân nên hướng Đông nam. Đánh lợi Tây Bắc. Lợi trận nhọn, phất cờ đỏ. Khí mây từ Đông nam lại khách thắng. Nghe giặc dự bị mặt tây nam. Quân kỳ tây nam, quân phục lợi giờ Thìn Tị. Toán chủ ngắn, không hòa. Đại tiểu tướng đóng khắc, không cửa, không lợi. Nên cố giữ, nghe giặc dự bị mặt đông bắc."
+      },
+      {
+        "so_cuc": 2,
+        "can_chi": [
+          "Ất Sửu",
+          "Đinh Sửu",
+          "Kỷ Sửu",
+          "Tân Sửu",
+          "Quý Sửu"
+        ],
+        "toan_chu": "4 đơn - không hòa",
+        "toan_khach": "17 - Dài hòa",
+        "toan_dinh": "1",
+        "toa_do_sao_tuong": "Ất cả, cung 9, trong cấp, Văn tới Mão, trong ép. Đại chủ ở 4, cung trong ép, giam. Chủ tham ở cung 2, cung ngoài ép, cách. Đại khách cung 7, phát. Tham khách cung 1, cách. Thần Kể Vị. Mới kích tới chủ âm.",
+        "luan_giai": "Khối này toán khách dài, cửa đủ, tướng phát, lợi về khách. Thấy trận, lợi động trước. Ra quân, nên Tây Nam. Chiến, lợi Đông Bắc. Lợi trận vuông, phất cờ trắng. Khí mây từ Tây Nam lại. Khách được. Nghe giặc, phòng bị phương Đông Bắc. Quân kỳ, lợi tây bắc, quân phục, lợi giờ Thìn Tị. Nên công kích gần, không nên cất quân lớn đi chính phạt. Được tin thắng thì rút. Toán chủ ngắn. Không lợi cho đại tiểu chủ. Cung trong ngoài ép, không lợi cho chủ, nên cố giữ. Nghe giặc, dự bị mặt chính Đông."
+      },
+      {
+        "so_cuc": 3,
+        "can_chi": [
+          "Bính Dần",
+          "Mậu Dần",
+          "Canh Dần",
+          "Nhâm Dần",
+          "Giáp Dần"
+        ],
+        "toan_chu": "1 Đơn",
+        "toan_khach": "16 - dài hòa",
+        "toan_dinh": "31",
+        "toa_do_sao_tuong": "Ất cả cung 9, Văn vào Thìn, trong ép. Đại chủ 1 cấp Đại tướng người. Tiểu tướng cấp. Tham chủ cung 3, phát. Đại tướng khách, phát. Tham khách bị Đại tiểu tướng chủ cấp. Thần kể ở Ngọ. Mới kích vào Nghĩa lớn.",
+        "luan_giai": "Khối này Ất cả trợ khách. Khách dài hòa, cửa đủ, tướng phát. Lợi về khách. Ngoài trận, lợi động trước. Ra quân, hướng giữa Tây. Chiến, lợi chính Đông. Lợi trận Vuông, phất cờ trắng. Khí mây từ chính Tây lại, khách thắng. Nghe giặc, dự bị ở mặt Tây bắc. Binh kỳ, lợi Tây bắc. Binh phục lợi giờ Thìn Tị. Nên công gần, nông, không nên cất binh lớn. Toán chủ đơn 1, không hòa. Đại tướng chủ cách, bị Đại tiểu tướng cấp, Không lợi về chủ. Nên cố giữ. Nghe giặc dự bị mặt Đông nam."
+      },
+      {
+        "so_cuc": 4,
+        "can_chi": [
+          "Đinh Mão",
+          "Ất Mão",
+          "Quý Mão",
+          "Tân Mão",
+          "Kỷ Mão"
+        ],
+        "toan_chu": "25 - Cửa đóng",
+        "toan_khach": "33",
+        "toan_dinh": "2",
+        "toa_do_sao_tuong": "Ất cả cung 8. Văn tới Tốn. Khách Đại cung 3, ngoài ép. Tham khách cung 9, Mắt trời chặn ếm. Thần kể Tị. Mới kích tới Đức Dương. Thời kích ngoài.",
+        "luan_giai": "Khối này, chủ trong đóng tắc, không cửa. Đại tướng khách cung ngoài ép. Tham tướng khách bị Mắt trời chặn ếm. Mắt Đất thời kích. Chủ khách đều không lợi. Hai bên đều nên cố giữ. Chủ nghe địch, dự bị mặt Đông nam. Khách nghe địch, dự bị mặt Đông nam."
+      },
+      {
+        "so_cuc": 5,
+        "can_chi": [
+          "Mậu Thìn",
+          "Bính Thìn",
+          "Giáp Thìn",
+          "Nhâm Thìn",
+          "Canh Thìn"
+        ],
+        "toan_chu": "25 - Cửa đóng",
+        "toan_khach": "30, Dương cô, không hòa",
+        "toan_dinh": "1",
+        "toa_do_sao_tuong": "Ất cả cung 8, Văn vào Tốn. Đại khách cung 3, cung ngoài ép. Tham khách cung 9, Mắt trời chận. Thần kể Thìn. Mới kích vào Lã thần.",
+        "luan_giai": "Khối này, toán khách, dương cô. Đại tướng khách, cung ngoài ép. Tham tướng tuy phát, Mắt trời chặn, không lợi về khách nên cố giữ. Nghe giặc dự bị mặt Đông bắc. Chủ, đóng tắc, không cửa, cũng không lợi, nên cố giữ. Nghe giặc dự bị mặt Đông nam."
+      },
+      {
+        "so_cuc": 6,
+        "can_chi": [
+          "Kỷ Tị",
+          "Đinh Tị",
+          "Ất Tị",
+          "Quý Tị",
+          "Tân Tị"
+        ],
+        "toan_chu": "17",
+        "toan_khach": "26",
+        "toan_dinh": "30",
+        "toa_do_sao_tuong": "Ất cả cung 8, Văn tới Tị. Đại Khách cung 7, phát. Tham chủ cung 1 ép, cấp. Đại chủ cung 6, giam. Thần kể Mão, Mới kích vào Âm cả.",
+        "luan_giai": "Khối này, Ất cả trợ chủ. Toán chủ dài hòa, cửa đủ, tướng phát, lợi về chủ. Ngoài trận, lợi động sau. Ra quân nên hướng Tây nam. Chiến, lợi Đông bắc. Lợi trận vuông, phất cờ trắng. Khí mây từ Tây nam lại, chủ thắng. Nghe giặc dự bị mặt Đông nam. Binh phục lợi giờ Tí Sửu Hợi. Chủ nên đưa quân tiếp phục, không nên ra quân công kích. Toán khách tuy dài, Ất cả Đại tướng khách cùng Đại tiểu Tham tướng chủ cắp, không lợi. Mọi việc nên cố giữ. Nghe giặc dự bị Đông nam."
+      },
+      {
+        "so_cuc": 7,
+        "can_chi": [
+          "Canh Ngọ",
+          "Mậu Ngọ",
+          "Bính Ngọ",
+          "Giáp Ngọ",
+          "Nhâm Ngọ"
+        ],
+        "toan_chu": "2 đơn, không hòa",
+        "toan_khach": "3 đơn",
+        "toan_dinh": "3 đơn",
+        "toa_do_sao_tuong": "Ất cả ở cung 7, chủ cấp. Văn tới Ngọ, trong ép. Đại chủ cung 2, trong ép. Tham chủ cung 6, ngoài ép. Đại khách cung 3, cách. Tham khách cung 9, bỏ. Thần kể Dần, Mới kích đến Thần lớn.",
+        "luan_giai": "Khối này, Ất cả trợ khách, toán ngắn. Đại tướng Khách cách. Tham tướng phát, 3 cửa đủ, lợi về khách. Ngoài trận lợi động trước. Ra quân, hướng Đông bắc. Chiến, lợi về Tây nam. Lợi trận thẳng, phất cờ xanh. Khí mây từ Đông bắc lại, khách thắng. Nghe giặc dự bị mặt Đông nam. Binh kỳ, Đông nam. Binh phục lợi giờ Vị Thân. Toán chủ ngắn, Đại tiểu tướng đều ép. Không lợi về chủ. Vẫn cố giữ. Nghe giặc sẵn ở chính Đông."
+      },
+      {
+        "so_cuc": 8,
+        "can_chi": [
+          "Tân Vị",
+          "Kỷ Vị",
+          "Đinh Vị",
+          "Ất Vị",
+          "Quý Vị"
+        ],
+        "toan_chu": "1, ngắn, không hòa",
+        "toan_khach": "7, không hòa",
+        "toan_dinh": "7",
+        "toa_do_sao_tuong": "Ất cả cung 7: văn tới Vị, trong ép. Đại chủ 1 phát, chặn. Tham chủ cung 3, giam, chặn. Đại khách cung 7, cách. Tham khách cung 1, chủ chặn. Thần kể Sửu. Mới kích vào Vũ lớn.",
+        "luan_giai": "Khối này chủ khách đều không lợi, đều nên cố giữ. Chủ nghe giặc dự bị mặt Tây nam. Khách nghe giặc dự bị mặt Tây nam."
+      },
+      {
+        "so_cuc": 9,
+        "can_chi": [
+          "Nhâm Thân",
+          "Canh Thân",
+          "Mậu Thân",
+          "Bính Thân",
+          "Giáp Thân"
+        ],
+        "toan_chu": "7, không hòa",
+        "toan_khach": "33, dài hòa",
+        "toan_dinh": "27",
+        "toa_do_sao_tuong": "Ất cả cung 7, Văn tới Khôn, giam. Đại chủ 7, giam. Tham chủ cung 1, phát. Đại khách cung 3, cách. Tham khách cung 9, phát. Thần kể Ngọ. Mới kích tới Nhóm cả.",
+        "luan_giai": "Khối này, Ất cả trợ khách. Toán khách dài hoà. Đại khách tuy cách, Tham tướng phát. Ngoài trận lợi động trước. Ra quân nên hướng Đông bấc, chiến lợi mặt Tây nam. Toán chủ ngắn. Mắt trời Đại tướng chủ, giam. Tham tướng tuy phát cũng không lợi về chủ. Nên cố giữ."
+      },
+      {
+        "so_cuc": 10,
+        "can_chi": [
+          "Quý Dậu",
+          "Tân Dậu",
+          "Kỷ Dậu",
+          "Đinh Dậu",
+          "Ất Dậu"
+        ],
+        "toan_chu": "1 Đơn",
+        "toan_khach": "34, dài hòa",
+        "toan_dinh": "25",
+        "toa_do_sao_tuong": "Ất cả ở cung 6, Văn tới Thân, ép trong. Đại chủ 1, ép ngoài. Tham chủ cung 3, phát. Đại khách cung 4, cách. Tham khách cung 2, phát. Thần kể Hợi. Mới kích tới Đức âm, kích ngoài.",
+        "luan_giai": "Khối này, Mắt trời ép trong. Đại tướng chủ ép ngoài, với Mắt khách chặn. Tham tướng tuy phát, toán chủ ngắn không lợi về chủ. Toán khách tuy dài, Tham tướng tuy phát, Đại tướng khách, cách. Mắt đất ép ngoài, cũng không lợi. Đều nên cố giữ. Chủ nghe giặc dự bị mặt Tây nam. Khách nghe giặc dự bị mặt Tây bắc."
+      },
+      {
+        "so_cuc": 11,
+        "can_chi": [
+          "Nhâm Tuất",
+          "Canh Tuất",
+          "Mậu Tuất",
+          "Bính Tuất",
+          "Giáp Tuất"
+        ],
+        "toan_chu": "6 đơn",
+        "toan_khach": "26",
+        "toan_dinh": "19",
+        "toa_do_sao_tuong": "Ất cả cung 6. Văn tới Dậu, giam. Đại chủ cung 6, giam. Tham chủ cung 8, Tham khách, thời chặn. Đại khách cung 6, giam. Tham khách cung 8, Tham chủ thời chặn. Thần kể Tuất. Mới kích tới Đức Dương.",
+        "luan_giai": "Khối này, Toán chủ ngắn. Đại tiểu tướng chặn, giam. Chủ khách đều không lợi, đều nên cố giữ. Chủ nghe giặc phòng bị chính Tây. Khách nghe giặc dự bị mặt Đông bắc."
+      },
+      {
+        "so_cuc": 12,
+        "can_chi": [
+          "Quý Hợi",
+          "Tân Hợi",
+          "Kỷ Hợi",
+          "Đinh Hợi",
+          "Ất Hợi"
+        ],
+        "toan_chu": "35 - Cửa đóng. Đại tiểu khách không ra cung giữa",
+        "toan_khach": "23 - Dài, hòa",
+        "toan_dinh": "8",
+        "toa_do_sao_tuong": "Ất cả cung 6. Bài văn tới Tuất, ép ngoài. Đại khách cung 3 Thời kích. Tham khách cung 9, phát. Thần kể Dậu. Mới kích tới Lã thân.",
+        "luan_giai": "Khối này, Ất cả trợ khách. Toán khách dài, hòa cửa đủ, tướng phát. Lợi về khách. Ngoài trận lợi động trước. Ra quân nên hướng Đông bắc. Chiến, lợi mặt Tây nam. Lợi trận thẳng, phất cờ xanh. Khí mây theo Đông bắc lại, khách thắng. Nghe địch dự bị mặt Đông bắc. Binh kỳ Đông bắc. Binh phục lợi giờ Thân Dậu. Chủ, đóng tắc, không cửa. Không lợi, nên cố giữ. Nghe giặc phòng bị mặt Tây bắc."
+      },
+      {
+        "so_cuc": 13,
+        "can_chi": [
+          "Giáp Tý",
+          "Nhâm Tý",
+          "Canh Tý",
+          "Mậu Tý",
+          "Bính Tý"
+        ],
+        "toan_chu": "12",
+        "toan_khach": "37, dài, hòa",
+        "toan_dinh": "13",
+        "toa_do_sao_tuong": "Ất cả cung 4. Văn tới Kiển. Đại chủ cung 2, phát. Tham chủ cung 6, cách. Đại tiểu tướng, Đại khách cấp, kích. Đại khách cung 7, bị Đại tiểu tướng chủ cấp. Tham khách cung 1, chặn. Thần kể Thân. Mới kích tới Dương cả, ngoài Thời kích.",
+        "luan_giai": "Khối này Ất cả trợ chủ, toán chủ hòa. Tham tướng tuy cách. Đại tướng phát. Lợi về chủ. Ngoài trận, lợi động sau. Ra quân nên hướng chính Nam. Chiến, lợi chính Bắc. Lợi trận tròn, phất cờ vàng. Khí mây theo chính Đông lại chủ thắng. Nghe giặc dự bị mặt Tây bắc. Binh kỳ lợi Tây Bắc. Binh phục lợi giờ Dần Mão. Đại tướng khách bị Đại tiểu cấp. Tham tướng với Mắt trời chặn, không lợi cho khách. Nên cố giữ. Nghe giặc phòng bị mặt Đông nam."
+      },
+      {
+        "so_cuc": 14,
+        "can_chi": [
+          "Ất Sửu",
+          "Quý Sửu",
+          "Tân Sửu",
+          "Kỷ Sửu",
+          "Đinh Sửu"
+        ],
+        "toan_chu": "12",
+        "toan_khach": "27, dài, hòa - (Cửa đóng) (Cửa sống)",
+        "toan_dinh": "11",
+        "toa_do_sao_tuong": "Ất cả cung 4. Văn tới Hợi. Đại tướng chủ cung 2, phát, bị Mắt đất chặn. Tham chủ cung 6, cách. Đại tướng khách cung 7, cắp. Chủ đại tiểu tướng cấp. Tham khách cung 1, phát, Văn ép. Thần kể Vị. Mới kích tới Uy lớn.",
+        "luan_giai": "Khối này, toán khách dài hoà. Đại tướng tuy cấp. Tham tướng phát. Lợi về khách. Ngoài trận, lợi động trước. Ra quân, hướng Tây nam. Chiến, lợi mặt Đông bắc. Lợi trận sắc bén, phất cờ đỏ. Mây khí từ Tây nam lại, khách thắng. Nghe giặc dự bị mặt chính nam. Binh kỳ mặt chính nam. Binh phục lợi giờ Dần Mão Thìn. Đại tướng chủ tuy phát, bị Mắt đất chặn. Tham tướng chủ, phát, cách, không lợi về chủ, nên cố giữ. Nghe địch dự bị mặt Tây bắc."
+      },
+      {
+        "so_cuc": 15,
+        "can_chi": [
+          "Bính Dần",
+          "Giáp Dần",
+          "Nhâm Dần",
+          "Canh Dần",
+          "Mậu Dần"
+        ],
+        "toan_chu": "11. Đại tiểu khách không ra cung giữa",
+        "toan_khach": "25 - Cửa Đóng (Sống)",
+        "toan_dinh": "4",
+        "toa_do_sao_tuong": "Ất cả cung 4. Văn tới Tị, chủ cấp. Đại chủ cung 1, phát. Tham chủ cung 3, ép. Thần kể Ngọ. Mới Kích tới Vũ lớn.",
+        "luan_giai": "Khối này, Ất cả trợ chủ. Toán chủ hòa, cửa đủ, tướng phát. Lợi về chủ. Ngoài trận, lợi động sau. Ra quân nên hướng Tây bắc. Chiến, lợi Đông nam. Lợi trận cong, phất cờ đen. Khí mây theo Tây bắc lại, chủ thắng. Nghe giặc dự bị mặt chính Bắc. Binh kỳ mặt chính Bắc. Binh phục lợi Dần Mão Thìn. Không nên vào sâu, lại đánh. Đại tướng Tham tướng Khách, đóng tắc, không cửa. Không lợi nên cố giữ. Nghe giặc dự bị mặt Tây bắc."
+      },
+      {
+        "so_cuc": 16,
+        "can_chi": [
+          "Đinh Mão",
+          "Ất Mão",
+          "Quý Mão",
+          "Tân Mão",
+          "Kỷ Mão"
+        ],
+        "toan_chu": "1 Đơn. Đại tiểu khách không ra cung giữa",
+        "toan_khach": "15. Cửa (Đóng) (Sống)",
+        "toan_dinh": "26",
+        "toa_do_sao_tuong": "Ất cả cung 3. Văn tới Sửu, ép trong. Đại tướng cung 1, phát, Kích. Tham chủ cung 3, giam. Thần kể Tị. Mới Kích tới Nhóm cả.",
+        "luan_giai": "Khối này, toán chủ ngắn, cửa đủ, tướng phát, Tướng tham tuy giam. Đại tướng phát, lợi về chủ. Ngoài trận, lợi động sau. Ra quân, nên hướng về Tây bắc. Chiến, lợi về mặt Đông nam, lợi trận cong, phất cờ đen. Khí mây theo Tây bắc lại. Chủ thắng. Nghe địch, dự bị mặt Đông bắc. Binh kỳ, Đông bắc. Binh phục lợi giờ Sửu Dần. Đại tiểu tướng khách, đóng tắc, không cửa. Nên cố giữ. Nghe địch dự bị mặt chính Tây."
+      },
+      {
+        "so_cuc": 17,
+        "can_chi": [
+          "Mậu Thìn",
+          "Bính Thìn",
+          "Giáp Thìn",
+          "Nhâm Thìn",
+          "Canh Thìn"
+        ],
+        "toan_chu": "3 Đơn",
+        "toan_khach": "9 đơn",
+        "toan_dinh": "16",
+        "toa_do_sao_tuong": "Ất cả cung 3. Bài văn tới Cấn, giam. Đại chủ cung 3, giam. Tham chủ cung 9, Đại tướng khách chặn. Đại khách cung 9, chặn. Tham khách cung 9, cách. Thần kể Thìn. Mới Kích tới Nghĩa lớn.",
+        "luan_giai": "Khối này, Toán chủ, Khách ngắn, đều không lợi. Đều nên cố giữ. Chủ nghe địch, dự bị mặt Đông bắc. Khách nghe địch, dự bị mặt Tây bắc."
+      },
+      {
+        "so_cuc": 18,
+        "can_chi": [
+          "Kỷ Tị",
+          "Đinh Tị",
+          "Ất Tị",
+          "Quý Tị",
+          "Tân Tị"
+        ],
+        "toan_chu": "17",
+        "toan_khach": "8",
+        "toan_dinh": "9",
+        "toa_do_sao_tuong": "Ất cả cung 3. Văn tới Cấn, giam. Đại chủ cung 3, giam, cắp. Tham chủ cung 9, phát. Đại khách cung 8, ép trong. Tham khách cung 4, ngoài ép, cấp. Thần kể Mão. Mới Kích tới Chủ Đất, cung Kích.",
+        "luan_giai": "Khối này, toán chủ ngắn, không lợi. Mắt trời, Đại tướng đều giam, không lợi về chủ. Nếu cố giữ, nghe giặc dự bị mặt Đông bắc. Toán khách ngắn. Đại tướng khách, cung trong ép. Tham tướng, cung ngoài ép, không lợi về khách. Nên cố giữ. Nghe địch dự bị mặt chính Bắc."
+      },
+      {
+        "so_cuc": 19,
+        "can_chi": [
+          "Canh Ngọ",
+          "Mậu Ngọ",
+          "Bính Ngọ",
+          "Giáp Ngọ",
+          "Nhâm Ngọ"
+        ],
+        "toan_chu": "14 hòa",
+        "toan_khach": "16, dài, không hòa",
+        "toan_dinh": "16",
+        "toa_do_sao_tuong": "Ất cả cung 2. Văn tới Dần. Đại chủ cung 4, phát, Kích, Văn ép. Tham chủ cung 8, giam. Đại khách cung 6, phát. Tham khách cung 8, cách, Kích. Thần kể Dần. Mới Kích tới Đức Hòa.",
+        "luan_giai": "Khối này, Ất cả trợ chủ, toán chủ 14 dài, cửa đủ, tướng phát. Lợi về chủ. Ngoài trận, động sau. Ra quân, nên hướng chính Đông. Chiến lợi chính Tây. Lợi trận thắng, phất cờ xanh. Khí mây theo chính Đông lại, chủ thắng. Nghe địch dự bị mặt Đông bắc. Binh kỳ Đông Bắc. Binh phục, lợi giờ Tị Ngọ Vị. Toán khách, dài, hòa, Ất cả trợ. Tham khách tuy cách, đại tướng phát, lợi về khách. Ngoài trận, lợi động sau. Ra quân, nên chính Tây. Chiến, lợi chính Đông, lợi trận vuông, phất cờ trắng. Nghe địch dự bị mặt Đông bắc. Binh kỳ, Đông bắc. Binh phục, lợi giờ Tị Ngọ."
+      },
+      {
+        "so_cuc": 20,
+        "can_chi": [
+          "Tân Vị",
+          "Kỷ Vị",
+          "Đinh Vị",
+          "Ất Vị",
+          "Quý Vị"
+        ],
+        "toan_chu": "13, dài, hòa",
+        "toan_khach": "10 đơn, dương cô",
+        "toan_dinh": "10 đơn, dương cô",
+        "toa_do_sao_tuong": "Ất cả cung 2. Văn tới Mão. Đại chủ cung 3, phát, chặn. Tham chủ cung 9, trong ép, Kích. Đại khách cung 1, phát. Tham khách cung 3, chặn. Thần kể Sửu. Mới Kích tới Dương cả.",
+        "luan_giai": "Khối này, toán chủ hòa, Tham tướng phát, tuy ép, đại tướng phát. Lợi về chủ. Ngoài trận, lợi động sau. Ra quân, hướng Đông bắc. Chiến, lợi Tây nam. Lợi trận thẳng, phất cờ xanh. Khí mây theo Tây bắc lại, chủ thắng. Nghe địch dự bị chính Đông. Binh kỳ chính Đông. Binh phục, lợi giờ Tị Ngọ Vị. Toán khách, Dương cô. Tham tướng tuy chặn, đại tướng phát, lợi về khách. Ngoài trận, lợi động trước. Ra quân, hướng về Tây bắc. Chiến, lợi mặt Đông nam. Lợi trận vuông, phất cờ trắng. Khí mây theo Tây bắc lại, khách thắng. Nghe địch, dự bị mặt Đông nam. Binh kỳ, Đông nam. Binh phục, lợi giờ Tị Ngọ Vị."
+      },
+      {
+        "so_cuc": 21,
+        "can_chi": [
+          "Nhâm Thân",
+          "Canh Thân",
+          "Mậu Thân",
+          "Bính Thân",
+          "Giáp Thân"
+        ],
+        "toan_chu": "10, Dương cô",
+        "toan_khach": "1, ngắn",
+        "toan_dinh": "39",
+        "toa_do_sao_tuong": "Ất cả cung 2, ếm. Văn tới Thìn. Đại chủ cung 1, chặn. Tham chủ cung 3, chặn. Đại khách cung 1, cắp. Đại tiểu tướng đều chặn. Tham khách cung 3, chặn. Thần kể Tý. Mới Kích tới Thần Lớn, Thời Kích.",
+        "luan_giai": "Khối này, chủ khách đều không lợi. Khách nên cố giữ. Chủ nghe địch dự bị mặt Đông nam. Khách nghe địch dự bị chính nam. Xuân hè, chủ khách đều thua. Thu, khách thua. Đông, chủ thua. Thành lũy kiên cố để giữ là hơn, không nên động cử."
+      },
+      {
+        "so_cuc": 22,
+        "can_chi": [
+          "Quý Dậu",
+          "Tân Dậu",
+          "Kỷ Dậu",
+          "Đinh Dậu",
+          "Ất Dậu"
+        ],
+        "toan_chu": "24, dài, hòa",
+        "toan_khach": "14",
+        "toan_dinh": "1",
+        "toa_do_sao_tuong": "Ất cả cung 1, Văn tới Tốn, cách. Đại chủ khách cung 4, chặn nhau. Tham chủ khách cung 2, chặn, Kích nhau. Thần kể Hợi. Mới Kích tới Đạo Trời.",
+        "luan_giai": "Khối này, Đại tiểu tướng chủ khách đều không lợi. Đều nên cố giữ. Chủ nghe địch dự bị mặt Đông nam. Khách nghe địch dự bị mặt Tây nam. So sánh thì chủ dài, khách ngắn. Lợi về chủ, không thể lấy toán hòa hay chẳng hòa mà căn cứ. Lại lấy cung, thần, 5 hành quyết sau. Bài văn ở cung 9 thuộc Gỗ. Mới Kích tại Đạo - Trời - Đất, Gỗ đuổi đất, chủ thắng."
+      },
+      {
+        "so_cuc": 23,
+        "can_chi": [
+          "Nhâm Tuất",
+          "Canh Tuất",
+          "Mậu Tuất",
+          "Bính Tuất",
+          "Giáp Tuất"
+        ],
+        "toan_chu": "24",
+        "toan_khach": "7 đơn, ngắn",
+        "toan_dinh": "40",
+        "toa_do_sao_tuong": "Ất cả cung 1, Văn tới Tốn, cách, chủ cấp. Đại chủ cung 4, phát, Văn ép. Tham chủ cung 2, phát, Văn ép. Đại khách cung 7, phát. Tham khách cung 1, giam. Thần kể Tuất. Mới Kích tới Đức Võ.",
+        "luan_giai": "Khối này toán chủ, dài, hòa, cửa đủ, tướng phát. Lợi về chủ. Ngoài trận, lợi động sau. Ra quân, hướng về chính Đông. Chiến, hướng về chính Tây. Lợi trận sắc bén, phất cờ đỏ. Khí mây theo hướng chính Đông lại, chủ thắng. Nghe địch dự bị mặt Đông nam. Binh kỳ, Đông nam. Binh phục, lợi giờ Tuất Hợi. Toán khách 7 Đơn. Ất cả trợ khách. Tham tướng khách tuy giam, đại tướng phát lợi về khách. Ngoài trận, lợi động trước. Ra quân, hướng Tây nam, chiến lợi Đông bấc. Lợi trận vuông, phất cờ trắng. Khí mây theo Tây bấc lại, khách thắng. Nghe giặc, dự bị mặt Đông nam. Binh kỳ, Đông nam. Bình phục, lợi giờ Tuất Hợi."
+      },
+      {
+        "so_cuc": 24,
+        "can_chi": [
+          "Ất Hợi",
+          "Quý Hợi",
+          "Tân Hợi",
+          "Kỷ Hợi",
+          "Đinh Hợi"
+        ],
+        "toan_chu": "16 - Dài, hòa",
+        "toan_khach": "1 đơn",
+        "toan_dinh": "39",
+        "toa_do_sao_tuong": "Ất cả cung 1, Tuất Kích. Bài văn tới Tị. Đại chủ cung 6, trong ép. Tham chủ cung 8, phát, khách cấp. Đại khách cung 1, giam, chủ cắp. Tham khách cung 3, phát. Thần kể tới Dậu. Mới Kích tới Âm chủ. Thời Kích.",
+        "luan_giai": "Khối này, chủ cắp cách, khách cấp chủ. Chủ khách đều không lợi. Đều nên cố giữ. Chủ nghe địch, dự bị mặt Đông nam. Khách nghe địch, dự bị mặt Tây bắc."
+      },
+      {
+        "so_cuc": 25,
+        "can_chi": [
+          "Bính Tý",
+          "Giáp Tý",
+          "Nhâm Tý",
+          "Canh Tý",
+          "Mậu Tý"
+        ],
+        "toan_chu": "31 - Dương thuần",
+        "toan_khach": "16 - Dương cô, không người",
+        "toan_dinh": "40 - Dương cô, không người",
+        "toa_do_sao_tuong": "Ất cả cung 9. Văn tới Khảm, kích, ép. Đại chủ cung 1, khách cấp. Tham chủ cung 3, phát. Đại khách cung 6, phát. Tham khách cung 8, Văn cách, chủ cấp. Thần kể Dần. Mới Kích tới Nghĩa lớn, Thời Kích.",
+        "luan_giai": "Khối này, toán khách dài, cửa đủ, tướng phát. Lợi về khách. Ngoài trận, lợi động trước. Ra quân nên hướng chính Đông. Chiến, lợi chính Tây. Lợi trận sắc bén, phất cờ đỏ. Khí mây theo chính Đông lại, khách thắng. Nghe giặc dự bị mặt Tây bắc. Binh phục, lợi giờ Tuất Hợi. Đại tướng chủ, cách. Ất cả tuy trợ chủ. Đại tướng chủ bị Đại tiểu tướng khách cắp, không lợi, nên cố giữ. Nghe giặc dự bị mặt chính Bắc."
+      },
+      {
+        "so_cuc": 26,
+        "can_chi": [
+          "Đinh Sửu",
+          "Ất Sửu",
+          "Quý Sửu",
+          "Tân Sửu",
+          "Kỷ Sửu"
+        ],
+        "toan_chu": "30 - Dương cô, không hòa",
+        "toan_khach": "7 hoà",
+        "toan_dinh": "29",
+        "toa_do_sao_tuong": "Ất cả cung 9, Văn tới Vị. Đại chủ cung 3, phát, chặn. Tham chủ cung 9, giam. Đại khách cung 7, phát. Tham khách cung 1, cách. Thần Kể Vị. Mới kích đến Đức Hòa.",
+        "luan_giai": "Khối này, Ất cả tuy trợ chủ. Toán chủ, Dương cô. Đại tướng tuy phát, Tham tướng chặn. Tham tướng chủ giam, không lợi về chủ. Nên cố giữ. Nghe địch dự bị mặt Tây nam. Toán khách 7 Đơn. Tham tướng tuy cách, đại tướng phát, lợi về khách. Ngoài trận, lợi động trước. Ra quân, nên hướng Tây nam. Chiến, lợi Đông bấc. Binh kỳ Đông bắc. Binh phục lợi giờ Thìn Tị."
+      },
+      {
+        "so_cuc": 27,
+        "can_chi": [
+          "Mậu Dần",
+          "Bính Dần",
+          "Giáp Dần",
+          "Nhâm Dần",
+          "Canh Dần"
+        ],
+        "toan_chu": "29 - dài, hòa",
+        "toan_khach": "4 đơn",
+        "toan_dinh": "16",
+        "toa_do_sao_tuong": "Ất cả cung 9. Văn đến Khôn. Đại chủ cung 9, giam, cách. Tham chủ cung 7, phát. Đại khách cung 4, cung trong ép. Tham khách cung 2, cung ngoài ép cấp. Thần Kể Ngọ. Mới kích đến Tùng cao, kích.",
+        "luan_giai": "Khối này, Ất cả trợ chủ. Toán chủ dài. Đại tướng chủ tuy giam, ếm. Tham tướng phát. Lợi về chủ. Ngoài trận, lợi động sau. Ra quân nên hướng chính Đông. Chiến, lợi chính Tây. Lợi trận vuông, phất cờ trắng. Khí mây theo chính Đông lại, chủ thắng. Nghe địch dự bị mặt Tây nam. Binh kỳ ở Tây nam. Binh phục lợi giờ Thìn Tị. Toán khách ngắn. Đại tướng trong cung ép. Tham tướng cung ngoài ép. Không lợi về khách. Nên cố giữ. Nghe địch dự bị mặt chính Đông."
+      },
+      {
+        "so_cuc": 28,
+        "can_chi": [
+          "Kỷ Mão",
+          "Đinh Mão",
+          "Ất Mão",
+          "Quý Mão",
+          "Tân Mão"
+        ],
+        "toan_chu": "8 đơn, hòa",
+        "toan_khach": "25 - cửa đóng",
+        "toan_dinh": "32",
+        "toa_do_sao_tuong": "Ất cả cung 8. Văn tới Thân. Đại chủ cung 8, giam. Tham chủ cung 4 phát, kích. Thần Kể Tị. Mới kích đến Sáng lớn.",
+        "luan_giai": "Khối này, Ất cả trợ chủ. Đại tướng tuy giam. Tham tướng phát. Lợi về chủ. Ngoài trận, lợi động sau. Ra quân, nên chính Bắc. Chiến, nên chính Nam. Lợi trận cong, phất cờ đen. Khí mây theo từ chính Bắc lại, chủ thắng. Nghe địch dự bị mặt Tây nam. Binh kỳ, mặt Tây nam. Binh phục, lợi giờ Hợi Tý Sửu. Có thể giàn quân cự địch. Không nên mở rộng trận giao phong, hễ được là rút ngay. Toán khách 25. Đại tiểu tướng khách, đóng tắc, không cửa, không lợi là khách. Nên cố giữ. Nghe địch dự bị mặt Đông nam."
+      },
+      {
+        "so_cuc": 29,
+        "can_chi": [
+          "Canh Thìn",
+          "Mậu Thìn",
+          "Bính Thìn",
+          "Giáp Thìn",
+          "Nhâm Thìn"
+        ],
+        "toan_chu": "7 hòa",
+        "toan_khach": "15 - cửa đóng (Ghi chú: Lời văn giải thích bên dưới ghi là 25)",
+        "toan_dinh": "26",
+        "toa_do_sao_tuong": "Ất cả cung 8, Văn tới Dậu. Đại chủ cung 7, phát, kích. Tham chủ cung 1, giam, ép. Thần Kể Thìn. Mới kích tới Đạo trời.",
+        "luan_giai": "Khối này, Ất cả trợ chủ, cửa đủ, tướng phát. Tham tướng trong tuy ép, Đại tướng phát. Lợi cho chủ. Ngoài trận, lợi động sau. Ra quân, hướng Tây nam. Chiến, lợi Đông bắc. Lợi trận vuông, phất cờ trắng. Khí mây theo Tây nam lại, chủ thắng. Nghe địch dự bị chính Tây. Binh kỳ nên chính Tây. Binh phục, lợi giờ Hợi Tý Sửu. Toán khách 25. Đại tiểu tướng khách, đóng tấc, không cửa. Không lợi là khách. Nên cố giữ. Nghe địch dự bị mặt Đông nam."
+      },
+      {
+        "so_cuc": 30,
+        "can_chi": [
+          "Tân Tị",
+          "Kỷ Tị",
+          "Đinh Tị",
+          "Ất Tị",
+          "Quý Tị"
+        ],
+        "toan_chu": "2 đơn, hòa",
+        "toan_khach": "8 đơn",
+        "toan_dinh": "15",
+        "toa_do_sao_tuong": "Ất cả cung 8. Văn tới Tuất. Đại chủ cung 2, cách. Tham chủ cung 6, giam, kích, phát. Thần Kể Mão. Mới kích tới Đức võ.",
+        "luan_giai": "Khối này, toán chủ ngắn. Đại Tướng Chủ cách. Đại Tướng Khách Tham tướng phát. Mắt Đất chủ cấp. Chủ khách đều không lợi. Đều nên cố giữ. Chủ nghe địch dự bị mặt Tây bắc. Tham tướng khách, được khí mạnh. Xua quân vào cõi, hò bên Đông, đánh bên Tây, tiếp theo binh phục, thắng được. Nghe địch, dự bị mặt Tây nam."
+      },
+      {
+        "so_cuc": 31,
+        "can_chi": [
+          "Nhâm Ngọ",
+          "Canh Ngọ",
+          "Mậu Ngọ",
+          "Bính Ngọ",
+          "Giáp Ngọ"
+        ],
+        "toan_chu": "27 - Dài, hòa",
+        "toan_khach": "28 - Dài, hòa",
+        "toan_dinh": "28",
+        "toa_do_sao_tuong": "Ất cả cung 7. Văn tới Kiền. Đại chủ cùng 6, giam. Tham chủ cung 1, kích. Đại khách cung 8, phát, Văn ép, Tham khách cung 4, phát. Thần Kể Dậu. Mới kích tới Chủ âm.",
+        "luan_giai": "Khối này, Ất cả trợ khách. Toán khách dài, hòa, cửa đủ, tướng phát. Lợi là khách. Ngoài trận, lợi động trước. Ra quần, nên chính Bếc. Chiến, lợi chính Nam. Lợi trận cong, phất cờ đen. Khí mây theö chính Bắc lại, khách thắng. Nghe địch dự bị mặt Tây bắc. Binh kỳ, mặt Tây bắc, Binh phục, lợi giờ Vị Thân. Toán chủ tuy hòa. Đại tướng giam. Tham tướng, Mất trời chặn, Không lợi là chủ. Nên cố giữ. Nghe địch dự bị mặt Tây bắc."
+      },
+      {
+        "so_cuc": 32,
+        "can_chi": [
+          "Quý Vị",
+          "Tân Vị",
+          "Kỷ Vị",
+          "Đinh Vị",
+          "Ất Vị"
+        ],
+        "toan_chu": "27 - Không hòa",
+        "toan_khach": "26",
+        "toan_dinh": "26",
+        "toa_do_sao_tuong": "Ất cả cung 7. Văn tới Hợi. Đại chủ cung 7, giam. Tham chủ cung 1, khách cấp, Văn ép. Đại khách cung 6. ép, cắp. Thủy Kích cung 8. Mắt đất chặn Thần Kể Sửu. Mới kích tới Chủ đất.",
+        "luan_giai": "Khối này, Đại tướng chủ giam. Tham tướng bị Đại Tiểu Tướng khách cấp. Chủ khách đều không lợi. Đều nên cố giữ. Chủ nghe địch dự bị mặt Tây bắc. Khách nghe địch đự bị chính Bắc."
+      },
+      {
+        "so_cuc": 33,
+        "can_chi": [
+          "Bính Thân",
+          "Giáp Thân",
+          "Nhâm Thân",
+          "Canh Thân",
+          "Mậu Thân"
+        ],
+        "toan_chu": "26 — Không, hòa",
+        "toan_khach": "18 - Dài, hòa",
+        "toan_dinh": "15",
+        "toa_do_sao_tuong": "Ất cả cung 7. Văn tới Tý. Đại chủ cung 6, ngoài ép. Tham chủ cung 8, Mất trời và Tham khách chán. Đại khách cung 8, Mất trời Tham khách chặn. Tham khách cung 4, phát. Thần Kể Tý. Mới kích tới Đức hòa.",
+        "luan_giai": "Khối này, Ất cả trợ khách. Toán khách dài hòa. Đại Tướng Khách tuy bị Mất trời. Tham tướng chủ chặn. Tham tướng khách phát. lợi là khách. Ngoài trận, lợi động trước. Ra quân, nên chính Bắc. Chiến, lợi chính Nam. Lợi trận cong. phất cờ đen. Khí mây theo chính Bắc lại, khách thắng. Nghe địch, dự bị Đông bắc. Binh kỳ, Đông bắc. Binh phục, lợi giờ Ngọ Vị Thân. Đại Tướng Chủ, cung ngoài ép. Tham tướng chủ, Mắt trời chặn. Đại khách không lợi, là chủ nên cố giữ. Nghe địch, dự bị chính Bắc."
+      },
+      {
+        "so_cuc": 34,
+        "can_chi": [
+          "Đinh Dậu",
+          "Ất Dậu",
+          "Quý Dậu",
+          "Tân Dậu",
+          "Kỷ Dậu"
+        ],
+        "toan_chu": "26 -không hòa",
+        "toan_khach": "22 - Dài, hòa",
+        "toan_dinh": "9",
+        "toa_do_sao_tuong": "Ất cả cung 6. Văn tới Sửu, Đại chủ cung 6, giam. Tham chủ cung 8, phát, Văn ép. Đại khách cung 2, phát, Tham tướng khách cung 6, chặn, giam. Thần Kể Hợi. Mới kích tới Tùng cao.",
+        "luan_giai": "Khối này, Ất cả trợ khách. Ngoài trận, lợi động trước. Ra quân, nên hướng chính Nam. Chiến, lợi chính Bắc. Lợi trận tròn, phất cờ vàng. Khí mây từ chính Nam lại, khách thắng. Nghe địch dự bị chính Đông. Binh phục. lợi giờ Thân Dậu Tuất. Nếu không có khí mây ứng, chỉ nên kiên cố giữ. Đại Tướng Chủ giam. Tham tướng có Mắt trời chăn. Thần Kể... không lợi là chủ, chỉ nên cố giữ. Nghe địch dự bị Đông bắc."
+      },
+      {
+        "so_cuc": 35,
+        "can_chi": [
+          "Bính Tuất",
+          "Giáp Tuất",
+          "Nhâm Tuất",
+          "Canh Tuất",
+          "Mậu Tuất"
+        ],
+        "toan_chu": "25, cửa đóng",
+        "toan_khach": "10 - Dương cô",
+        "toan_dinh": "36",
+        "toa_do_sao_tuong": "Ất cả cung 6. Văn tới Cấn. Đại Khách cung 1, ngoài ép. Tham khách cung 3, bị Mắt trời chặn. Thần Kể Tuất. Mới kích tới Thần lớn.",
+        "luan_giai": "Khối này, Đại Tướng Khách, cung ngoài ép. Tham tướng là Mắt trời chặn. Đại tiểu tướng chủ đóng tắc, không cửa. Không lợi là chủ. Chủ khách đều không lựi, đều nên cố giữ. Chủ nghe địch dự bị Đông bắc. Khách nghe địch dự bị mặt Đông nam."
+      },
+      {
+        "so_cuc": 36,
+        "can_chi": [
+          "Đinh Hợi",
+          "Ất Hợi",
+          "Quý Hợi",
+          "Tân Hợi",
+          "Kỷ Hợi"
+        ],
+        "toan_chu": "25, cửa đóng",
+        "toan_khach": "9 Đơn",
+        "toan_dinh": "34",
+        "toa_do_sao_tuong": "Ất cả cung 6. Văn tới Cấn. Đại khách cung 9, phát. Tham khách cung 9. trong ép, kích. Thần Kể Dậu. Mới kích tới Sáng lớn (2).",
+        "luan_giai": "Khối này, Ất cả trợ chủ. Toán tuy ngắn. Đại tướng phát. Lợi là khách. Ngoài trận, lợi động trước. Ra quần, nên hướng Đông nam. Chiến, lợi về Tây Bắc. Lợi trận sắc bén, phất cờ đỏ. Khí mây theo Đông bắc lại, khách thắng. Nghe giặc dự bị mặt chính Nam. Bình kỳ, chính Nam. Bình phục, lợi giờ Thân Dậu Tuất. , Bên chủ, đóng lấp, không cửa. Nên cố giữ. Nghe địch dự bị mặt Đông bắc."
+      },
+      {
+        "so_cuc": 37,
+        "can_chi": [
+          "Mậu Tý",
+          "Bính Tý",
+          "Giáp Tý",
+          "Nhâm Tý",
+          "Canh Tý"
+        ],
+        "toan_chu": "1 đơn",
+        "toan_khach": "25 - cửa đóng",
+        "toan_dinh": "3",
+        "toa_do_sao_tuong": "Ất cả cung 4. Văn tới Dần. giam. Đại chủ cung 1, phát. Tham chủ cung 3. trong ép. Thần Kể Thân. Mới kích tới Vũ lớn.",
+        "luan_giai": "Khối này, Ất cả trợ chủ. Đại tướng cung }, phát. Lợi là chủ. Ngoài trận lợi động sau. Ra quần, hướng Tây nam. Chiến, lợi Đông bắc. Nên trận cong. phất cờ đen. Khí mây theo Đông bắc lại. chủ thắng. Nghe địch dự bị mặt Đông nam, Binh kỳ, Đông nam. Binh phục, lợi giờ Dần Mão Thìn. Toán khách 25. Đại tiểu tướng khách không ra, đóng lấp, không cửa. Không lợi. Nghe địch dự bị mặt Tây bắc."
+      },
+      {
+        "so_cuc": 38,
+        "can_chi": [
+          "Kỷ Sửu",
+          "Đinh Sửu",
+          "Ất Sửu",
+          "Quý Sửu",
+          "Tân Sửu"
+        ],
+        "toan_chu": "4 đơn",
+        "toan_khach": "13",
+        "toan_dinh": "37",
+        "toa_do_sao_tuong": "Ất cả cung 4. Bài văn tới Mão, giam. Đại chủ cung 4, giam, cắp. Tham chủ cung 2, phát. Đại khách cung 3, giam, ép. Tham khách cung 9, ngoài ép, cắp. Thần Kể Vị. Mới kích đến Chủ âm.",
+        "luan_giai": "Khối này, chủ khách đều không lợi. Đều nên cố giữ. Chủ nghe địch dự bị chính Đông. Khách nghe địch dự bị Tây bắc."
+      },
+      {
+        "so_cuc": 39,
+        "can_chi": [
+          "Canh Dần",
+          "Mậu Dần",
+          "Bính Dần",
+          "Giáp Dần",
+          "Nhâm Dần"
+        ],
+        "toan_chu": "37 — Dài, hòa",
+        "toan_khach": "12 - ngắn, hòa",
+        "toan_dinh": "22",
+        "toa_do_sao_tuong": "Ất cả cung 4. Văn tới Thìn, ép. Đại chủ cùng 7, phát. Tham chủ cung 1, phát. kích. Đại khách cung 2, phát. Tham khách cung Ó, cách. Là chủ gặp Đại tiểu tướng cấp. Thần Kể Ngọ. Mới kích tới Nghĩa lớn.",
+        "luan_giai": "Khối này, Ất trời trợ chủ, toán chủ dài hòa, lợi là chủ. Nguài uận, lợi động sau. Ra quân, nên hướng Tây nam, Chiến, lợi Đông bắc. Lợi trận vuông, phất cờ trắng. Khí mây theo Tây nam lại, khách thắng. Chủ nghe địch dự bị mặt Đông nam. Binh phục, lợi giờ Dần Mão Thìn, Toán khách hòa. Tham tướng. cấp, ngắn. Đại tướng, phát. Lợi là khách. Ngoài trận, lợi động trước. Ra quân, nên chính Nam, Chiến, lợi chính Bắc. Lợi trận tròn, phất cờ vàng. Khí mây theo Đông lại, khách thắng. Nghe địch đự bị Tây bắc. Binh phục, lợi giờ Dần Mão Thìn. ,"
+      },
+      {
+        "so_cuc": 40,
+        "can_chi": [
+          "Tân Mão",
+          "Kỷ Mão",
+          "Đinh Mão",
+          "Ất Mão",
+          "Quý Mão"
+        ],
+        "toan_chu": "33 - Dài - hòa",
+        "toan_khach": "1",
+        "toan_dinh": "10",
+        "toa_do_sao_tuong": "Ất cả cung 3. Văn tới Tốn. Đại chủ cung 3, giam, cắp. Tham chú cung 9, phát. Đại khách cung 8, giam, ép. Tham khách cung 4, chặn ngoài. ép, cấp. Thần Kể Thìn. Mới kích tới Lã thân, Thời kích.",
+        "luan_giai": "Khối này, Tham tướng chủ tuy phát. Mắt trời chặn, Đại tướng chủ, giam, ép, khách cấp. Không lợi là chủ. ại tiểu tướng khách gặp Ất cả trong ngoài ép, Tham tướng chủ cấp. Chủ khách đều không lợi. Đều nên cố giữ. Chủ nghe địch dự bị Đông nam. Khách nghe địch dự bị Đông bắc."
+      },
+      {
+        "so_cuc": 41,
+        "can_chi": [
+          "Nhâm Thìn",
+          "Canh Thìn",
+          "Mậu Thìn",
+          "Bính Thìn",
+          "Giáp Thìn"
+        ],
+        "toan_chu": "33",
+        "toan_khach": "38",
+        "toan_dinh": "9",
+        "toa_do_sao_tuong": "Ất cả cung 3, khách cắp. Văn tới Tốn. Đại chủ cung 3, giam, cấp. Tham chủ cung 9, phát. Đại khách cung 8, trong ép. Tham khách cung 4, ngoài ép, cắp. Thần Kể Thìn. Mới kích tới Lã thân, Thời kích.",
+        "luan_giai": "Khối này, Ất cả, Tham tướng chủ tuy phát, Mắt trời chặn. Đại Tướng Chủ giam, ép, khách cắp. Không lợi là chủ. Đại tiểu tướng khách, gặp Ất cả trong ngoài ép, Tham tướng chủ cấp. Chủ khách đều không lợi. Đều nên cố giữ. Chủ nghe địch dự bị Đông nam. Khách nghe địch dự bị Đông bắc."
+      },
+      {
+        "so_cuc": 42,
+        "can_chi": [
+          "Quý Tị",
+          "Tân Tị",
+          "Kỷ Tị",
+          "Đinh Tị",
+          "Ất Tị"
+        ],
+        "toan_chu": "25 - cửa đóng",
+        "toan_khach": "34 - Dài, hòa",
+        "toan_dinh": "38",
+        "toa_do_sao_tuong": "Ất cả cung Tị. Văn tới Tị. Đại khách cung 4, ngoài ép. Tham khách cung 2, phát. Thần Kể Mão. Mới kích tới Dương cả.",
+        "luan_giai": "Khối này, Ất cả trợ khách, Đại tướng khách tuy giam ép, Tham tướng phát, lợi là khách. Ngoài trận, lợi động trước. Ra quân nên hướng chính Đông. Chiến, lợi chính Tây. Lợi trận sắc bén, phất cờ đỏ. Khí mây theo chính Đông lại, khách thắng. Nghe địch dự bị mặt Đông nam. Bình kỳ, Đông nam. Binh phục, lợi giờ Sửu Dần Mão. Được lợi thì rút ngay, không nên đánh nữa. Toán chủ tuy dài. Đại tiểu tướng đóng tắc, không cửa. Không lợi là chủ. Nên cố giữ. Nghe địch dự bị Đông nam."
+      },
+      {
+        "so_cuc": 43,
+        "can_chi": [
+          "Giáp Ngọ",
+          "Nhâm Ngọ",
+          "Canh Ngọ",
+          "Mậu Ngọ",
+          "Bính Ngọ"
+        ],
+        "toan_chu": "2 đơn",
+        "toan_khach": "1 đơn",
+        "toan_dinh": "1 đơn",
+        "toa_do_sao_tuong": "Ất cả cung 2. Văn tới Ngọ. Đại chủ cung 2, giam. Tham chủ cung 6, phát. Đại chủ cung 1, phát. Tham khách cung 3, phát. Thần Kể Dần. Mới kích tới Thần lớn, Thời trong kích. (Chú thích của cỗ máy: Bản gốc ghi \"Đại chủ cung 1\", nhưng đối chiếu bảng sao thì cung 1 là Đại khách. Cỗ máy giữ nguyên văn chữ của cổ thư).",
+        "luan_giai": "Khối này, Ất cả trợ khách. Toán khách tuy ngắn. Đại tiểu tướng khách đều phát. Lợi là khách. Ngoài trận, lợi động trước. Ra quân, nên hướng Tây bắc. Chiến, lợi Đông nam. Lợi trận cong, phất cờ đen. Khí mây theo Tây bắc lại, khách thắng. Nghe địch dự bị Đông nam. Binh kỳ mặt Đông nam. Binh phục, lợi giờ Tị Ngọ Vị. Hễ được là rút ngay. Đại tướng chủ giam, Tham tướng phát. Toán chủ ngắn. Không lợi cho chủ, nên cố giữ. Nghe địch dự bị mặt chính Nam."
+      },
+      {
+        "so_cuc": 44,
+        "can_chi": [
+          "Ất Vị",
+          "Quý Vị",
+          "Tân Vị",
+          "Kỷ Vị",
+          "Đinh Vị"
+        ],
+        "toan_chu": "39 - hòa",
+        "toan_khach": "38",
+        "toan_dinh": "38",
+        "toa_do_sao_tuong": "Ất cả cung 2, chủ cấp. Văn tới Tị. Đại chủ cung 9, trong ép. Tham chủ cung 7, ngoài ép. Đại khách cung 8, cách. Tham khách cung 4, phát. Thần Kể Sửu. Mới kích vào Võ lớn, cung kích.",
+        "luan_giai": "Khối này, toán chủ tuy hòa. Đại tướng chủ cung trong ép. Tham tướng cung ngoài ép, Mắt trời ếm. Không lợi là chủ, nên cố giữ. Nghe địch dự bị mặt Tây nam. Đại tướng khách, đối, cách. Tham tướng tuy phát, Mắt chủ kích. Không lợi là khách, nên cố giữ. Nghe địch dự bị mặt Tây nam."
+      },
+      {
+        "so_cuc": 45,
+        "can_chi": [
+          "Bính Thân",
+          "Giáp Thân",
+          "Nhâm Thân",
+          "Canh Thân",
+          "Mậu Thân"
+        ],
+        "toan_chu": "38 - Dài, hòa",
+        "toan_khach": "31 - Dài, hòa",
+        "toan_dinh": "5",
+        "toa_do_sao_tuong": "Ất cả cung 2, Văn tới Khôn. Đại chủ cung 8, cách, cấp. Tham chủ cung 6, phát. Đại khách cung 1, phát. Tham khách cung 3, chủ cấp. Thần Kể Tý. Mới kích tới Nhóm cả.",
+        "luan_giai": "Khối này, Ất cả trợ khách. Toán khách dài hòa. Tham tướng tuy cắp. Đại tướng phát. Lợi là khách. Ngoài trận, lợi động trước. Ra quân, hướng Tây bắc. Chiến, lợi Đông nam. Lợi trận cong, phất cờ đen. Khí mây theo Tây bắc lại, khách thắng. Nghe địch dự bị chính Tây. Bình kỳ, chính Tây. Binh phục, lợi giờ Tị Ngọ Vị. Toán chủ tuy dài hòa. Đại tiểu tướng chủ bị cách bị Đại tiểu tướng khách cấp. Không lợi là chủ, nên cố giữ. Nghe địch dự bị mặt Tây nam."
+      },
+      {
+        "so_cuc": 46,
+        "can_chi": [
+          "Đinh Dậu",
+          "Ất Dậu",
+          "Quý Dậu",
+          "Tân Dậu",
+          "Kỷ Dậu"
+        ],
+        "toan_chu": "7 đơn",
+        "toan_khach": "1 đơn",
+        "toan_dinh": "31",
+        "toa_do_sao_tuong": "Ất cả cung 1. Văn tới Khôn. Đại chủ cung 7, phát. Tham chủ cung 2, giam. Đại khách cung 1, giam. Tham khách cung 3, phát. Thần Kể Hợi. Mới kích Đức Dương, ếm.",
+        "luan_giai": "Khối này, Ất cả trợ chủ, toán chủ hòa, tuy ngắn. Đại tướng chủ cung 7, phát. Lợi cho chủ. Ngoài trận, lợi động sau. Ra quân, hướng Tây nam. Chiến, lợi Đông bắc. Lợi trận vuông, phất cờ trắng. Khí mây theo Tây nam lại, chủ thắng. Nghe địch dự bị mặt Tây nam. Binh kỳ Tây nam. Binh phục, lợi giờ Tuất Hợi. Toán khách ngắn. Mắt khách, Đại tướng giam. Tham tướng tuy phát, toán ngắn. Không lợi là khách, nên cố giữ. Nghe địch dự bị Tây bắc."
+      },
+      {
+        "so_cuc": 47,
+        "can_chi": [
+          "Mậu Tuất",
+          "Bính Tuất",
+          "Giáp Tuất",
+          "Nhâm Tuất",
+          "Canh Tuất"
+        ],
+        "toan_chu": "26 - không hòa",
+        "toan_khach": "22 - Dài, hòa",
+        "toan_dinh": "9",
+        "toa_do_sao_tuong": "Ất cả cung 1. Văn tới Dậu, ép. Đại chủ cung 6, trong ép. Tham chủ cung 8, ngoài ép. Đại khách cung 2, phát. Tham khách cung 6, ép, chặn. Thần Kể Tuất. Mới kích tới Đức âm.",
+        "luan_giai": "Khối này, Ất cả trợ khách. Toán khách, dài, hòa, Tham tướng tuy ép. Đại tướng khách, lợi là khách. Ngoài trận, lợi động trước. Ra quân, nên hướng chính Nam. Chiến, lợi chính Bắc. Lợi trận tròn, phất cờ trắng. Khí mây từ chính Nam lại, khách thắng. Khách nghe địch dự bị Đông bắc. Binh kỳ, lợi Đông bắc. Binh phục, lợi giờ Tuất Hợi. Toán chủ ngắn, Đại tiểu tướng trong ngoài cung ép, không lợi là chủ, nên cố giữ. Nghe địch dự bị chính Tây."
+      },
+      {
+        "so_cuc": 48,
+        "can_chi": [
+          "Kỷ Hợi",
+          "Đinh Hợi",
+          "Ất Hợi",
+          "Quý Hợi",
+          "Tân Hợi"
+        ],
+        "toan_chu": "1 Đơn - ngắn",
+        "toan_khach": "29 - hòa",
+        "toan_dinh": "14",
+        "toa_do_sao_tuong": "Ất cả cung 1, Văn tới Tuất, ép. Đại chủ cung 1, giam. Tham chủ cung 3, phát. Đại khách cung 9, cách. Tham khách cung 7, phát. Thần Kể Dậu. Mới kích tới Lã Thân.",
+        "luan_giai": "Khối này, Ất cả trợ khách. Toán khách dài, hòa. Đại tướng tuy cách, Tham tướng phát, lợi là khách. Ngoài trận, lợi động trước. Ra quân nên hướng Đông nam. Chiến, lợi Tây bắc. Lợi trận sắc bén, phất cờ đỏ. Khí mây theo Đông nam lại, khách thắng. Nghe địch dự bị mặt Đông bắc. Binh kỳ, Đông bắc. Binh phục, lợi giờ Tuất Hợi. Đại tướng chủ giam, Tham tướng phát. lợi là chủ. Ngoài trận lợi động, sau. Ra quân, hướng Tây bắc. Chiến, lợi Đông nam. Lợi trận cong, phất cờ đen. Khí mây theo Tây bắc lại, chủ thắng. Nghe địch dự bị Tây bắc. Bình kỳ, Tây bắc. Binh kỳ, lợi giờ Tuất Hợi."
+      },
+      {
+        "so_cuc": 49,
+        "can_chi": [
+          "Canh Tý",
+          "Mậu Tý",
+          "Bính Tý",
+          "Giáp Tý",
+          "Nhâm Tý"
+        ],
+        "toan_chu": "16 - Dài hòa",
+        "toan_khach": "1 Đơn",
+        "toan_dinh": "17",
+        "toa_do_sao_tuong": "Ất cả cung 9, Văn tới Kiền, cách. Đại chủ cung 6, phát. Tham chủ cung 8, phát, Khách cấp. Đại khách cung 1, cách, cấp. Tham khách cung 3, phát. Thần Kể Thân. Mới Kích đến Âm cả, thời ép.",
+        "luan_giai": "Khối này Ất cả trợ chủ, Toán chủ dài, hòa, cửa đủ, tướng phát. Lợi về chủ. Ngoài trận, lợi động sau. Ra quân, nên chính Tây. Chiến, lợi mặt chính Đông. Lợi trận vuông, phất cờ trắng. Khí mây theo chính Tây lại, chủ thắng. Nghe địch, phòng bị mặt Tây bắc. Binh kỳ, mặt Tây bắc. Binh phục, lợi giờ Thìn Tị. Đại tướng khách, cung 1, phát, cách. Tham tướng tuy phát, lại toán ngắn, không lợi về khách. Nên cố giữ. Nghe địch dự bị mặt Đông nam."
+      },
+      {
+        "so_cuc": 50,
+        "can_chi": [
+          "Tân Sửu",
+          "Kỷ Sửu",
+          "Đinh Sửu",
+          "Ất Sửu",
+          "Quý Sửu"
+        ],
+        "toan_chu": "16, dài, hòa",
+        "toan_khach": "31, hòa",
+        "toan_dinh": "15",
+        "toa_do_sao_tuong": "Ất cả ở cung 9, Văn tới Hợi, Đại chủ cung 6, Tham chủ cung 8, phát, bị khách cắp. Đại khách cung 1, cách, bị chủ cắp. Tham khách, cung 3, phát. Thần Kể Vị. Mới kích tới Sáng lớn, cung ngoài ép.",
+        "luan_giai": "Khối này, Ất cả trợ chủ, cửa đủ, tướng phát, Tham tướng tuy cắp, Đại tướng phát. Lợi về chủ. Ngoài trận, lợi động sau. Ra quân, nên chính bắc. Chiến, lợi chính Đông. Lợi trận vuông, phát cờ trắng. Khí mây theo chính Tây lại, chủ thắng. Nghe địch dự bị Tây bắc. Binh kỳ, lợi Tây bắc. Binh phục lợi giờ Thìn Tị. Đại tướng khách, cách. Mắt khách, cung ngoài ép không lợi về khách. Nên cố giữ. Nghe địch dự bị mặt chính Nam."
+      },
+      {
+        "so_cuc": 51,
+        "can_chi": [
+          "Nhâm Dần",
+          "Canh Dần",
+          "Mậu Dần",
+          "Bính Dần",
+          "Giáp Dần"
+        ],
+        "toan_chu": "15 - Cửa đóng",
+        "toan_khach": "29 - Dài, hòa",
+        "toan_dinh": "4",
+        "toa_do_sao_tuong": "Ất cả cung 9, Văn tới Tý. Đại khách cung 9, giam. Tham khách cung 7, phát, ếm. Thần Kể Ngọ. Mới kích tới Võ lớn.",
+        "luan_giai": "Khối này, Ất cả, Đại tiểu tướng chủ đóng tắc, không cửa, không lợi về chủ. Đại tướng khách giam. Tham tướng tuy phát. Mắt Đất ếm, không lợi chủ khách. Hai bên đều nên cố giữ. Chủ nghe địch dự bị chính Bắc. Khách nghe địch dự bị Tây nam."
+      },
+      {
+        "so_cuc": 52,
+        "can_chi": [
+          "Quý Mão",
+          "Tân Mão",
+          "Kỷ Mão",
+          "Đinh Mão",
+          "Ất Mão"
+        ],
+        "toan_chu": "33",
+        "toan_khach": "7 đơn",
+        "toan_dinh": "16",
+        "toa_do_sao_tuong": "Ất cả ở cung 8. Văn tới Sửu, thời ép ngoài. Đại chủ cung 3, ngoài ép. Tham chủ cung 8, phát. Đại khách cung 7, phát. Tham khách cung 1, trong ép. Thần Kể ở Tị. Mới kích tới Nhóm cả.",
+        "luan_giai": "Khối này, Ất cả trợ khách. Toán khách ngắn, Tham tướng tuy ép, Đại tướng phát. Lợi về khách. Ngoài trận, lợi động trước. Ra quân hướng Tây nam. Chiến, lợi Đông bắc. Lợi trận vuông, phất cờ trắng. Khí mây theo Tây nam lại, khách thắng. Nghe địch dự bị Tây nam. Binh kỳ, lợi Tây nam. Binh phục, lợi giờ Tý Sửu. Đại tướng chủ ngoài ép, Tham tướng tuy phát. Mắt Trời thời ngoài ép, không lợi về chủ, nên cố giữ. Nghe địch dự bị mặt Đông bắc."
+      },
+      {
+        "so_cuc": 53,
+        "can_chi": [
+          "Giáp Thìn",
+          "Nhâm Thìn",
+          "Canh Thìn",
+          "Mậu Thìn",
+          "Bính Thìn"
+        ],
+        "toan_chu": "32 - Dài, hòa",
+        "toan_khach": "1 đơn",
+        "toan_dinh": "8 đơn",
+        "toa_do_sao_tuong": "Ất cả ở cung 8. Văn tới Cấn, khách cấp, ép, ngăn. Đại chủ cung 2, cách. Tham chủ cung 6, phát. Đại khách cung 1, trong ép. Tham khách cung 3, cung ngoài ép, Mắt Trời ngăn. Thần Kể Thìn. Mới kích tới Nghĩa lớn, Thời kích.",
+        "luan_giai": "Khối này, toán chủ tuy dài, hòa. Đại tướng chủ cách. Tham tướng tuy phát. Mắt trời cung ngoài ép, không lợi về chủ. Đại tướng khách trong ép. Tham tướng ngoài ép. Mắt đất, Thời ếm kích, cũng không lợi. Khách nên cố giữ. Chủ nghe địch dự bị Đông bắc. Khách nghe địch dự bị Tây Bắc."
+      },
+      {
+        "so_cuc": 54,
+        "can_chi": [
+          "Ất Tị",
+          "Quý Tị",
+          "Tân Tị",
+          "Kỷ Tị",
+          "Đinh Tị"
+        ],
+        "toan_chu": "32 - Dài, hòa",
+        "toan_khach": "8 đơn",
+        "toan_dinh": "1 đơn",
+        "toa_do_sao_tuong": "Ất cả ở cung 8. Văn tới Cấn, ép, ngăn. Đại chủ cung 2, cách. Tham chủ cung 6, phát. Đại khách cung 8, giam. Tham khách cung 4. Mới kích tới Chủ Đất, ếm. Thần Kể Mão.",
+        "luan_giai": "Khối này, toán chủ tuy dài, hòa. Đại tướng chủ cách. Tham tướng tuy phát. Mắt trời cung ngoài ép, không lợi về chủ. Nên cố giữ. Nghe địch dự bị mặt Đông Nam. Đại Chủ tuy cách, được Khí Mạnh. Tham tướng phát, cũng có thể ra quân được, chỉ huy sĩ tốt, nhưng lợi động sau, tốt lành. Ra quân lợi chính Nam, Chiến lợi chính Bắc. Lợi trận tròn, phất cờ trắng. Khí mây theo chính Nam lại, chủ thắng. Bình kỳ, lợi Đông Bắc. Bình phục, lợi giờ Hợi Tý Sửu. Mắt khách, Đại tướng ếm, giam, toán ngắn, không lợi về khách. Nên cố giữ. Nghe địch dự bị mặt chính Bắc."
+      },
+      {
+        "so_cuc": 55,
+        "can_chi": [
+          "Bính Ngọ",
+          "Giáp Ngọ",
+          "Nhâm Ngọ",
+          "Canh Ngọ",
+          "Mậu Ngọ"
+        ],
+        "toan_chu": "16 - Dài, hòa",
+        "toan_khach": "18 - Dài, hòa",
+        "toan_dinh": "18 - Dài, hòa",
+        "toa_do_sao_tuong": "Ất cả ở cung 7. Văn tới Dần. Đại chủ cung 6, ngoài ép. Tham chủ cung 3, phát. Đại khách ngăn. Đại khách cung 8, phát. Tham tướng chủ ngăn. Tham khách cung 4, phát. Thần Kể Dần. Mới kích đến Đức Hòa.",
+        "luan_giai": "Khối này, Đại Tướng Chủ cung ngoài ép. Tham tướng bị khách chặn. Không lợi về chủ. Đại Tướng khách bị chủ chặn. Tham tướng khách tuy phát, Mắt đất cách, cũng không lợi. Hai bên cùng nên cố giữ. Chủ nghe địch dự bị mặt Đông Bắc. Khách nghe địch dự bị mặt Đông Nam."
+      },
+      {
+        "so_cuc": 56,
+        "can_chi": [
+          "Đinh Vị",
+          "Ất Vị",
+          "Quý Vị",
+          "Tân Vị",
+          "Kỷ Vị"
+        ],
+        "toan_chu": "15 - Cửa đóng",
+        "toan_khach": "12 - Dài, hòa",
+        "toan_dinh": "12 - Dài, hòa",
+        "toa_do_sao_tuong": "Ất cả ở cung 7. Văn tới Mão. Đại khách cung 2, cung trong ép. Tham khách cung 6, cung ngoài ép. Thần Kể Sửu. Mới kích tới Âm Cả.",
+        "luan_giai": "Khối này, bên chủ đóng lấp, không cửa. Đại Tiểu tướng khách, cung trong ngoài ép. Chủ khách đều không lợi, đều nên cố giữ. Chủ nghe địch dự bị mặt chính Đông. Khách nghe địch dự bị mặt chính Nam."
+      },
+      {
+        "so_cuc": 57,
+        "can_chi": [
+          "Mậu Thân",
+          "Bính Thân",
+          "Giáp Thân",
+          "Nhâm Thân",
+          "Canh Thân"
+        ],
+        "toan_chu": "12 - Không hòa",
+        "toan_khach": "3 đơn",
+        "toan_dinh": "1 đơn",
+        "toa_do_sao_tuong": "Ất cả ở cung 7. Bài văn tới Thìn. Đại chủ cung 2, trong ép, kích. Tham chủ cung 6, cách, ngoài ép. Đại khách cung 3, cách. Tham khách cung 9, phát, kích. Thần Kể Tý. Mới kích tới Thần Lớn.",
+        "luan_giai": "Khối này, Đại tiểu tướng chủ cung trong ngoài ép, cùng cấp Ất cả. Không lợi là chủ. Đại Tướng Khách cấp. Toán khách ngắn, Tham tướng tuy phát, không lợi là khách. Hai bên đều nên cố giữ. Chủ nghe địch dự bị mặt Đông Nam. Khách nghe địch dự bị mặt chính Đông."
+      },
+      {
+        "so_cuc": 58,
+        "can_chi": [
+          "Đinh Dậu",
+          "Ất Dậu",
+          "Quý Dậu",
+          "Tân Dậu",
+          "Kỷ Dậu"
+        ],
+        "toan_chu": "18",
+        "toan_khach": "8 đơn",
+        "toan_dinh": "35",
+        "toa_do_sao_tuong": "Ất cả ở cung 6. Văn tới Tốn. Đại chủ cung 8, Khách ngăn. Tham chủ cung 4, cách, ngăn. Đại khách cung 8, chủ ngăn. Tham khách cung 4, cách ngăn. Thần Kể Hợi. Mới kích tới Đạo Trời.",
+        "luan_giai": "Khối này, Đại Tướng Chủ khách ngăn, Tham tướng Chủ khách ngăn. Chủ khách đều không lợi. Đều nên cố giữ. Chủ nghe địch dự bị Đông Nam, khách nghe địch dự bị mặt Tây Nam."
+      },
+      {
+        "so_cuc": 59,
+        "can_chi": [
+          "Canh Tuất",
+          "Mậu Tuất",
+          "Bính Tuất",
+          "Giáp Tuất",
+          "Nhâm Tuất"
+        ],
+        "toan_chu": "18 - Dài, hòa",
+        "toan_khach": "1 đơn",
+        "toan_dinh": "12",
+        "toa_do_sao_tuong": "Ất cả ở cung 6. Văn tới Tốn. Đại chủ cung 8, phát, khách cấp. Tham chủ cung 4, cách. Đại khách cung 1, ngoài ép. Tham khách cung 3, chủ cấp. Thần Kể Tuất. Mới kích tới Đức Võ, trong Thời Kích.",
+        "luan_giai": "Khối này, Ất cả trợ chủ. Chủ khách cấp lại lẫn nhau, lại cùng thêm Ép, Cách. Chủ khách đều không lợi. Đều nên cố giữ. Chủ nghe địch dự bị mặt Đông Nam. Khách nghe địch dự bị mặt Tây Nam."
+      },
+      {
+        "so_cuc": 60,
+        "can_chi": [
+          "Tân Hợi",
+          "Kỷ Hợi",
+          "Đinh Hợi",
+          "Ất Hợi",
+          "Quý Hợi"
+        ],
+        "toan_chu": "10 - Dương cô",
+        "toan_khach": "35 - Cửa đóng",
+        "toan_dinh": "23",
+        "toa_do_sao_tuong": "Ất cả ở cung 6. Văn tới Tị. Đại Chủ cung 1, ép ngoài. Tham chủ cung 3, phát. Thần Kể Dậu. Mới kích tới Chủ âm, ngoài kích.",
+        "luan_giai": "Khối này, Ất cả trợ chủ. Đại Tướng Chủ tuy ép, Tham tướng phát, và Mắt trời phát. Lộc về chủ. Ngoài trận, lợi động sau. Ra quân, nên hướng Tây Bắc. Chiến, lợi Đông Nam. Lợi trận cong, phất cờ đen. Khí mây theo hướng Tây Bắc lại, chủ thắng. Nghe địch dự bị Đông Nam. Binh kỳ, lợi Đông Nam. Binh phục, lợi giờ Thân Dậu Tuất. Đại Tiểu Tướng khách đóng lấp, không cửa. Nên cố giữ. Nghe địch dự bị Tây Bắc."
+      },
+      {
+        "so_cuc": 61,
+        "can_chi": [
+          "Nhâm Tý",
+          "Canh Tý",
+          "Mậu Tý",
+          "Bính Tý",
+          "Giáp Tý"
+        ],
+        "toan_chu": "27, dài, hòa",
+        "toan_khach": "12, hòa",
+        "toan_dinh": "8",
+        "toa_do_sao_tuong": "Ất cả ở cung 4. Văn tới Ngọ. Đại chủ cung 7, phát, ếm, cấp. Tham chủ cung 1, phát, kích. Đại khách cung 2, ếm. Tham khách cung 6, cách, ếm. Thần kể Thân. Mới kích tới Nghĩa Lớn .",
+        "luan_giai": "Khối này, Ất cả trợ chủ. Toán chủ, dài, hòa, cửa đủ, tướng phát, Lợi về chủ. Ngoài trận, lợi động về sau. Ra quân, nên hướng Tây Nam. Chiến, lợi Đông bắc. Lợi trận vuông, phất cờ trắng, khí mây theo Tây Nam lại, chủ thắng. Nghe địch dự bị chính Nam. Bình kỳ, lợi chính Nam, Binh phục, lợi giờ Dần Mão Thìn. Đại Tướng Khách bị Mắt trời ếm. Tham tướng khách, chủ cắp. Không lợi về khách. Nên cố giữ. Nghe địch dự bị mặt Tây Nam ."
+      },
+      {
+        "so_cuc": 62,
+        "can_chi": [
+          "Quý Sửu",
+          "Tân Sửu",
+          "Kỷ Sửu",
+          "Đinh Sửu",
+          "Ất Sửu"
+        ],
+        "toan_chu": "26, hòa",
+        "toan_khach": "3 đơn, ngắn, không hòa",
+        "toan_dinh": "7 đơn",
+        "toa_do_sao_tuong": "Ất cả cung 4. Văn tới Vị. Đại chủ, cung 6. Tham chủ cung 8, phát. Đại khách cung 3, trong ép. Tham khách cung 9, ngoài ép. Thần Kể Vị. Mới kích tới Đức Hòa, cung trong kích .",
+        "luan_giai": "Khối này. Ất cả trợ chủ, Toán chủ dài hòa. Đại Tướng chủ tuy cách Tham tướng phát, lợi về chủ. Khí mây từ Tây lại, chủ thắng. Nghe địch dự bị Tây Nam. Binh kỳ, lợi Tây Nam. Binh phục, lợi giờ Dần Mão Thìn. Toán khách ngắn. Đại Tiểu Tướng khách, cung trong ngoài ép, mất đất ếm khách, cũng không lợi. Nên cố giữ. Nghe địch dự bị Đông bắc ."
+      },
+      {
+        "so_cuc": 63,
+        "can_chi": [
+          "Giáp Dần",
+          "Nhâm Dần",
+          "Canh Dần",
+          "Mậu Dần",
+          "Bính Dần"
+        ],
+        "toan_chu": "25 cửa đóng",
+        "toan_khach": "4 đơn",
+        "toan_dinh": "20",
+        "toa_do_sao_tuong": "Ất cả ở cung 4. Văn tới Khôn. Đại khách cung 4, Giam Ếm. Tham khách cung 2, phát. Thần Kể Ngọ. Mới kích tới Tùng cao, Ếm .",
+        "luan_giai": "Khối này, Ất cả Đại Tham Tướng chủ, đóng tắc, không cửa. Không lợi là chủ. Đại Tướng Khách giam. Tham tướng phát, nhưng Mắt đất giam; Toán ngắn, không lợi là khách. Khách nên cố giữ. Chủ nghe địch dự bị Tây Nam. Khách nghe địch dự bị chính Đông ."
+      },
+      {
+        "so_cuc": 64,
+        "can_chi": [
+          "Ất Mão",
+          "Quý Mão",
+          "Tân Mão",
+          "Kỷ Mão",
+          "Đinh Mão"
+        ],
+        "toan_chu": "16, dài, hòa",
+        "toan_khach": "33, không hòa",
+        "toan_dinh": "23",
+        "toa_do_sao_tuong": "Ất cả ở cung 3. Văn tới Thân. Đại chủ, cung 6. Tham chủ cung 8, ép. Đại khách cung 3, Giam. Tham khách cung 9, phát. Thần Kể Tị. Mới kích tới Sáng lớn .",
+        "luan_giai": "Khối này, toán chủ hòa, cửa đủ, tướng phát, lợi về chủ. Ngoài trận, lợi động sau. Ra quân, hướng chính Tây. Chiến, lợi chính Đông, lợi trận vuông, phất cờ trắng. Khí mây theo chính Tây lại, chủ thắng. Nghe địch, dự bị Tây Nam. Binh phục, lợi giờ Sửu Dần, trận được thì rút. Đại Tướng Khách, giam. Tham tướng phát. Ra quân, nên Đông Nam chiến, lợi Tây Bắc. Lợi trận thẳng, phất cờ xanh. Khí mây theo Đông Nam lại, khách thắng. Nghe địch dự bị Đông Nam. Bình kỳ, Đông Nam. Binh phục, lợi giờ Sửu Dần ."
+      },
+      {
+        "so_cuc": 65,
+        "can_chi": [
+          "Bính Thìn",
+          "Giáp Thìn",
+          "Nhâm Thìn",
+          "Canh Thìn",
+          "Mậu Thìn"
+        ],
+        "toan_chu": "15, cửa đóng",
+        "toan_khach": "23, dài, hòa",
+        "toan_dinh": "34",
+        "toa_do_sao_tuong": "Ất cả ở cung 3. Văn tới Dậu. Đại khách cung 3, Giam. Tham khách cung 1, ngoài ép. Thần Kể Thìn. Mới kích tới Đạo trời .",
+        "luan_giai": "Khối này, Đại tiểu tướng chủ, đóng tắc, không cửa. Không lợi là chủ. Đại tướng khách, cung trong ép. Không lợi. Tham khách cung 1 ngoài ép, lại bị Bài Văn chặn. Chủ khách đều không lợi. Đều nên cố giữ. Chủ nghe địch dự bị Tây Bắc. Khách nghe địch dự bị Tây Bắc ."
+      },
+      {
+        "so_cuc": 66,
+        "can_chi": [
+          "Đinh Tị",
+          "Ất Tị",
+          "Quý Tị",
+          "Tân Tị",
+          "Kỷ Tị"
+        ],
+        "toan_chu": "17, Trong âm trùng dương",
+        "toan_khach": "22, Dài, hòa",
+        "toan_dinh": "8",
+        "toa_do_sao_tuong": "Ất cả ở cung 3. Văn tới Tuất. Đại chủ, cung 1, khách Cấp. Tham chủ cung 3, Giam. Đại khách cung 6, phát. Mắt trời Mắt Đất Cắp Tham khách cung 8, Ép, chủ Cắp. Thần Kể Mão. Mới kích tới Đức Võ .",
+        "luan_giai": "Khối này, Ất cả trợ chủ. Tham tướng giam, Đại tướng tuy phát. Bị Đại Tiểu Tướng khách Cấp. Không lợi cho chủ, nên cố giữ. Nghe địch dự bị mặt Tây Bắc. Toán khách, dài, hòa. Tham tướng tuy Ép. Đại tướng phát, lợi về khách. Ngoài trận, lợi động trước. Ra quân, nên chính Tây. Chiến, lợi chính Đông. Lợi trận vuông, phất cờ trắng. Khí mây theo Tây lại, khách thắng. Nghe địch dự bị Tây Nam. Bình phục, lợi giờ Sửu Dần ."
+      },
+      {
+        "so_cuc": 67,
+        "can_chi": [
+          "Mậu Ngọ",
+          "Bính Ngọ",
+          "Giáp Ngọ",
+          "Nhâm Ngọ",
+          "Canh Ngọ"
+        ],
+        "toan_chu": "25 — cửa đóng",
+        "toan_khach": "26, không hòa",
+        "toan_dinh": "26",
+        "toa_do_sao_tuong": "Ất cả ở cung 2. Văn tới Kiền. Đại khách cung 6, phát, kích. Tham khách cung 8, cách. Thần Kể Dần. Mới kích đến chủ âm .",
+        "luan_giai": "Khối này, toán khách, dài, không hòa. Tham tướng khách tuy cách, Đại tướng phát, gặp khí mạnh. Lợi cho khách. Ngoài trận, lợi động trước. Ra quân, nên chính Tây. Chiến, lợi chính Đông, lợi trận vuông, phất cờ trắng. Khí mây từ Tây lại, khách thắng. Nghe địch, dự bị Tây Bắc. Binh kỳ, Tây Bắc. Binh phục, lợi giờ Tị Ngọ Vị. Bên chủ, đóng lấp, không cửa, nên cố giữ. Nghe địch dự bị Tây Bắc ."
+      },
+      {
+        "so_cuc": 68,
+        "can_chi": [
+          "Kỷ Vị",
+          "Đinh Vị",
+          "Ất Vị",
+          "Quý Vị",
+          "Tân Vị"
+        ],
+        "toan_chu": "25, cửa đóng",
+        "toan_khach": "24, dài, hòa",
+        "toan_dinh": "26",
+        "toa_do_sao_tuong": "Ất cả ở cung 2. Bài Văn tới Hợi. Đại khách cung 4, phát. Tham khách cung 2, giam, Mắt Đất cách. Thần Kể Sửu. Mới kích tới Chủ đất, cách .",
+        "luan_giai": "Khối này, Ất cả trợ chủ. Tham tướng tuy giam. Đại Tướng phát. Toán khách dài, hòa, cửa đủ, tướng phát. Lợi về khách. Ngoài trận, lợi động trước. Ra quân, nên chính Đông. Chiến, lợi chính Tây. Lợi trận bên nhọn, phất cờ đỏ. Khí mây theo hướng chính Đông lại, khách thắng. Nghe địch dự bị mặt chính Đông. Bình kỳ, chính Đông. Binh phục, lợi giờ Tị Ngọ Vị ."
+      },
+      {
+        "so_cuc": 69,
+        "can_chi": [
+          "Canh Thân",
+          "Mậu Thân",
+          "Bính Thân",
+          "Giáp Thân",
+          "Nhâm Thân"
+        ],
+        "toan_chu": "24",
+        "toan_khach": "16, dài hòa",
+        "toan_dinh": "13",
+        "toa_do_sao_tuong": "Ất cả ở cung 2. Bài Văn tới Khảm. Đại khách cung 4, cách, phát. Tham chủ cung 2, Giam. Đại khách cung 6, phát. Tham khách cung 8, cách. Mắt trời ngắn. Thần Kể Tý. Mới kích tới Đức Võ .",
+        "luan_giai": "Khối này, Ất cả trợ chủ, cửa đủ, tướng phát. Tham tướng tuy giam, Đại tướng phát. Lợi về chủ. Ngoài trận, lợi động sau. Ra quân, nên chính Đông. Chiến, lợi chính Bắc. Lợi trận sắc bén, phất cờ đỏ. Khí mây theo chính Đông lại, chủ thắng. Nghe địch dự bị chính Bắc. Bình kỳ, chính Bắc. Binh phục, lợi giờ Tý Ngọ Vị. Toán khách, dài, hòa Ất cả trợ Tham tướng tuy cách. Đại tướng phát, lợi về khách. Ngoài trận, lợi động trước. Ra quân, nên chính Tây. Chiến, lợi chính Đông. Lợi trận vuông, phất cờ trắng. Khí mây theo Tây lại, khách thắng. Nghe địch dự bị Đông Bắc. Bình phục, lợi giờ Tị Ngọ Vị ."
+      },
+      {
+        "so_cuc": 70,
+        "can_chi": [
+          "Tân Dậu",
+          "Kỷ Dậu",
+          "Đinh Dậu",
+          "Ất Dậu",
+          "Quý Dậu"
+        ],
+        "toan_chu": "32 dài, hòa",
+        "toan_khach": "28 dài hòa",
+        "toan_dinh": "15",
+        "toa_do_sao_tuong": "Ất cả ở cung 1. Văn tới Sửu. Đại chủ cung 2, phát, Tham chủ cung 6, trong ép. Đại khách cung 8, ép ngoài. Tham khách cung 4, phát, ngắn. Thần Kể Hợi. Mới kích tới Tùng Cao .",
+        "luan_giai": "Khối này, Ất cả trợ chủ, toán chủ dài, hòa. Tham tướng tuy ép. Đại tướng phát. Lợi về chủ. Ngoài trận, lợi động sau. Ra quân, nên chính Nam. Chiến, lợi chính Bắc. Lợi trận tròn, phất cờ vàng. Khí mây theo chính Nam lại, chủ được. Nghe địch dự bị Đông Bắc. Binh kỳ, Đông Bắc. Binh phục, lợi giờ Tuất Hợi. Toán khách, dài, hòa. Đại tướng tuy ép. Tham tướng phát. Mắt Đất cũng phát. Lợi về khách. Ngoài trận, lợi động trước. Ra quân, nên chính Bắc. Chiến, lợi chính Nam. Lợi trận cong, phất cờ đen. Khí mây chính Bắc lại, khách thắng. Nghe địch dự bị chính Đông. Binh kỳ, chính Đông. Binh phục, lợi giờ Tuất Hợi ."
+      },
+      {
+        "so_cuc": 71,
+        "can_chi": [
+          "Nhâm Tuất",
+          "Canh Tuất",
+          "Mậu Tuất",
+          "Bính Tuất",
+          "Giáp Tuất"
+        ],
+        "toan_chu": "31",
+        "toan_khach": "16 hòa",
+        "toan_dinh": "1",
+        "toa_do_sao_tuong": "Ất cả ở cung 1. Văn tới Cấn. Đại chủ cung 1, giam. Tham chủ cũng 3, phát. Đại khách cung 6, Giam, Ép trong. Tham khách cung 8, ngoài ép. Thần Kể Tuất. Mới kích tới Thần lớn .",
+        "luan_giai": "Khối này, Ất cả trợ chủ. Đại tướng chủ tuy Giam. Tham tướng phát. Mắt trời trợ. Lợi về chủ. Ngoài trận, lợi động sau. Ra quân, nên Tây Bắc. Chiến, lợi Đông Nam, Lợi trận cong, phất cờ đen. Khí mây theo Tây Bắc chủ thắng. Nghe địch dự bị Đông Bắc. Binh kỳ, Đông Bắc. Binh phục, lợi giờ Tuất Hợi. Đại Tiểu Tướng khách, cung trong ngoài ép. Thần Kể cũng thời không lợi cho khách, nên cố giữ. Nghe địch dự bị Đông Nam ."
+      },
+      {
+        "so_cuc": 72,
+        "can_chi": [
+          "Quý Hợi",
+          "Tân Hợi",
+          "Kỷ Hợi",
+          "Đinh Hợi",
+          "Ất Hợi"
+        ],
+        "toan_chu": "31, không hòa",
+        "toan_khach": "15, cửa đóng",
+        "toan_dinh": "1 đơn",
+        "toa_do_sao_tuong": "Ất cả ở cung 1. Văn tới Cấn. Đại chủ, cung 1, Giam. Tham chủ cung 3, phát, ngắn. Thần Kể Dậu. Mới kích tới Sáng lớn .",
+        "luan_giai": "Khối này, toán chủ không hòa. Đại tướng Giam. Tiểu tướng bị Bài văn Ếm. Toán khách đóng lấp, không cửa. Chủ khách đều không có lợi, đều nên cố giữ. Chủ nghe địch dự bị Đông Bắc. Khách nghe địch dự bị chính Nam ."
+      }
+    ]
+  }
+};
+
+async function _load144Cuc() {
+  return _144CucData;
+}
+
+function _timCucTrongJson(data, cucSo, donHe) {
+  if (!data) return null;
+  const ds = donHe === "am" ? data.am_don?.danh_sach : data.duong_don?.danh_sach;
+  if (!ds) return null;
+  return ds.find(c => c.so_cuc === cucSo) || null;
+}
+
+function _troNguoiLabel(luan_giai) {
+  if (!luan_giai) return { troKhach: false, troChu: false, label: "", color: "var(--text-dim)", icon: "☯️" };
+  const txt = luan_giai.toLowerCase();
+  const troKhach = /ất cả trợ khách|lợi về khách|trợ khách/.test(txt);
+  const troChu   = /ất cả trợ chủ|lợi về chủ|trợ chủ/.test(txt);
+  const caHai    = troKhach && troChu;
+  let label = "", color = "var(--text-dim)", icon = "☯️";
+  if (caHai)         { label = "Ất Cả trợ CẢ HAI — Chủ & Khách đều có lợi thế"; color = "var(--yellow)"; icon = "⚖️"; }
+  else if (troKhach) { label = "Ất Cả TRỢ KHÁCH — Lợi về Khách (tấn công/chủ động)"; color = "var(--red)"; icon = "⚔️"; }
+  else if (troChu)   { label = "Ất Cả TRỢ CHỦ — Lợi về Chủ (phòng thủ/bảo vệ)"; color = "var(--green)"; icon = "🛡️"; }
+  else               { label = "Ất Cả trung lập — Không nghiêng về Chủ hay Khách"; color = "var(--text-dim)"; icon = "☯️"; }
+  return { troKhach, troChu, caHai, label, color, icon };
+}
+
+function _render144CucHtml(cuc, donHe) {
+  if (!cuc) return `<div style="font-size:11px;color:var(--text-dim);padding:12px;text-align:center;border:1px dashed rgba(255,255,255,.1);border-radius:8px;margin-top:8px;">⚠️ Không tìm thấy dữ liệu cục này trong 144 Cục.</div>`;
+
+  const donHeLabel = donHe === "am" ? "🌙 Âm Độn" : "☀️ Dương Độn";
+  const donHeColor = donHe === "am" ? "var(--cyan)" : "var(--gold)";
+  const donHeBg    = donHe === "am" ? "rgba(0,212,255,0.07)" : "rgba(200,153,58,0.07)";
+  const donHeBorder= donHe === "am" ? "rgba(0,212,255,0.25)" : "rgba(200,153,58,0.25)";
+
+  const canChi = Array.isArray(cuc.can_chi) ? cuc.can_chi : (cuc.can_chi ? [cuc.can_chi] : []);
+  const tro = _troNguoiLabel(cuc.luan_giai);
+
+  function toanBadge(str) {
+    if (!str) return '<span style="color:var(--text-dim)">—</span>';
+    const s = str.toLowerCase();
+    let c = "var(--text)";
+    if (/dài.hòa|thượng.hòa|hạ.hòa|thứ.hòa/.test(s)) c = "var(--green)";
+    else if (/đóng|bế|không.cửa/.test(s)) c = "var(--red)";
+    else if (/không.hòa|cô.dương|cô.âm/.test(s)) c = "var(--yellow)";
+    return `<span style="font-weight:700;color:${c};">${str}</span>`;
+  }
+
+  return `
+    <div style="margin-top:14px;border-top:2px solid ${donHeBorder};padding-top:14px;">
+
+      <!-- HEADER: Độn hệ + số cục -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;padding:9px 13px;background:${donHeBg};border:1px solid ${donHeBorder};border-radius:10px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:14px;font-weight:700;color:${donHeColor};">${donHeLabel}</span>
+          <span style="font-size:14px;font-weight:700;color:var(--gold-light);">· Cục ${cuc.so_cuc}</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:3px;justify-content:flex-end;">
+          ${canChi.map(cc => `<span style="padding:2px 6px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:4px;font-size:9.5px;color:var(--text-dim);">${cc}</span>`).join("")}
+        </div>
+      </div>
+
+      <!-- TRỢ CHỦ / TRỢ KHÁCH badge nổi bật -->
+      <div style="padding:10px 13px;margin-bottom:11px;border-radius:10px;border:1px solid ${tro.color === 'var(--text-dim)' ? 'rgba(255,255,255,.1)' : tro.color.replace('var(--','rgba(').replace(')',',.3)')};background:${tro.color === 'var(--text-dim)' ? 'rgba(255,255,255,.03)' : tro.color.replace('var(--','rgba(').replace(')',',.06)')};display:flex;align-items:flex-start;gap:10px;">
+        <span style="font-size:18px;flex-shrink:0;margin-top:1px;">${tro.icon}</span>
+        <div>
+          <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:4px;">☯ Ất Cả — Trợ Chủ / Trợ Khách</div>
+          <div style="font-size:12px;font-weight:700;color:${tro.color};line-height:1.5;">${tro.label}</div>
+        </div>
+      </div>
+
+      <!-- TOÁN SỐ -->
+      <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:7px;">📊 Toán Số Chủ · Khách · Đinh</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:12px;">
+        <div style="background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.18);border-radius:9px;padding:9px 11px;">
+          <div style="color:var(--text-dim);margin-bottom:4px;font-size:9px;letter-spacing:.06em;text-transform:uppercase;">Toán Chủ</div>
+          <div style="font-size:11px;line-height:1.5;">${toanBadge(cuc.toan_chu)}</div>
+        </div>
+        <div style="background:rgba(200,153,58,.05);border:1px solid rgba(200,153,58,.18);border-radius:9px;padding:9px 11px;">
+          <div style="color:var(--text-dim);margin-bottom:4px;font-size:9px;letter-spacing:.06em;text-transform:uppercase;">Toán Khách</div>
+          <div style="font-size:11px;line-height:1.5;">${toanBadge(cuc.toan_khach)}</div>
+        </div>
+        <div style="background:rgba(0,229,192,.05);border:1px solid rgba(0,229,192,.18);border-radius:9px;padding:9px 11px;">
+          <div style="color:var(--text-dim);margin-bottom:4px;font-size:9px;letter-spacing:.06em;text-transform:uppercase;">Toán Đinh</div>
+          <div style="font-size:11px;font-weight:700;color:var(--teal);">${cuc.toan_dinh || "—"}</div>
+        </div>
+      </div>
+
+      <!-- TỌA ĐỘ SAO TƯỚNG -->
+      ${cuc.toa_do_sao_tuong ? `
+      <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px;">⭐ Tọa Độ Sao Tướng</div>
+      <div style="font-size:11px;margin-bottom:12px;background:rgba(200,153,58,0.05);border:1px solid rgba(200,153,58,0.2);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:10px 13px;color:var(--text);line-height:1.8;">${cuc.toa_do_sao_tuong}</div>` : ""}
+
+      <!-- LUẬN GIẢI ĐẦY ĐỦ CỔ THƯ -->
+      ${cuc.luan_giai ? `
+      <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan);margin-bottom:7px;">📜 Luận Giải Cổ Thư · Đầy Đủ</div>
+      <div style="font-size:11.5px;background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.18);border-left:3px solid var(--cyan);border-radius:0 10px 10px 0;padding:12px 14px;color:var(--text);line-height:1.9;">${cuc.luan_giai}</div>` : ""}
+
+    </div>
+  `;
+}
+
+async function calClickDay(d, silent) {
   _calState.selectedDay = d;
 
   // Cập nhật class selected
-  document.querySelectorAll("#cal-grid .cal-day").forEach((el, i) => {
+  document.querySelectorAll("#cal-grid .cal-day").forEach((el) => {
     const num = el.querySelector(".cal-day-num")?.textContent;
     if (parseInt(num) === d) el.classList.add("selected");
     else el.classList.remove("selected");
@@ -9162,53 +11454,114 @@ function calClickDay(d, silent) {
   try { r = compute(y, m, d, 12); } catch(e) { return; }
   const nhat = r.cucs[2];
   const nd   = nhat.data;
+  const donHe = r.meta.donHe; // "am" hoặc "duong"
+  const donHeLabel = donHe === "am" ? "🌙 Âm Độn" : "☀️ Dương Độn";
+  const donHeColor = donHe === "am" ? "var(--cyan)" : "var(--gold)";
 
-  const statusColor = {
-    cat: "var(--green)", hung: "var(--red)", warn: "var(--yellow)", binh: "var(--text-dim)"
-  };
+  // Xác định tiết khí (trước/sau Hạ Chí)
+  const doy = r.meta.doy;
+  const haChiNote = (172 <= doy && doy <= 355)
+    ? `<span style="color:var(--cyan);font-size:9.5px;">Sau Tiết Hạ Chí → Âm Độn</span>`
+    : `<span style="color:var(--gold);font-size:9.5px;">Trước Tiết Hạ Chí → Dương Độn</span>`;
+
+  const statusColor = { cat: "var(--green)", hung: "var(--red)", warn: "var(--yellow)", binh: "var(--text-dim)" };
   const statusEmoji = { cat:"🟢", hung:"🔴", warn:"🟡", binh:"⚪" };
+  const statusLabel = { cat:"ĐẠI CÁT", hung:"ĐẠI HUNG", warn:"CẢNH BÁO", binh:"BÌNH HÒA" };
   const info = _calDayStatus(y, m, d);
 
   const dateStr = `${d < 10 ? "0"+d : d}/${m < 10 ? "0"+m : m}/${y}`;
+  const DOW_VI = ["Chủ Nhật","Thứ Hai","Thứ Ba","Thứ Tư","Thứ Năm","Thứ Sáu","Thứ Bảy"];
+  const dayOfWeek = DOW_VI[new Date(y, m-1, d).getDay()];
 
   resultEl.style.display = "block";
+
+  // Hiện phần cơ bản + loading 144 cục
   resultEl.innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-      <span style="font-size:12px;font-weight:700;color:var(--cyan);">☀️ Nhật Cục — ${dateStr}</span>
-      <span style="font-size:11px;font-weight:700;color:${statusColor[info.status] || "var(--text-dim)"};">
-        ${statusEmoji[info.status] || "⚪"} ${info.status==="cat"?"ĐẠI CÁT":info.status==="hung"?"ĐẠI HUNG":info.status==="warn"?"CẢNH BÁO":"BÌNH HÒA"}
-      </span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:10px;margin-bottom:8px;">
-      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:7px 9px;">
-        <div style="color:var(--text-dim);margin-bottom:3px;">Thái Ất Cung</div>
-        <div style="font-weight:700;color:var(--gold);">${nd.thaiAt}</div>
+    <!-- HEADER ngày -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:9px;border-bottom:1px solid rgba(0,212,255,0.15);">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--cyan);">☀️ Nhật Cục — ${dateStr}</div>
+        <div style="font-size:10px;color:var(--text-dim);margin-top:2px;">${dayOfWeek} · ${haChiNote}</div>
       </div>
-      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:7px 9px;">
-        <div style="color:var(--text-dim);margin-bottom:3px;">Nhật Cục Số</div>
-        <div style="font-weight:700;color:var(--cyan);">${nhat.cucSo}</div>
-      </div>
-      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:7px 9px;">
-        <div style="color:var(--text-dim);margin-bottom:3px;">Chủ Đại Tướng</div>
-        <div style="font-weight:700;font-size:9px;color:${statusColor[nd.anChuDai?.status]||"var(--text)"};">${nd.anChuDai?.label||"—"}</div>
-      </div>
-      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:7px 9px;">
-        <div style="color:var(--text-dim);margin-bottom:3px;">Khách Đại Tướng</div>
-        <div style="font-weight:700;font-size:9px;color:${statusColor[nd.anKhachDai?.status]||"var(--text)"};">${nd.anKhachDai?.label||"—"}</div>
+      <div style="text-align:right;">
+        <div style="font-size:13px;font-weight:700;color:${statusColor[info.status] || "var(--text-dim)"};">
+          ${statusEmoji[info.status] || "⚪"} ${statusLabel[info.status] || "BÌNH HÒA"}
+        </div>
+        <div style="font-size:10px;color:${donHeColor};margin-top:2px;">${donHeLabel} · Cục ${nhat.cucSo}</div>
       </div>
     </div>
-    <div style="font-size:9.5px;color:var(--text-dim);text-align:center;">
-      Nhấn <strong style="color:var(--cyan);">Tính Tọa Độ</strong> ở trên để xem phân tích đầy đủ ngày ${dateStr}
+
+    <!-- 4 ô thông tin nhanh -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px;">
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:9px;padding:9px 11px;">
+        <div style="color:var(--text-dim);margin-bottom:4px;font-size:9px;letter-spacing:.06em;text-transform:uppercase;">Thái Ất Cung</div>
+        <div style="font-weight:700;font-size:13px;color:var(--gold);">${nd.thaiAt}</div>
+        <div style="font-size:9.5px;color:var(--text-dim);margin-top:2px;">${CUNG_NAME?.[nd.thaiAt] || ""}</div>
+      </div>
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:9px;padding:9px 11px;">
+        <div style="color:var(--text-dim);margin-bottom:4px;font-size:9px;letter-spacing:.06em;text-transform:uppercase;">Nhật Cục Số</div>
+        <div style="font-weight:700;font-size:13px;color:var(--cyan);">${nhat.cucSo}</div>
+        <div style="font-size:9.5px;color:var(--text-dim);margin-top:2px;">${donHeLabel}</div>
+      </div>
+      <div style="background:rgba(34,221,136,.04);border:1px solid rgba(34,221,136,.15);border-radius:9px;padding:9px 11px;">
+        <div style="color:var(--text-dim);margin-bottom:4px;font-size:9px;letter-spacing:.06em;text-transform:uppercase;">🛡 Chủ Đại Tướng</div>
+        <div style="font-weight:700;font-size:11px;color:${statusColor[nd.anChuDai?.status]||"var(--text)"};">${nd.anChuDai?.label||"—"}</div>
+        <div style="font-size:9.5px;color:var(--text-dim);margin-top:2px;">Cung ${nd.chuDai||"?"}</div>
+      </div>
+      <div style="background:rgba(255,68,85,.04);border:1px solid rgba(255,68,85,.15);border-radius:9px;padding:9px 11px;">
+        <div style="color:var(--text-dim);margin-bottom:4px;font-size:9px;letter-spacing:.06em;text-transform:uppercase;">⚔️ Khách Đại Tướng</div>
+        <div style="font-weight:700;font-size:11px;color:${statusColor[nd.anKhachDai?.status]||"var(--text)"};">${nd.anKhachDai?.label||"—"}</div>
+        <div style="font-size:9.5px;color:var(--text-dim);margin-top:2px;">Cung ${nd.khachDai||"?"}</div>
+      </div>
+    </div>
+
+    <!-- Thần sát nhanh -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px;font-size:10px;">
+      <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:7px 9px;">
+        <div style="color:var(--text-dim);font-size:9px;margin-bottom:3px;">🔑 Kế Thần</div>
+        <div style="font-weight:600;color:var(--teal);">${nd.keThan||"—"}</div>
+      </div>
+      <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:7px 9px;">
+        <div style="color:var(--text-dim);font-size:9px;margin-bottom:3px;">👁 Văn Xương</div>
+        <div style="font-weight:600;color:var(--teal);">${nd.vanXuong||"—"}</div>
+      </div>
+      <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:7px 9px;">
+        <div style="color:var(--text-dim);font-size:9px;margin-bottom:3px;">⚔️ Thủy Kích</div>
+        <div style="font-weight:600;color:#ff8899;">${nd.thuyKich||"—"}</div>
+      </div>
+    </div>
+
+    <!-- Block 144 cục — sẽ được fill async -->
+    <div id="cal-144cuc-block" style="margin-top:4px;">
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 0;color:var(--text-dim);font-size:11px;">
+        <div class="oracle-spinner" style="width:14px;height:14px;flex-shrink:0;"></div>
+        Đang tải 144 Cục ${donHeLabel} · Cục ${nhat.cucSo}...
+      </div>
+    </div>
+
+    <!-- Gợi ý tính đầy đủ -->
+    <div style="font-size:9.5px;color:var(--text-dim);text-align:center;margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,.06);">
+      Nhấn <strong style="color:var(--cyan);">Tính Tọa Độ</strong> để xem phân tích đầy đủ 4 cục ngày ${dateStr}
     </div>
   `;
 
-  // Tự động điền ngày vào input để người dùng có thể bấm tính ngay
-  const inpNgay = document.getElementById("inp-ngay");
+  // Tự động điền ngày vào input
+  const inpNgay  = document.getElementById("inp-ngay");
   const inpThang = document.getElementById("inp-thang");
-  const inpNam = document.getElementById("inp-nam");
-  if (inpNgay) inpNgay.value = d;
+  const inpNam   = document.getElementById("inp-nam");
+  if (inpNgay)  inpNgay.value  = d;
   if (inpThang) inpThang.value = m;
-  if (inpNam) inpNam.value = y;
+  if (inpNam)   inpNam.value   = y;
+
+  // Load 144 cục JSON và render chi tiết
+  const cucBlock = document.getElementById("cal-144cuc-block");
+  try {
+    const jsonData = await _load144Cuc();
+    const cucInfo  = _timCucTrongJson(jsonData, nhat.cucSo, donHe);
+    if (cucBlock) cucBlock.innerHTML = _render144CucHtml(cucInfo, donHe);
+  } catch(e) {
+    if (cucBlock) cucBlock.innerHTML = `<div style="font-size:10px;color:var(--text-dim);padding:8px;">Không tải được dữ liệu 144 Cục.</div>`;
+  }
 }
 
 function calPrevMonth() {
