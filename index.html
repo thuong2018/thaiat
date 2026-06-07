@@ -7,11 +7,17 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>☯ Thái Ất Thần Kinh</title>
 
-<!-- PWA -->
-<link rel="manifest" href="manifest.json">
+<!-- PWA — manifest only injected over HTTP/HTTPS to avoid file:// CORS error -->
 <meta name="theme-color" content="#030810">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="apple-touch-icon" href="icon-192.png">
+<script>
+  if (location.protocol === 'http:' || location.protocol === 'https:') {
+    var ml = document.createElement('link');
+    ml.rel = 'manifest'; ml.href = 'manifest.json';
+    document.head.appendChild(ml);
+  }
+</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
@@ -3564,24 +3570,46 @@ input[type=range]::-webkit-slider-thumb {
             ⟳ Cập nhật
           </button>
         </div>
-        <div class="mkt-group-label">📊 Chỉ Số Chứng Khoán</div>
+        <!-- ══ FEAR & STRESS — lên đầu ══ -->
+        <div class="mkt-group-label">🚨 Bond Yields & Fear Gauges</div>
+        <div class="mkt-table" id="mkt-bonds">
+          <div class="mkt-row mkt-header-row"><span>Tên</span><span style="text-align:right">Yield</span><span style="text-align:right">±</span><span style="text-align:right">%</span></div>
+        </div>
+
+        <!-- Yield Curve widget -->
+        <div id="mkt-yc-wrap" style="display:none;margin:7px 0 2px;padding:8px 10px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);border-radius:10px;">
+          <div style="font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;">⚠️ Yield Curve Spread</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+            <div>
+              <div style="font-size:8.5px;color:var(--text-dim);">10Y − 3M</div>
+              <div id="mkt-yc-10-3" style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;">—</div>
+              <div id="mkt-yc-10-3-label" style="font-size:9px;margin-top:2px;"></div>
+            </div>
+            <div>
+              <div style="font-size:8.5px;color:var(--text-dim);">30Y − 3M</div>
+              <div id="mkt-yc-30-3" style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;">—</div>
+              <div id="mkt-yc-30-3-label" style="font-size:9px;margin-top:2px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mkt-group-label" style="margin-top:9px">💎 Safe Haven & Macro</div>
+        <div class="mkt-table" id="mkt-commodities">
+          <div class="mkt-row mkt-header-row"><span>Tên</span><span style="text-align:right">Giá</span><span style="text-align:right">±</span><span style="text-align:right">%</span></div>
+        </div>
+
+        <div class="mkt-group-label" style="margin-top:9px">📊 Equity</div>
         <div class="mkt-table" id="mkt-indices">
           <div class="mkt-row mkt-header-row"><span>Tên</span><span style="text-align:right">Giá</span><span style="text-align:right">±</span><span style="text-align:right">%</span></div>
         </div>
+
         <div class="mkt-group-label" style="margin-top:9px">₿ Crypto</div>
         <div class="mkt-table" id="mkt-crypto">
           <div class="mkt-row mkt-header-row"><span>Tên</span><span style="text-align:right">Giá</span><span style="text-align:right">±</span><span style="text-align:right">%</span></div>
         </div>
-        <div class="mkt-group-label" style="margin-top:9px">🥇 Hàng Hóa & Ngoại Tệ</div>
-        <div class="mkt-table" id="mkt-commodities">
-          <div class="mkt-row mkt-header-row"><span>Tên</span><span style="text-align:right">Giá</span><span style="text-align:right">±</span><span style="text-align:right">%</span></div>
-        </div>
-        <div class="mkt-group-label" style="margin-top:9px">🏦 Bond Yields & VIX</div>
-        <div class="mkt-table" id="mkt-bonds">
-          <div class="mkt-row mkt-header-row"><span>Tên</span><span style="text-align:right">Yield</span><span style="text-align:right">±</span><span style="text-align:right">%</span></div>
-        </div>
+
         <div style="margin-top:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-          <span style="font-size:8px;color:var(--text-dim);">Yahoo Finance · tự động 5 phút</span>
+          <span style="font-size:8px;color:var(--text-dim);">Multi-source · tự động 5 phút</span>
           <span id="mkt-error-msg" style="font-size:8.5px;color:var(--red);display:none;"></span>
         </div>
         </div><!-- /pc-body -->
@@ -3838,6 +3866,8 @@ function syncEndpointToggles() {
   const cfOn = localStorage.getItem("api_cf_enabled") !== "0";
   const orOn = localStorage.getItem("api_or_enabled") === "1";
   const olOn = localStorage.getItem("api_ol_enabled") !== "0";
+  // Guard: _API_ENDPOINTS may not be defined yet if called before second script block runs
+  if (typeof _API_ENDPOINTS === "undefined") return;
   if (_API_ENDPOINTS[0]) _API_ENDPOINTS[0].skip = () => !cfOn;
   if (_API_ENDPOINTS[1]) _API_ENDPOINTS[1].skip = () => !orOn || !localStorage.getItem("openrouter_key");
   if (_API_ENDPOINTS[2]) _API_ENDPOINTS[2].skip = () => !olOn;
@@ -5653,16 +5683,20 @@ function giaiPhauAnTuong(cungTuong,thaiAt,vanXuong,thuyKich,dichDai,dichTham,toa
   if(cungTuong===cungVX && cungTuong!==5 && kcTA!==1)
     anHung.push("⚖️ QUAN (Bị Văn Xương kìm kẹp, hành chính rườm rà)");
 
-  // ── Án YỂM — Thủy Kích trùng cung Tướng (tập kích trực tiếp) ──
-  if(cungTuong===cungTK) anHung.push("🩸 YỂM (Bị Thủy Kích ám sát trực tiếp, flash dump đột ngột)");
-  // ── Án KÍCH — Thủy Kích kề ±1 cung Tướng nhưng không trùng ──
-  // Cổ thư mục 73: "Thủy Kích ở tả hữu Thái Ất là Kích — khích bác, đối trên"
-  else if(khoangCachKhongGian(cungTuong, cungTK) === 1){
-    const cungTruocTg = timCungTruoc(cungTuong);
-    if(cungTK === cungTruocTg)
-      anHung.push("💥 NGOẠI KÍCH (Thủy Kích phục trước mặt — bên ngoài bất ngờ tấn công, biến động flash từ macro)");
+  // ── Án YỂM — tách 2 cấp độ theo cổ thư ──
+  // Cấp 1: YỂM THÁI ẤT (Cực Hung) — Thủy Kích trùng Thái Ất: vua bị đánh úp, vỡ trận toàn tập
+  if(cungTK === thaiAt)
+    anHung.push("🩸 YỂM THÁI ẤT (Sát thủ Thủy Kích vào thẳng Thái Ất — Vua bị đánh úp, vỡ trận toàn tập, không cứu vãn)");
+  // Cấp 2: YỂM TƯỚNG (Hung) — Thủy Kích trùng cung Tướng: tướng bị tập kích bất ngờ
+  if(cungTuong === cungTK)
+    anHung.push("🩸 YỂM TƯỚNG (Thủy Kích ám sát Tướng — flash dump đột ngột, kỵ đánh thẳng, chỉ hợp dùng phục binh)");
+  // ── Án KÍCH — Thủy Kích kề ±1 cung Thái Ất (cổ thư mục 73: "Thủy Kích ở tả hữu Thái Ất là Kích") ──
+  if(cungTK !== thaiAt && khoangCachKhongGian(cungTK, thaiAt) === 1){
+    const cungTruocTA = timCungTruoc(thaiAt);
+    if(cungTK === cungTruocTA)
+      anHung.push("💥 NGOẠI KÍCH (Thủy Kích phục trước mặt Thái Ất — macro bất ngờ tấn công, biến động flash từ bên ngoài)");
     else
-      anHung.push("🗡️ NỘI KÍCH (Thủy Kích rình sau lưng — nội biến âm thầm, smart money phân phối ngầm)");
+      anHung.push("🗡️ NỘI KÍCH (Thủy Kích rình sau lưng Thái Ất — nội biến âm thầm, smart money phân phối ngầm)");
   }
 
   // ── Án ĐỐI (đúng cổ thư mục 76) — Tướng đối xung Thái Ất ──
@@ -5829,6 +5863,8 @@ const _luanGiaiCache = {};
 // ── API ENDPOINTS — tự động fallback theo thứ tự ─────────────────────────
 // Thứ tự: Cloudflare Worker → OpenRouter → Ollama Local
 // Nếu một cái đứt, tự chuyển sang cái tiếp theo
+// Re-apply toggle settings now that _API_ENDPOINTS is about to be defined
+// (syncEndpointToggles was guarded earlier because it ran before this block)
 const _API_ENDPOINTS = [
   {
     name: "Cloudflare",
@@ -5870,6 +5906,9 @@ const _API_ENDPOINTS = [
     skip: () => false,
   },
 ];
+
+// Apply saved toggle settings now that _API_ENDPOINTS is defined
+syncEndpointToggles();
 
 async function callAPI(payload) {
   let lastErr = null;
@@ -6492,7 +6531,7 @@ NGUYÊN TẮC 4 — TUYỆT ĐỐI CẤM HỎI NGƯỢC LẠI KHI ĐÃ CÓ DATA:
 BẢNG TRA CỨU CỐ ĐỊNH (dùng khi giải thích):
 Cung Bát Quái: 1=Càn(Tây Bắc·Kim), 2=Ly(Nam·Hỏa), 3=Cấn(Đông Bắc·Thổ), 4=Chấn(Đông·Mộc), 6=Đoài(Tây·Kim), 7=Khôn(Tây Nam·Thổ), 8=Khảm(Bắc·Thủy), 9=Tốn(Đông Nam·Mộc), 5=Trung Cung.
 Bát Môn: Khai=khởi sự tuyệt vời | Hưu=tích lũy an toàn | Sinh=sinh tài cực tốt | Thương=xung đột biến động | Đỗ=bế tắc KHÔNG vào lệnh | Cảnh=dễ bẫy hạn chế | Tử=nguy hiểm TRÁNH HOÀN TOÀN | Kinh=biến động đột ngột.
-Án Tướng (theo đúng cổ thư Thái Ất Thần Kinh): TÙ=Tướng/VX trùng Thái Ất(giam lỏng mưu kế) | YỂM=Tướng trùng Thủy Kích(tập kích trực tiếp, flash dump) | KÍCH=Thủy Kích kề ±1 cung Tướng(NGOẠI KÍCH: TK phục trước–bên ngoài tấn công bất ngờ | NỘI KÍCH: TK rình sau–nội biến phân phối ngầm) | ĐỐI=Tướng đối xung Thái Ất khoảng 4(Đại Thần hai lòng, mưu phản, chính lệnh không theo) | CÁCH=Thủy Kích đối xung Thái Ất khoảng 4(biến động cưỡng bức từ bên ngoài, sóng đảo chiều) | BÁCH=kề sát Thái Ất + địch kẹp tả hữu(quét stoploss toàn diện) | BÁCH ĐƠN=kề sát Thái Ất một phía(áp lực một chiều) | QUAN=trùng Văn Xương không kẹp Thái Ất(kìm kẹp hành chính) | ĐỖ=Trung Cung(kẹt lỗ đen) | ĐỖ CỐ=Trung Cung + Văn Xương cùng Trung Cung(đại hung cực độ) | TỨ QUÁCH CỐ=trùng Văn Xương + kề sát Thái Ất(bủa vây tứ phía) | HIỆP=bị 2 tướng địch kẹp | ĐỀ=mượn sức Thái Ất ép chết.
+Án Tướng (theo đúng cổ thư Thái Ất Thần Kinh): TÙ=Tướng/VX trùng Thái Ất(giam lỏng mưu kế) | YỂM THÁI ẤT=Thủy Kích trùng Thái Ất(Cực Hung–vua bị đánh úp, vỡ trận toàn tập) | YỂM TƯỚNG=Thủy Kích trùng cung Tướng(Hung–tướng bị tập kích, kỵ đánh thẳng, chỉ hợp phục binh) | KÍCH=Thủy Kích kề ±1 cung Thái Ất(NGOẠI KÍCH: TK phục trước Thái Ất–macro tấn công bất ngờ | NỘI KÍCH: TK rình sau Thái Ất–nội biến phân phối ngầm) | ĐỐI=Tướng đối xung Thái Ất khoảng 4(Đại Thần hai lòng, mưu phản, chính lệnh không theo) | CÁCH=Thủy Kích đối xung Thái Ất khoảng 4(biến động cưỡng bức từ bên ngoài, sóng đảo chiều) | BÁCH=kề sát Thái Ất + địch kẹp tả hữu(quét stoploss toàn diện) | BÁCH ĐƠN=kề sát Thái Ất một phía(áp lực một chiều) | QUAN=trùng Văn Xương không kẹp Thái Ất(kìm kẹp hành chính) | ĐỖ=Trung Cung(kẹt lỗ đen) | ĐỖ CỐ=Trung Cung + Văn Xương cùng Trung Cung(đại hung cực độ) | TỨ QUÁCH CỐ=trùng Văn Xương + kề sát Thái Ất(bủa vây tứ phía) | HIỆP=bị 2 tướng địch kẹp | ĐỀ=mượn sức Thái Ất ép chết.
 Toán số: THƯỢNG HÒA(14,18,23)=đại cát | THỨ HÒA(29,36)=cát | HẠ HÒA(12,16,27,34,38)=cát vừa | THUẦN DƯƠNG(33,39)=đại hung FOMO | THUẦN ÂM(22,26)=đại hung bán tháo | CÔ(10,20,30,40)=sideway chôn vốn | ĐƠN(1-9)=vô thiên mỏng manh | VÔ ĐỊA(đơn vị 1-4)=mất nền tảng.
 Ngũ Hành tương tác với Vàng(Kim): Thổ sinh Kim(cung 3,7)=đại cát | Thủy tiết Kim(cung 8)=tích lũy tốt | Kim tỷ hòa(cung 1,6)=sideway | Mộc bị Kim khắc(cung 4,9)=hao tổn | Hỏa khắc Kim(cung 2)=đại hung.
 Ngũ Hành BĐS(Thổ): Hỏa sinh Thổ(cung 2)=đại cát | Thổ tỷ hòa(cung 3,7)=bền vững | Kim tiết Thổ(cung 1,6)=hao tổn | Thổ khắc Thủy(cung 8)=trì trệ | Mộc khắc Thổ(cung 4,9)=đại hung.
@@ -9008,47 +9047,302 @@ function exitFocusMode() {
 }
 
 // ═══════════════════════════════════════════════════════
-//  PATCH quetChuKyNam → gọi enterFocusMode sau khi render
+//  NHẬT LỊCH THÁI ẤT — Calendar Engine
+//  Render lưới tháng, tô màu cát/hung/warn/bình theo Nhật Cục
 // ═══════════════════════════════════════════════════════
-const _origQuetChuKy = quetChuKyNam;
-quetChuKyNam = function() {
-  _origQuetChuKy.apply(this, arguments);
-  // enterFocusMode sau khi setTimeout 500ms render xong
-  setTimeout(enterFocusMode, 600);
+
+const _calState = {
+  year:  new Date().getFullYear(),
+  month: new Date().getMonth() + 1, // 1-based
+  selectedDay: null,
 };
+
+// Cache kết quả compute() để không tính lại khi hover/click
+const _calCache = {};
+
+function _calKey(y, m, d) { return `${y}-${m}-${d}`; }
+
+function _calDayStatus(y, m, d) {
+  const k = _calKey(y, m, d);
+  if (!_calCache[k]) {
+    try {
+      const r = compute(y, m, d, 12); // dùng giờ Ngọ (12h) làm đại diện ngày
+      const nhat = r.cucs[2].data;    // Nhật Cục index 2
+      const chuS = nhat.anChuDai?.status;
+      const khS  = nhat.anKhachDai?.status;
+      let status;
+      if (chuS === "hung" && khS === "hung") status = "hung";
+      else if (chuS === "cat"  && khS === "cat")  status = "cat";
+      else if (chuS === "hung" || khS === "hung") status = "warn";
+      else if (chuS === "cat"  || khS === "cat")  status = "cat";
+      else status = "binh";
+      _calCache[k] = { status, nhatCuc: r.cucs[2].cucSo, chuLabel: nhat.anChuDai?.label || "", khLabel: nhat.anKhachDai?.label || "" };
+    } catch(e) {
+      _calCache[k] = { status: "binh", nhatCuc: "?", chuLabel: "", khLabel: "" };
+    }
+  }
+  return _calCache[k];
+}
+
+function calRender() {
+  const y = _calState.year, m = _calState.month;
+  const today = new Date();
+  const todayY = today.getFullYear(), todayM = today.getMonth()+1, todayD = today.getDate();
+
+  // Cập nhật label tháng
+  const monthNames = ["Tháng 1","Tháng 2","Tháng 3","Tháng 4","Tháng 5","Tháng 6",
+                      "Tháng 7","Tháng 8","Tháng 9","Tháng 10","Tháng 11","Tháng 12"];
+  const label = document.getElementById("cal-month-label");
+  if (label) label.textContent = `${monthNames[m-1]} / ${y}`;
+
+  const grid = document.getElementById("cal-grid");
+  if (!grid) return;
+
+  // Hiện loading ngay
+  grid.innerHTML = `<div class="cal-loading"><div class="oracle-spinner" style="width:20px;height:20px;"></div><span>Đang tính lịch...</span></div>`;
+
+  // Defer render ra khỏi call stack hiện tại để UI không bị block
+  setTimeout(() => {
+    const daysInMonth = new Date(y, m, 0).getDate();
+    const firstDow   = new Date(y, m-1, 1).getDay(); // 0=Sun
+
+    // DOW headers (Hai→CN)
+    const DOW = ["T2","T3","T4","T5","T6","T7","CN"];
+    let html = DOW.map(d => `<div class="cal-dow">${d}</div>`).join("");
+
+    // Offset: getDay() trả 0=Sun → cần offset tính từ Thứ Hai
+    const offset = (firstDow + 6) % 7; // 0=Mon … 6=Sun
+    for (let i = 0; i < offset; i++) html += `<div class="cal-day empty"></div>`;
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const info    = _calDayStatus(y, m, d);
+      const isToday = (y===todayY && m===todayM && d===todayD);
+      const isSel   = (_calState.selectedDay === d);
+      const dow     = new Date(y, m-1, d).getDay(); // 0=Sun
+      const isSun   = dow === 0;
+
+      let cls = `cal-day ${info.status}`;
+      if (isToday) cls += " today";
+      if (isSel)   cls += " selected";
+      if (isSun)   cls += " sunday";
+
+      // Tip text ngắn
+      const statusLabel = info.status==="cat"?"🟢 Cát":info.status==="hung"?"🔴 Hung":info.status==="warn"?"🟡 Cảnh báo":"⚪ Bình";
+      const tipText = `Nhật Cục ${info.nhatCuc}<br>${statusLabel}`;
+
+      html += `<div class="${cls}" onclick="calClickDay(${d})">
+        <span class="cal-day-num">${d}</span>
+        <div class="cal-day-dot"></div>
+        <div class="cal-tip">${tipText}</div>
+      </div>`;
+    }
+
+    grid.innerHTML = html;
+
+    // Nếu đang có ngày được chọn thì render lại result
+    if (_calState.selectedDay) calClickDay(_calState.selectedDay, true);
+  }, 20);
+}
+
+function calClickDay(d, silent) {
+  _calState.selectedDay = d;
+
+  // Cập nhật class selected
+  document.querySelectorAll("#cal-grid .cal-day").forEach((el, i) => {
+    const num = el.querySelector(".cal-day-num")?.textContent;
+    if (parseInt(num) === d) el.classList.add("selected");
+    else el.classList.remove("selected");
+  });
+
+  const y = _calState.year, m = _calState.month;
+  const resultEl = document.getElementById("cal-day-result");
+  if (!resultEl) return;
+
+  let r;
+  try { r = compute(y, m, d, 12); } catch(e) { return; }
+  const nhat = r.cucs[2];
+  const nd   = nhat.data;
+
+  const statusColor = {
+    cat: "var(--green)", hung: "var(--red)", warn: "var(--yellow)", binh: "var(--text-dim)"
+  };
+  const statusEmoji = { cat:"🟢", hung:"🔴", warn:"🟡", binh:"⚪" };
+  const info = _calDayStatus(y, m, d);
+
+  const dateStr = `${d < 10 ? "0"+d : d}/${m < 10 ? "0"+m : m}/${y}`;
+
+  resultEl.style.display = "block";
+  resultEl.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <span style="font-size:12px;font-weight:700;color:var(--cyan);">☀️ Nhật Cục — ${dateStr}</span>
+      <span style="font-size:11px;font-weight:700;color:${statusColor[info.status] || "var(--text-dim)"};">
+        ${statusEmoji[info.status] || "⚪"} ${info.status==="cat"?"ĐẠI CÁT":info.status==="hung"?"ĐẠI HUNG":info.status==="warn"?"CẢNH BÁO":"BÌNH HÒA"}
+      </span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:10px;margin-bottom:8px;">
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:7px 9px;">
+        <div style="color:var(--text-dim);margin-bottom:3px;">Thái Ất Cung</div>
+        <div style="font-weight:700;color:var(--gold);">${nd.thaiAt}</div>
+      </div>
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:7px 9px;">
+        <div style="color:var(--text-dim);margin-bottom:3px;">Nhật Cục Số</div>
+        <div style="font-weight:700;color:var(--cyan);">${nhat.cucSo}</div>
+      </div>
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:7px 9px;">
+        <div style="color:var(--text-dim);margin-bottom:3px;">Chủ Đại Tướng</div>
+        <div style="font-weight:700;font-size:9px;color:${statusColor[nd.anChuDai?.status]||"var(--text)"};">${nd.anChuDai?.label||"—"}</div>
+      </div>
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:7px 9px;">
+        <div style="color:var(--text-dim);margin-bottom:3px;">Khách Đại Tướng</div>
+        <div style="font-weight:700;font-size:9px;color:${statusColor[nd.anKhachDai?.status]||"var(--text)"};">${nd.anKhachDai?.label||"—"}</div>
+      </div>
+    </div>
+    <div style="font-size:9.5px;color:var(--text-dim);text-align:center;">
+      Nhấn <strong style="color:var(--cyan);">Tính Tọa Độ</strong> ở trên để xem phân tích đầy đủ ngày ${dateStr}
+    </div>
+  `;
+
+  // Tự động điền ngày vào input để người dùng có thể bấm tính ngay
+  const inpNgay = document.getElementById("inp-ngay");
+  const inpThang = document.getElementById("inp-thang");
+  const inpNam = document.getElementById("inp-nam");
+  if (inpNgay) inpNgay.value = d;
+  if (inpThang) inpThang.value = m;
+  if (inpNam) inpNam.value = y;
+}
+
+function calPrevMonth() {
+  _calState.selectedDay = null;
+  _calState.month--;
+  if (_calState.month < 1) { _calState.month = 12; _calState.year--; }
+  calRender();
+  const r = document.getElementById("cal-day-result");
+  if (r) r.style.display = "none";
+}
+
+function calNextMonth() {
+  _calState.selectedDay = null;
+  _calState.month++;
+  if (_calState.month > 12) { _calState.month = 1; _calState.year++; }
+  calRender();
+  const r = document.getElementById("cal-day-result");
+  if (r) r.style.display = "none";
+}
+
+function calSelectMonth() {
+  // Click vào label tháng → jump về tháng hiện tại
+  const now = new Date();
+  _calState.year  = now.getFullYear();
+  _calState.month = now.getMonth() + 1;
+  _calState.selectedDay = now.getDate();
+  calRender();
+}
+
+// Auto-init calendar khi DOM sẵn sàng
+document.addEventListener("DOMContentLoaded", () => {
+  // Đặt selectedDay = hôm nay
+  const now = new Date();
+  _calState.selectedDay = now.getDate();
+  calRender();
+});
+
+// ═══════════════════════════════════════════════════════
+//  quetChuKyNam — quét Tọa Độ theo Năm (dùng ngày Lập Xuân của năm đó)
+// ═══════════════════════════════════════════════════════
+function quetChuKyNam() {
+  const nam = parseInt(document.getElementById("inp-nam")?.value);
+  if (!nam || isNaN(nam) || nam < 1000 || nam > 9999) {
+    alert("⚠️ Vui lòng nhập năm hợp lệ (1000–9999)");
+    return;
+  }
+  // Dùng ngày Lập Xuân xấp xỉ (4/2) giờ 11 làm đại diện tọa độ năm
+  _kichHoatTinhToan(nam, 2, 4, 11);
+}
+
+// kichHoatMocNhanh — bấm nhanh một Tiết Khí trọng điểm
+function kichHoatMocNhanh(nam, thang, ngay, gio, tenMoc) {
+  window.__currentTietKhiSelected = tenMoc || "Lập Xuân";
+  _kichHoatTinhToan(nam, thang, ngay, gio);
+}
+
+// Hàm nội bộ chạy compute + renderResults với hiệu ứng loading
+function _kichHoatTinhToan(nam, thang, ngay, gio) {
+  const btn = document.getElementById("calc-btn");
+  if (btn) {
+    btn.disabled = true;
+    const txt = btn.querySelector("#btn-text");
+    if (txt) txt.innerHTML = '<span class="spinner"></span> Đang quét...';
+    else btn.textContent = "⏳ Đang quét...";
+  }
+  setTimeout(() => {
+    try {
+      const result = compute(nam, thang, ngay, gio);
+      renderResults(result);
+    } catch (e) {
+      alert("Lỗi tính toán: " + e.message);
+      console.error(e);
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        const txt = btn.querySelector("#btn-text");
+        if (txt) txt.textContent = "⚡ Quét Chu Kỳ Năm";
+        else btn.textContent = "⚡ Quét Chu Kỳ Năm";
+      }
+    }
+    // enterFocusMode sau khi render xong
+    setTimeout(enterFocusMode, 600);
+  }, 60);
+}
 
 // ═══════════════════════════════════════════════════════
 //  MARKET RULER — dữ liệu thị trường realtime
 // ═══════════════════════════════════════════════════════
 const MKT_SYMS = {
+  // ── 🏚️ FEAR & STRESS — Nhà đầu tư lo vĩ mô nhìn cái này đầu tiên ──
+  bonds:[
+    {sym:'%5ETYX', name:'US 30Y',   sub:'Bond Yield — vĩ mô dài hạn',  isYield:true, alert:'high'},
+    {sym:'%5ETNX', name:'US 10Y',   sub:'Bond Yield — chuẩn toàn cầu', isYield:true, alert:'high'},
+    {sym:'%5EFVX', name:'US 5Y',    sub:'Bond Yield — trung hạn',       isYield:true},
+    {sym:'%5EIRX', name:'US 3M',    sub:'T-Bill — lãi suất ngắn',       isYield:true},
+    {sym:'%5EVIX', name:'VIX',      sub:'Fear Index — biến động S&P'},
+    {sym:'%5EVVIX',name:'VVIX',     sub:'Vol of Vol — hoảng loạn cực'},
+    {sym:'MOVE',   name:'MOVE',     sub:'Bond Volatility — stress trái phiếu', stooq:'^move'},
+  ],
+  // ── 📊 EQUITY — Thị trường cổ phiếu ──
   indices:[
-    {sym:'%5EGSPC',  name:'S&P 500',    sub:'US Large Cap'},
-    {sym:'%5EIXIC',  name:'NASDAQ',      sub:'Tech Index'},
-    {sym:'%5EDJI',   name:'Dow Jones',   sub:'US Blue Chip'},
-    {sym:'%5EN225',  name:'Nikkei 225',  sub:'Japan'},
-    {sym:'%5EHSI',   name:'Hang Seng',   sub:'Hong Kong'},
-    {sym:'000001.SS',name:'SSE 上证',    sub:'China'},
+    {sym:'%5EGSPC',  name:'S&P 500',    sub:'US — risk appetite'},
+    {sym:'%5EIXIC',  name:'NASDAQ',      sub:'Tech — growth vs rates'},
+    {sym:'%5EN225',  name:'Nikkei',      sub:'Japan — carry trade proxy'},
+    {sym:'%5EHSI',   name:'Hang Seng',   sub:'HK — China risk'},
     {sym:'VNINDEX.VN',name:'VN-Index',   sub:'Vietnam'},
   ],
-  crypto:[
-    {sym:'BTC-USD',  name:'Bitcoin',     sub:'BTC/USD'},
-    {sym:'ETH-USD',  name:'Ethereum',    sub:'ETH/USD'},
-  ],
+  // ── 💎 SAFE HAVEN & STRESS ASSETS ──
   commodities:[
-    {sym:'GC%3DF',      name:'Vàng XAU', sub:'Gold Futures'},
-    {sym:'SI%3DF',      name:'Bạc XAG',  sub:'Silver'},
-    {sym:'CL%3DF',      name:'Dầu WTI',  sub:'Crude Oil'},
-    {sym:'EURUSD%3DX',  name:'EUR/USD',  sub:'Euro'},
-    {sym:'DX-Y.NYB',    name:'DXY',      sub:'USD Index'},
-    {sym:'JPY%3DX',     name:'USD/JPY',  sub:'Yen'},
+    {sym:'GC%3DF',      name:'Vàng XAU',  sub:'Safe haven — lạm phát/địa chính trị'},
+    {sym:'CL%3DF',      name:'Dầu WTI',   sub:'Tăng trưởng & căng thẳng địa chính trị'},
+    {sym:'DX-Y.NYB',    name:'DXY',       sub:'USD Index — risk-off thì tăng'},
+    {sym:'JPY%3DX',     name:'USD/JPY',   sub:'Yen — carry unwind khi căng'},
+    {sym:'EURUSD%3DX',  name:'EUR/USD',   sub:'Euro — rủi ro châu Âu'},
   ],
-  bonds:[
-    {sym:'%5ETNX', name:'US 10Y',  sub:'Treasury Yield', isYield:true},
-    {sym:'%5ETYX', name:'US 30Y',  sub:'Treasury Yield', isYield:true},
-    {sym:'%5EIRX', name:'US 3M',   sub:'T-Bill',         isYield:true},
-    {sym:'%5EVIX', name:'VIX',     sub:'Fear Index'},
+  // ── ₿ CRYPTO ──
+  crypto:[
+    {sym:'BTC-USD',  name:'Bitcoin',   sub:'BTC/USD — risk-on barometer'},
+    {sym:'ETH-USD',  name:'Ethereum',  sub:'ETH/USD'},
   ],
 };
+
+// ── Yield Curve spread tính client-side (30Y - 2Y proxy = 30Y - 3M) ──
+function mktYieldCurve(data) {
+  const y30 = data['%5ETYX']?.regularMarketPrice;
+  const y3m = data['%5EIRX']?.regularMarketPrice;
+  const y10 = data['%5ETNX']?.regularMarketPrice;
+  if (!y30 || !y3m || !y10) return null;
+  return {
+    spread30_3m: (y30 - y3m).toFixed(2),   // 30Y-3M: âm = đảo chiều cực = recession signal
+    spread10_3m: (y10 - y3m).toFixed(2),   // 10Y-3M: chỉ báo kinh điển nhất
+    inverted: (y10 - y3m) < 0,
+  };
+}
 
 let mktCache={};
 const MKT_TTL=5*60*1000;
@@ -9095,141 +9389,117 @@ function mktLoading(){
 }
 
 // ══════════════════════════════════════════════════════════════
-//  MKT FETCH — Multi-source fallback
-//  Yahoo Finance v7 đã chết từ 2024 (cần crumb/consent).
-//  Strategy: Yahoo v8 (crumbless workaround) → CoinGecko (crypto)
-//            → Binance (crypto backup) → Stooq (indices backup)
+//  MKT FETCH — dùng Anthropic API (web_search) để bypass CORS
+//  Hoạt động từ file:// và mọi origin vì gọi qua api.anthropic.com
 // ══════════════════════════════════════════════════════════════
 
-// ── Map Yahoo symbol → CoinGecko id ──
-const CG_ID_MAP = {
-  'BTC-USD':'bitcoin', 'ETH-USD':'ethereum',
-};
-// ── Map Yahoo symbol → Binance symbol ──
-const BINANCE_MAP = {
-  'BTC-USD':'BTCUSDT', 'ETH-USD':'ETHUSDT',
-};
-// ── Map symbol → Stooq symbol (for indices/commodities) ──
-const STOOQ_MAP = {
-  '%5EGSPC':'^spx', '%5EIXIC':'^ndq', '%5EDJI':'^dji',
-  '%5EN225':'^nkx', '%5EHSI':'^hsi',
-  'GC%3DF':'gc.f', 'SI%3DF':'si.f', 'CL%3DF':'cl.f',
-  'EURUSD%3DX':'eurusd', 'JPY%3DX':'usdjpy',
-  '%5EVIX':'^vix', '%5ETNX':'^tnx', '%5ETYX':'^tyx', '%5EIRX':'^irx',
+// Map symbol → tên tìm kiếm cho AI
+const MKT_SEARCH_NAMES = {
+  '%5ETYX':'US 30-year treasury yield', '%5ETNX':'US 10-year treasury yield',
+  '%5EFVX':'US 5-year treasury yield',  '%5EIRX':'US 3-month T-bill yield',
+  '%5EVIX':'VIX volatility index',      '%5EVVIX':'VVIX index',
+  'MOVE':'MOVE bond volatility index',
+  '%5EGSPC':'S&P 500 index',  '%5EIXIC':'NASDAQ composite',
+  '%5EN225':'Nikkei 225',     '%5EHSI':'Hang Seng index',
+  'VNINDEX.VN':'VN-Index Vietnam stock',
+  'GC%3DF':'gold price XAU USD',  'CL%3DF':'WTI crude oil price',
+  'DX-Y.NYB':'DXY US dollar index',
+  'JPY%3DX':'USD JPY exchange rate',  'EURUSD%3DX':'EUR USD exchange rate',
+  'BTC-USD':'Bitcoin price USD',      'ETH-USD':'Ethereum price USD',
 };
 
-// ── Fetch CoinGecko cho crypto (free, CORS OK) ──
-async function mktFetchCoinGecko() {
-  const ids = Object.values(CG_ID_MAP).join(',');
-  const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true`;
-  const r = await fetch(url, { signal: AbortSignal.timeout(10000) });
-  if (!r.ok) throw new Error('CoinGecko HTTP ' + r.status);
-  const json = await r.json();
+async function mktFetchViaAI() {
+  const syms = [
+    ...MKT_SYMS.bonds, ...MKT_SYMS.commodities,
+    ...MKT_SYMS.indices, ...MKT_SYMS.crypto
+  ];
+
+  const names = syms.map(s => MKT_SEARCH_NAMES[s.sym] || s.name).join(', ');
+
+  const prompt = `Get the current market prices for these instruments: ${names}.
+
+Return ONLY a JSON object, no explanation, no markdown. Format:
+{
+  "SYMBOL": {"price": 0.00, "change": 0.00, "changePct": 0.00},
+  ...
+}
+
+Use these exact keys for symbols:
+${syms.map(s => `"${s.sym}": ${MKT_SEARCH_NAMES[s.sym]||s.name}`).join('\n')}
+
+For yields (treasury, VIX, MOVE): price is the yield/index value itself.
+Use the most recent available data. Return only the JSON, nothing else.`;
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  if (!res.ok) throw new Error('Anthropic API ' + res.status);
+  const data = await res.json();
+
+  // Extract text từ response (có thể có tool_use blocks)
+  const textBlock = data.content?.find(b => b.type === 'text');
+  if (!textBlock) throw new Error('no text block');
+
+  // Parse JSON từ response
+  const raw = textBlock.text.replace(/```json|```/g, '').trim();
+  // Tìm JSON object trong text
+  const jsonMatch = raw.match(/\{[\s\S]+\}/);
+  if (!jsonMatch) throw new Error('no JSON found');
+  const parsed = JSON.parse(jsonMatch[0]);
+
+  // Convert sang format chuẩn
   const result = {};
-  // Convert CoinGecko format → Yahoo-like format
-  for (const [sym, cgId] of Object.entries(CG_ID_MAP)) {
-    const d = json[cgId];
-    if (!d) continue;
-    const price = d.usd;
-    const chg24h = d.usd_24h_change;
-    // Tính change value từ %
-    const prevPrice = chg24h != null ? price / (1 + chg24h/100) : price;
-    const changeVal = price - prevPrice;
+  for (const [sym, val] of Object.entries(parsed)) {
+    if (!val || typeof val.price !== 'number') continue;
     result[sym] = {
       symbol: sym,
-      regularMarketPrice: price,
-      regularMarketChange: changeVal,
-      regularMarketChangePercent: chg24h,
+      regularMarketPrice: val.price,
+      regularMarketChange: val.change ?? 0,
+      regularMarketChangePercent: val.changePct ?? 0,
     };
   }
   return result;
 }
 
-// ── Fetch Binance public (fallback cho crypto) ──
-async function mktFetchBinance() {
-  const syms = Object.values(BINANCE_MAP);
-  const url = `https://api.binance.com/api/v3/ticker/24hr?symbols=${JSON.stringify(syms)}`;
-  const r = await fetch(url, { signal: AbortSignal.timeout(10000) });
-  if (!r.ok) throw new Error('Binance HTTP ' + r.status);
-  const arr = await r.json();
-  const result = {};
-  for (const d of arr) {
-    const yahooSym = Object.entries(BINANCE_MAP).find(([,b])=>b===d.symbol)?.[0];
-    if (!yahooSym) continue;
-    const price = parseFloat(d.lastPrice);
-    const prev  = parseFloat(d.prevClosePrice);
-    result[yahooSym] = {
-      symbol: yahooSym,
-      regularMarketPrice: price,
-      regularMarketChange: price - prev,
-      regularMarketChangePercent: parseFloat(d.priceChangePercent),
-    };
-  }
-  return result;
-}
+function mktRenderAll(data) {
+  mktRenderGroup('mkt-bonds',       MKT_SYMS.bonds,       data);
+  mktRenderGroup('mkt-commodities', MKT_SYMS.commodities, data);
+  mktRenderGroup('mkt-indices',     MKT_SYMS.indices,     data);
+  mktRenderGroup('mkt-crypto',      MKT_SYMS.crypto,      data);
 
-// ── Fetch Stooq CSV (indices, commodities, bonds — free, CORS OK qua proxy) ──
-async function mktFetchStooq(yahooSyms) {
-  const result = {};
-  // Stooq trả CSV, dùng allorigins làm CORS proxy
-  const stooqSyms = yahooSyms
-    .filter(s => STOOQ_MAP[s])
-    .map(s => ({ yahoo: s, stooq: STOOQ_MAP[s] }));
-
-  await Promise.allSettled(stooqSyms.map(async ({ yahoo, stooq }) => {
-    try {
-      const url = `https://stooq.com/q/l/?s=${stooq}&f=sd2t2ohlcv&h&e=csv`;
-      const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-      const r = await fetch(proxy, { signal: AbortSignal.timeout(8000) });
-      if (!r.ok) return;
-      const text = await r.text();
-      const lines = text.trim().split('\n');
-      if (lines.length < 2) return;
-      const cols = lines[1].split(',');
-      // CSV: Symbol,Date,Time,Open,High,Low,Close,Volume
-      const close = parseFloat(cols[6]);
-      const open  = parseFloat(cols[3]);
-      if (isNaN(close)) return;
-      const chg = close - open;
-      const pct = open ? (chg / open) * 100 : 0;
-      result[yahoo] = {
-        symbol: yahoo,
-        regularMarketPrice: close,
-        regularMarketChange: chg,
-        regularMarketChangePercent: pct,
-      };
-    } catch(_) {}
-  }));
-  return result;
-}
-
-// ── Yahoo Finance v8 với crumb workaround (attempt before fallback) ──
-async function mktFetchYahooV8(yahooSyms) {
-  // Lấy crumb bằng cách fetch trang Yahoo Finance trước
-  try {
-    const crumbProxy = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://finance.yahoo.com/quote/BTC-USD/')}`;
-    const crumbR = await fetch(crumbProxy, { signal: AbortSignal.timeout(8000) });
-    const html = await crumbR.text();
-    const crumbMatch = html.match(/"crumb":"([^"]+)"/);
-    if (!crumbMatch) throw new Error('no crumb');
-    const crumb = crumbMatch[1].replace(/\\u002F/g, '/');
-
-    const syms = yahooSyms.join('%2C');
-    const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${syms}&crumb=${encodeURIComponent(crumb)}&fields=regularMarketPrice,regularMarketChange,regularMarketChangePercent`;
-    const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-    const r = await fetch(proxy, { signal: AbortSignal.timeout(10000) });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const raw = await r.json();
-    const body = JSON.parse(raw.contents);
-    const quotes = body?.quoteResponse?.result || [];
-    if (!quotes.length) throw new Error('empty');
-    const data = {};
-    quotes.forEach(q => { data[q.symbol] = q; });
-    return data;
-  } catch(e) {
-    throw e;
+  // Yield curve widget
+  const yc = mktYieldCurve(data);
+  const ycWrap = document.getElementById('mkt-yc-wrap');
+  if (yc && ycWrap) {
+    ycWrap.style.display = 'block';
+    const el1030 = document.getElementById('mkt-yc-10-3');
+    const el1030l = document.getElementById('mkt-yc-10-3-label');
+    const el3030 = document.getElementById('mkt-yc-30-3');
+    const el3030l = document.getElementById('mkt-yc-30-3-label');
+    if (el1030) {
+      el1030.textContent = (yc.spread10_3m > 0 ? '+' : '') + yc.spread10_3m + '%';
+      el1030.style.color = yc.inverted ? 'var(--red)' : 'var(--green)';
+    }
+    if (el1030l) el1030l.textContent = yc.inverted ? '⚠️ Đảo chiều (Recession)' : '✅ Bình thường';
+    if (el3030) {
+      const inv30 = parseFloat(yc.spread30_3m) < 0;
+      el3030.textContent = (yc.spread30_3m > 0 ? '+' : '') + yc.spread30_3m + '%';
+      el3030.style.color = inv30 ? 'var(--red)' : 'var(--green)';
+    }
+    if (el3030l) el3030l.textContent = parseFloat(yc.spread30_3m) < 0 ? '⚠️ Đảo chiều' : '✅ Bình thường';
   }
 }
+
+// Auto-load market data on page ready
+document.addEventListener('DOMContentLoaded', () => { mktFetch(); });
 
 async function mktFetch(force=false){
   const now=Date.now();
@@ -9242,765 +9512,42 @@ async function mktFetch(force=false){
   if(err)err.style.display='none';
   mktLoading();
 
-  const merged = {};
-  const allSyms = [
-    ...MKT_SYMS.indices, ...MKT_SYMS.crypto,
-    ...MKT_SYMS.commodities, ...MKT_SYMS.bonds
-  ];
-  const allYahooSyms = allSyms.map(i => i.sym);
-  const cryptoSyms   = MKT_SYMS.crypto.map(i => i.sym);
-  const nonCryptoSyms = allYahooSyms.filter(s => !cryptoSyms.includes(s));
+  try {
+    // Chạy song song: AI (bonds/indices/FX) + CoinGecko (crypto)
+    const [aiResult, cgResult] = await Promise.allSettled([
+      mktFetchViaAI(),
+      fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true', {signal:AbortSignal.timeout(10000)})
+        .then(r => r.json())
+        .then(d => {
+          const r = {};
+          if (d.bitcoin)  r['BTC-USD'] = { symbol:'BTC-USD', regularMarketPrice: d.bitcoin.usd,  regularMarketChange: 0, regularMarketChangePercent: d.bitcoin.usd_24h_change??0 };
+          if (d.ethereum) r['ETH-USD'] = { symbol:'ETH-USD', regularMarketPrice: d.ethereum.usd, regularMarketChange: 0, regularMarketChangePercent: d.ethereum.usd_24h_change??0 };
+          return r;
+        })
+    ]);
 
-  // Chạy song song: Yahoo v8 (all), CoinGecko (crypto), Stooq (indices/commodities)
-  const [yahooResult, cgResult, stooqResult, binanceResult] = await Promise.allSettled([
-    mktFetchYahooV8(allYahooSyms),
-    mktFetchCoinGecko(),
-    mktFetchStooq(nonCryptoSyms),
-    mktFetchBinance(),
-  ]);
+    const merged = {};
+    if (aiResult.status === 'fulfilled') Object.assign(merged, aiResult.value);
+    if (cgResult.status === 'fulfilled') Object.assign(merged, cgResult.value); // crypto ghi đè AI
 
-  // Merge theo priority: Yahoo (nếu sống) > source chuyên biệt > fallback
-  let yahooOk = false;
-  if (yahooResult.status === 'fulfilled' && Object.keys(yahooResult.value).length > 3) {
-    Object.assign(merged, yahooResult.value);
-    yahooOk = true;
-  }
+    if (Object.keys(merged).length === 0) throw new Error('Không lấy được dữ liệu');
 
-  // Crypto: CoinGecko > Binance > Yahoo
-  if (cgResult.status === 'fulfilled') {
-    Object.assign(merged, cgResult.value);
-  } else if (binanceResult.status === 'fulfilled') {
-    Object.assign(merged, binanceResult.value);
-  }
-
-  // Indices/Commodities/Bonds: Stooq nếu Yahoo chết
-  if (!yahooOk && stooqResult.status === 'fulfilled') {
-    Object.assign(merged, stooqResult.value);
-  }
-
-  if (Object.keys(merged).length === 0) {
-    // Tất cả đều fail
-    const errSources = [yahooResult, cgResult, stooqResult, binanceResult]
-      .filter(r => r.status === 'rejected')
-      .map(r => r.reason?.message || '?')
-      .join(' | ');
-    if(err){ err.textContent = 'Không lấy được dữ liệu: ' + errSources.slice(0,80); err.style.display='inline'; }
-    if(mktCache.data) mktRenderAll(mktCache.data);
-  } else {
     mktCache = { ts: now, data: merged };
     mktRenderAll(merged);
     const t = new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
     const upd = document.getElementById('mkt-last-update');
-    const srcLabel = yahooOk ? 'Yahoo' : 'CG+Stooq';
-    if(upd) upd.textContent = `Cập nhật ${t} (${srcLabel})`;
+    if(upd) upd.textContent = `Cập nhật ${t}`;
+
+  } catch(e) {
+    if(err){ err.textContent='Lỗi: '+e.message.slice(0,60); err.style.display='inline'; }
+    if(mktCache.data) mktRenderAll(mktCache.data);
+  } finally {
+    if(spin)spin.style.display='none';
+    if(btn)btn.disabled=false;
   }
-
-  if(spin)spin.style.display='none';
-  if(btn)btn.disabled=false;
-}
-function mktRenderAll(data){
-  mktRenderGroup('mkt-indices',    MKT_SYMS.indices,    data);
-  mktRenderGroup('mkt-crypto',     MKT_SYMS.crypto,     data);
-  mktRenderGroup('mkt-commodities',MKT_SYMS.commodities,data);
-  mktRenderGroup('mkt-bonds',      MKT_SYMS.bonds,      data);
-}
-document.addEventListener('DOMContentLoaded',()=>{
-  setTimeout(()=>mktFetch(),900);
-  setInterval(()=>mktFetch(),MKT_TTL);
-});
-
-fillToday();
-
-// ═══════════════════════════════════════════════════════
-// ENGINE TỰ ĐỘNG QUÉT TOÀN DIỆN CHU KỲ 24 TIẾT KHÍ VĨ MÔ
-// ═══════════════════════════════════════════════════════
-const MOCK_TIET_KHI_DATA = [
-  { ten: "Lập Xuân", m: 2, d: 4 },  { ten: "Vũ Thủy", m: 2, d: 19 }, { ten: "Kinh Trập", m: 3, d: 5 },
-  { ten: "Xuân Phân", m: 3, d: 20 }, { ten: "Thanh Minh", m: 4, d: 4 }, { ten: "Cốc Vũ", m: 4, d: 20 },
-  { ten: "Lập Hạ", m: 5, d: 5 },   { ten: "Tiểu Mãn", m: 5, d: 21 }, { ten: "Mang Chủng", m: 6, d: 5 },
-  { ten: "Hạ Chí", m: 6, d: 21 },  { ten: "Tiểu Thử", m: 7, d: 7 },  { ten: "Đại Thử", m: 7, d: 22 },
-  { ten: "Lập Thu", m: 8, d: 7 },   { ten: "Xử Thử", m: 8, d: 23 },  { ten: "Bạch Lộ", m: 9, d: 7 },
-  { ten: "Thu Phân", m: 9, d: 22 },  { ten: "Hàn Lộ", m: 10, d: 8 },  { ten: "Sương Giáng", m: 10, d: 23 },
-  { ten: "Lập Đông", m: 11, d: 7 }, { ten: "Tiểu Tuyết", m: 11, d: 22 },{ ten: "Đại Tuyết", m: 12, d: 7 },
-  { ten: "Đông Chí", m: 12, d: 21 }, { ten: "Tiểu Hàn", m: 1, d: 5 },  { ten: "Đại Hàn", m: 1, d: 20 }
-];
-
-// Trả về { icon, label, color, cls } tóm gọn trạng thái 1 tài sản cho bảng tổng quan
-function tinhAssetMiniStatus(tietKhiName, nd, assetName, isPhat) {
-  let cungId;
-  if (assetName === "Vàng") {
-    cungId = nd.thaiAt || 1;
-  } else if (assetName === "Crypto") {
-    cungId = THAN_INFO[nd.thuyKich] ? THAN_INFO[nd.thuyKich][0] : (nd.khachDai || 8);
-  } else {
-    // BĐS — dùng Văn Xương nguyệt cục
-    const cungVX   = THAN_INFO[nd.vanXuong] ? THAN_INFO[nd.vanXuong][0] : null;
-    const cungTA   = nd.thaiAt;
-    const cungTK   = THAN_INFO[nd.thuyKich] ? THAN_INFO[nd.thuyKich][0] : null;
-    const anList   = (cungVX && cungTA && cungTK) ? xacDinhAnVanXuong(cungVX, cungTA, cungTK) : [];
-    const bdsEntry = cungVX ? VX_BDS_MAP[cungVX] : null;
-    const anHung   = anList.filter(a => a.level === "hung");
-    const anWarn   = anList.filter(a => a.level === "warn");
-    const nghTot   = [2, 3, 7].includes(cungVX);
-    const nghHung  = [4, 9].includes(cungVX);
-    if (!bdsEntry)             return { icon:"🏠", label:"—",             color:"var(--text-dim)", cls:"warn" };
-    if (anHung.length && nghTot)  return { icon:"🏠", label:"Bẫy Lồng Son", color:"var(--red)",   cls:"hung" };
-    if (anHung.length && nghHung) return { icon:"🏠", label:"Kép Đại Hung",  color:"var(--red)",   cls:"hung" };
-    if (anHung.length)            return { icon:"🏠", label:"VX Bị Án",      color:"#ff8844",      cls:"hung" };
-    if (anWarn.length && nghTot)  return { icon:"🏠", label:"Cảnh Báo Nhẹ", color:"var(--yellow)", cls:"warn" };
-    if (nghTot)  return { icon:"🏠", label:"Thuận Lợi",    color:"var(--green)", cls:"cat"  };
-    if (nghHung) return { icon:"🏠", label:"Mộc Khắc Thổ", color:"var(--red)",   cls:"hung" };
-    return             { icon:"🏠", label:"Hao Tổn",       color:"var(--cyan)",  cls:"warn" };
-  }
-
-  const scan = chayDualScanAsset(tietKhiName, cungId, assetName === "Crypto" ? "BTC" : "Vàng", isPhat);
-  const laManh = ["Vượng","Tướng"].includes(scan.trangThaiMua);
-  const laYeu  = ["Tù","Tử","Phế"].includes(scan.trangThaiMua);
-  const sinh   = scan.diaHinhRelation.includes("Sinh Nhập");
-  const khac   = scan.diaHinhRelation.includes("Khắc Nhập");
-
-  const ico = assetName === "Vàng" ? "🥇" : "₿";
-  if (laManh && sinh)  return { icon:ico, label:"Tích Sản · Sinh",  color:"var(--green)", cls:"cat"  };
-  if (laManh && !khac) return { icon:ico, label:"Mùa Thuận",         color:"var(--green)", cls:"cat"  };
-  if (laYeu  && khac)  return { icon:ico, label:"Bẫy Kéo Xả",        color:"var(--red)",   cls:"hung" };
-  if (laYeu)           return { icon:ico, label:"Trì Trệ",            color:"#ff8844",      cls:"hung" };
-  return               { icon:ico, label:"Theo Dõi",            color:"var(--yellow)", cls:"warn" };
 }
 
-function quetChuKyNam() {
-  const nam = parseInt(document.getElementById("inp-nam").value) || 2026;
-  const resultsContainer = document.getElementById("results");
 
-  if (!resultsContainer) return;
-
-  // Hiển thị trạng thái đang quét hệ thống vĩ mô
-  resultsContainer.innerHTML = `
-    <div class="luan-giai-loading" style="padding: 60px 20px;">
-      <div class="oracle-spinner" style="width:40px; height:40px;"></div>
-      <div class="luan-giai-loading-text" style="color:var(--gold); font-size:13px; margin-top:12px;">
-        Đang chạy 11 Lưới Lọc X-Quang trích xuất chu kỳ vĩ mô năm ${nam}...
-      </div>
-    </div>`;
-
-  setTimeout(() => {
-    let timelineHtml = `
-      <div class="result-header" style="border-bottom-color: rgba(200,153,58,0.2);">
-        <h2 style="color: var(--gold);">📊 Bản Đồ Chu Kỳ Tiết Khí Năm ${nam}</h2>
-        <p style="color: var(--text-dim);">Hệ Thống Định Vị Điểm Đảo Chiều & Thiên Nga Đen Vĩ Mô</p>
-      </div>`;
-
-    let chuKyCanhBaoCount = 0;
-    let tableRows = "";
-
-    // Quét tuần tự qua các điểm nút Tiết Khí quan trọng trong năm
-    MOCK_TIET_KHI_DATA.forEach(tiet => {
-      const r = compute(nam, tiet.m, tiet.d, 12);
-      const nd = r.cucs[1].data;
-
-      // isPhat = có cảnh báo thảm họa năm
-      const hungReal = r.canhBaoThamHoa.filter(c => !c._isNguPhucHoaGiai);
-      const isPhat = hungReal.length > 0;
-
-      // 3 tài sản mini status
-      const mVang   = tinhAssetMiniStatus(tiet.ten, nd, "Vàng",   isPhat);
-      const mCrypto = tinhAssetMiniStatus(tiet.ten, nd, "Crypto",  isPhat);
-      const mBDS    = tinhAssetMiniStatus(tiet.ten, nd, "BĐS",    isPhat);
-
-      // Đếm cảnh báo: nếu ít nhất 1 tài sản hung
-      if ([mVang, mCrypto, mBDS].some(m => m.cls === "hung")) chuKyCanhBaoCount++;
-
-      // Helper mini cell — compact, dùng cho layout NGANG
-      const miniCell = (m) =>
-        `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 6px;border-radius:6px;flex:1;min-width:0;` +
-        `background:${m.cls==="cat"?"rgba(34,221,136,.07)":m.cls==="hung"?"rgba(255,68,85,.08)":"rgba(255,215,0,.06)"};` +
-        `border:1px solid ${m.cls==="cat"?"rgba(34,221,136,.2)":m.cls==="hung"?"rgba(255,68,85,.25)":"rgba(255,215,0,.2)"};">` +
-        `<span style="font-size:13px;line-height:1;">${m.icon}</span>` +
-        `<span style="font-size:9px;font-weight:700;color:${m.color};text-align:center;line-height:1.2;word-break:break-word;">${m.label}</span>` +
-        `</div>`;
-
-      tableRows += `
-        <tr style="border-bottom:1px solid rgba(255,255,255,0.03);cursor:pointer;" onclick="kichHoatMocNhanh(${nam},${tiet.m},${tiet.d},12,'${tiet.ten}')">
-          <td style="padding:10px 8px;font-weight:700;color:var(--gold-light);white-space:nowrap;">${tiet.ten}</td>
-          <td style="padding:10px 8px;color:var(--text-dim);font-size:11px;white-space:nowrap;">Ngày ${pad(tiet.d)}/${pad(tiet.m)}</td>
-          <td style="padding:6px 8px;min-width:180px;">
-            <div style="display:flex;flex-direction:row;gap:4px;align-items:stretch;">
-              ${miniCell(mVang)}
-              ${miniCell(mCrypto)}
-              ${miniCell(mBDS)}
-            </div>
-          </td>
-          <td style="padding:10px 8px;text-align:right;font-size:11px;white-space:nowrap;">
-            <span style="font-weight:600;color:var(--cyan);">Cục ${r.cucs[1].cucSo}</span>
-            <div style="font-size:10px;color:var(--text-dim);margin-top:2px;">Thái Ất ${nd.thaiAt??'?'}</div>
-          </td>
-        </tr>`;
-    });
-
-    // ── Tuế Cục đầy đủ + Dương Cửu Bách Lục ──────────────
-    const rLapXuan = compute(nam, 2, 4, 12);
-    const tueCucFull = rLapXuan.cucs[0];
-    const hungNam    = rLapXuan.canhBaoThamHoa.filter(c => !c._isNguPhucHoaGiai);
-
-    // Render Tuế Cục như 1 cục thật (dùng lại renderCuc + truyền hungTinh)
-    let tueCucHtml = "";
-    if (tueCucFull) {
-      // Gắn tamCo từ hungTinh vào cục để tamCoGrid hoạt động
-      tueCucFull.tamCo = rLapXuan.hungTinh ? rLapXuan.hungTinh.tamCo : null;
-
-      // Render cục — dùng lại renderCuc(c, idx, hungTinh)
-      // idx=0 để hiện đầy đủ (Án Văn Xương, BĐS, Tam Cơ, Vàng badge...)
-      const cucRaw = renderCuc(tueCucFull, 0, rLapXuan.hungTinh);
-
-      // Thay id="cuc-0" thành id riêng để không xung đột nếu sau đó load sa bàn ngày
-      const cucPatched = cucRaw
-        .replace(/id="cuc-0"/g, 'id="cuc-nam-lapxuan"')
-        .replace(/onclick="toggleCuc\(0\)"/g, 'onclick="this.closest(\'.cuc-block\').classList.toggle(\'open\')"')
-        .replace(/onclick="scrollToCuc\(0\)"/g, '')
-        .replace(/id="lg-cuc-0"/g, 'id="lg-cuc-nam"')
-        .replace(/id="lg-cuc-0-/g, 'id="lg-cuc-nam-');
-
-      // Bọc trong wrapper có header phân biệt
-      tueCucHtml = `
-        <div style="margin-bottom:4px;">
-          <div style="padding:10px 0 6px;display:flex;align-items:center;gap:8px;">
-            <span style="font-size:13px;">🌍</span>
-            <span style="font-size:12px;font-weight:700;color:var(--gold);letter-spacing:.07em;text-transform:uppercase;">Tuế Cục Năm ${nam}</span>
-            <span style="font-size:10px;color:var(--text-dim);">Đại diện: Lập Xuân ${nam}</span>
-            ${hungNam.length > 0
-              ? `<span style="margin-left:auto;font-size:10px;font-weight:700;color:var(--red);">🔴 ${hungNam.length} Án Hung</span>`
-              : `<span style="margin-left:auto;font-size:10px;font-weight:700;color:var(--green);">🟢 Bình Yên</span>`}
-          </div>
-          ${cucPatched}
-        </div>`;
-    }
-
-    // Block Dương Cửu Bách Lục — mở sẵn
-    const dcblHtml = (typeof renderDuongCuuBachLuc === "function")
-      ? renderDuongCuuBachLuc(nam).replace('id="block-duong-cuu"', 'id="block-duong-cuu" class="dcbl-open"')
-        .replace('<div class="dcbl-body" style="display:none;">', '<div class="dcbl-body" style="">')
-      : "";
-
-    timelineHtml += tueCucHtml + dcblHtml;
-
-    // Tổng hợp HUD hiển thị tiến trình chu kỳ
-    timelineHtml += `
-      <div class="dashboard-card" style="margin-bottom: 16px;">
-        <div class="verdict-pill ${chuKyCanhBaoCount > 4 ? 'hung' : 'warn'}" style="margin: 16px;">
-          <span class="verdict-pill-icon">📋</span>
-          <div class="verdict-pill-text">
-            <span class="verdict-pill-label">Báo Cáo Tổng Quan Chu Kỳ</span>
-            <span class="verdict-pill-main">Phát hiện ${chuKyCanhBaoCount} tiết khí có ít nhất 1 tài sản trạng thái hung trong năm ${nam}</span>
-          </div>
-        </div>
-        <div class="dash-insight" style="font-size:11.5px; line-height:1.6;">
-          <strong>💡 Chỉ dẫn chu kỳ:</strong> Hãy nhấn vào từng hàng Tiết Khí bên dưới để lập tức tải Sa Bàn Trận Pháp chi tiết và mở cổng tham mưu chiến lược phân bổ tài sản dài hạn từ Khầy AI.
-        </div>
-      </div>
-
-      <div class="card" style="padding: 0; overflow:hidden; border-color: rgba(200,153,58,0.2);">
-        <div style="overflow-x:auto; -webkit-overflow-scrolling:touch;">
-        <table style="width:100%; min-width:420px; border-collapse:collapse; text-align:left; font-size:12px;">
-          <thead>
-            <tr style="background: rgba(200,153,58,0.06); border-bottom: 1px solid rgba(200,153,58,0.2);">
-              <th style="padding: 10px 8px; color:var(--gold); white-space:nowrap;">TIẾT KHÍ</th>
-              <th style="padding: 10px 8px; color:var(--gold); white-space:nowrap;">NGÀY</th>
-              <th style="padding: 10px 8px; color:var(--gold);">🥇 VÀNG &nbsp; ₿ CRYPTO &nbsp; 🏠 BĐS</th>
-              <th style="padding: 10px 8px; color:var(--gold); text-align:right; white-space:nowrap;">NGUYỆT CỤC</th>
-            </tr>
-          </thead>
-          <tbody>${tableRows}</tbody>
-        </table>
-        </div>
-      </div>`;
-
-    resultsContainer.innerHTML = timelineHtml;
-  }, 500);
-}
-
-function kichHoatMocNhanh(y, m, d, h, tietKhiTen) {
-  // Lưu tên Tiết Khí đang quét để Dual-Scan Widget sử dụng
-  if (tietKhiTen) window.__currentTietKhiSelected = tietKhiTen;
-  // Điền ngược thông số vào HUD điều khiển để giữ tính đồng bộ
-  document.getElementById("inp-nam").value = y;
-
-  // Thực hiện tính toán và bung toàn bộ Sa bàn trận pháp chi tiết của mốc đó
-  const r = compute(y, m, d, h);
-  renderResults(r);
-}
-
-// ═══════════════════════════════════════════════════════
-//  NHẬT LỊCH THÁNG — THÁI ẤT CALENDAR
-// ═══════════════════════════════════════════════════════
-
-
-// Render Nguyệt Cục inline trong panel calendar khi click tháng
-function renderNguyetCucInline(r, y, m) {
-  const container = document.getElementById('cal-day-result');
-  if (!container) return;
-
-  const nguyetCuc = r.cucs[1]; // index 1 = Nguyệt Cục
-  if (!nguyetCuc) { container.style.display = 'none'; return; }
-
-  const nd = nguyetCuc.data;
-  const donHeLabel = nd.tenDonHe || (r.meta.donHe === 'am' ? '🌙 Âm Độn' : '☀️ Dương Độn');
-  const MONTH_VI = ['','Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6',
-                    'Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'];
-  const thangStr = MONTH_VI[m] + ' / ' + y;
-  const pad = (n) => String(n).padStart(2,'0');
-
-  const pillColor = (status) =>
-    status === 'cat' ? 'var(--green)' : status === 'hung' ? 'var(--red)' : 'var(--yellow)';
-  const bgColor = (status) =>
-    status === 'cat' ? 'rgba(34,221,136,.07)' : status === 'hung' ? 'rgba(255,68,85,.07)' : 'rgba(255,215,0,.07)';
-
-  const row = (icon, key, val, valColor) => `
-    <div style="display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px;">
-      <span style="font-size:13px;width:20px;text-align:center;flex-shrink:0;">${icon}</span>
-      <span style="color:var(--text-dim);min-width:110px;flex-shrink:0;font-size:11px;">${key}</span>
-      <span style="color:${valColor||'var(--text)'};font-weight:500;">${val}</span>
-    </div>`;
-
-  const tuongBlock = (label, anData) => {
-    if (!anData) return '';
-    const col = pillColor(anData.status);
-    const bg  = bgColor(anData.status);
-    const anItems = (anData.anList||[]).map(a=>`<div style="font-size:10.5px;color:var(--text-dim);padding:1px 0;opacity:.85;">• ${a}</div>`).join('');
-    return `
-      <div style="padding:9px 11px;border-radius:10px;border:1px solid ${col}44;background:${bg};margin-bottom:8px;">
-        <div style="font-size:9.5px;letter-spacing:.06em;color:var(--text-dim);margin-bottom:4px;text-transform:uppercase;">${label}</div>
-        <div style="font-weight:700;color:${col};font-size:12.5px;">${anData.label}</div>
-        <div style="font-size:11px;color:var(--text-dim);margin:3px 0 4px;">${anData.mota||''}</div>
-        ${anItems}
-      </div>`;
-  };
-
-  // Vàng & BTC scan từ Asset Radar
-  const scanVangHtml = (() => {
-    const thaiAtNG = nd.thaiAt;
-    const cungVX   = THAN_INFO[nd.vanXuong] ? THAN_INFO[nd.vanXuong][0] : '?';
-    const isVangPhat = nd.anKhachDai && nd.anKhachDai.status === 'cat';
-    const scan = chayDualScanAsset('Lập Xuân', thaiAtNG, 'Vàng', isVangPhat);
-    const col = scan.uiClass === 'cat' ? 'var(--green)' : scan.uiClass === 'hung' ? 'var(--red)' : 'var(--yellow)';
-    return `<div style="padding:8px 11px;border-radius:10px;border:1px solid ${col}44;background:${col}11;margin-bottom:7px;">
-      <div style="font-size:9.5px;color:var(--text-dim);margin-bottom:3px;letter-spacing:.06em;">🥇 VÀNG · Khách Đại Tướng Cung ${nd.khachDai}</div>
-      <div style="font-weight:700;color:${col};font-size:11.5px;">${scan.phanQuyet}</div>
-      <div style="font-size:10px;color:var(--text-dim);margin-top:3px;">Địa hình: ${scan.diaHinhRelation} · Mùa vụ: ${scan.trangThaiMua}</div>
-    </div>`;
-  })();
-
-  const scanBtcHtml = (() => {
-    const isBtcPhat = nd.anChuDai && nd.anChuDai.status === 'cat';
-    const scan = chayDualScanAsset('Lập Xuân', nd.chuDai, 'BTC', isBtcPhat);
-    const col = scan.uiClass === 'cat' ? 'var(--cyan)' : scan.uiClass === 'hung' ? 'var(--red)' : 'var(--yellow)';
-    return `<div style="padding:8px 11px;border-radius:10px;border:1px solid ${col}44;background:${col}11;margin-bottom:7px;">
-      <div style="font-size:9.5px;color:var(--text-dim);margin-bottom:3px;letter-spacing:.06em;">₿ BTC · Chủ Đại Tướng Cung ${nd.chuDai}</div>
-      <div style="font-weight:700;color:${col};font-size:11.5px;">${scan.phanQuyet}</div>
-      <div style="font-size:10px;color:var(--text-dim);margin-top:3px;">Địa hình: ${scan.diaHinhRelation} · Mùa vụ: ${scan.trangThaiMua}</div>
-    </div>`;
-  })();
-
-  container.style.display = 'block';
-  container.innerHTML = `
-    <!-- Tiêu đề tháng -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-      <div>
-        <div style="font-size:13px;font-weight:700;color:var(--gold);">📅 Nguyệt Cục · ${thangStr}</div>
-        <div style="font-size:10px;color:var(--text-dim);margin-top:2px;">${donHeLabel} · Cục ${nguyetCuc.cucSo} · Thái Ất Cung ${nd.thaiAt} (${CUNG_NAME[nd.thaiAt]||nd.thaiAt})</div>
-      </div>
-      <button onclick="document.getElementById('cal-day-result').style.display='none'"
-        style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;
-               color:var(--text-dim);font-size:11px;padding:4px 9px;cursor:pointer;">✕</button>
-    </div>
-
-    <!-- Thần Sát -->
-    <div style="font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid rgba(200,153,58,.2);">🌟 Thần Sát Tọa Độ</div>
-    ${row('🌟','Thái Ất (Vua)',`Cung ${nd.thaiAt} · ${CUNG_NAME[nd.thaiAt]||''} · ${getNguHanh(String(nd.thaiAt))}`, 'var(--gold-light)')}
-    ${row('🔑','Kế Thần (Gián)',`${nd.keThan} · ${getNguHanh(nd.keThan)}`)}
-    ${row('👁','Văn Xương (Mưu)',`${nd.vanXuong} · Cung ${THAN_INFO[nd.vanXuong][0]} · ${getNguHanh(nd.vanXuong)}`)}
-    ${row('⚔️','Thủy Kích (Ám)',`${nd.thuyKich} · Cung ${THAN_INFO[nd.thuyKich][0]} · ${getNguHanh(nd.thuyKich)}`)}
-
-    <!-- Toán Số -->
-    <div style="font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin:12px 0 8px;padding-bottom:4px;border-bottom:1px solid rgba(200,153,58,.2);">📊 Toán Số · Nội Lực & Ngoại Lực</div>
-    <div style="font-size:10px;color:var(--text-dim);margin-bottom:3px;">⚖️ Nội Lực · Toán Chủ: <strong style="color:var(--text);">${nd.toanChu} quân</strong></div>
-    <div class="vol-row ${volClass(nd.labelToanChu)}" style="margin-bottom:8px;">${nd.labelToanChu}</div>
-    <div style="font-size:10px;color:var(--text-dim);margin-bottom:3px;">🌐 Ngoại Lực · Toán Khách: <strong style="color:var(--text);">${nd.toanKhach} quân</strong></div>
-    <div class="vol-row ${volClass(nd.labelToanKhach)}">${nd.labelToanKhach}</div>
-
-    <!-- Tướng Tinh -->
-    <div style="font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin:12px 0 8px;padding-bottom:4px;border-bottom:1px solid rgba(200,153,58,.2);">🎯 Tướng Tinh & Án Phạt</div>
-    <div style="font-size:10px;font-weight:700;color:var(--red);margin-bottom:6px;">⚖️ TOÁN CHỦ · NỘI LỰC</div>
-    ${tuongBlock('Chủ Đại Tướng · Cung '+nd.chuDai+' · '+getNguHanh(String(nd.chuDai)), nd.anChuDai)}
-    ${tuongBlock('Chủ Tham Tướng · Cung '+nd.chuTham+' · '+getNguHanh(String(nd.chuTham)), nd.anChuTham)}
-    <div style="font-size:10px;font-weight:700;color:var(--green);margin:6px 0 6px;">🌐 TOÁN KHÁCH · NGOẠI LỰC</div>
-    ${tuongBlock('Khách Đại Tướng · Cung '+nd.khachDai+' · '+getNguHanh(String(nd.khachDai)), nd.anKhachDai)}
-    ${tuongBlock('Khách Tham Tướng · Cung '+nd.khachTham+' · '+getNguHanh(String(nd.khachTham)), nd.anKhachTham)}
-
-    <!-- Dụng thần tài sản -->
-    <div style="font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin:12px 0 8px;padding-bottom:4px;border-bottom:1px solid rgba(200,153,58,.2);">🎯 Dụng Thần Tài Sản Tháng</div>
-    ${scanVangHtml}
-    ${scanBtcHtml}
-
-    <!-- Nút hỏi Khầy -->
-    <button id="cal-ask-khay-month-btn" style="
-      width:100%;margin-top:12px;padding:10px;border-radius:10px;cursor:pointer;
-      background:linear-gradient(135deg,rgba(200,153,58,.12),rgba(200,153,58,.06));
-      border:1px solid rgba(200,153,58,.4);color:var(--gold-light);
-      font-size:11.5px;font-weight:700;letter-spacing:.06em;
-      display:flex;align-items:center;justify-content:center;gap:7px;
-    ">☯ Hỏi Khầy phân tích ${MONTH_VI[m]} ${y}</button>`;
-
-  // Gán onclick cho nút Khầy
-  setTimeout(() => {
-    const btn = document.getElementById('cal-ask-khay-month-btn');
-    if (btn) btn.onclick = function() {
-      const inp = document.getElementById('khay-input');
-      if (inp) {
-        inp.value = 'Phân tích xu hướng tháng ' + m + '/' + y;
-        inp.style.height = 'auto';
-        inp.style.height = inp.scrollHeight + 'px';
-        khaySend();
-      }
-    };
-  }, 50);
-
-  // Cập nhật context Khầy
-  _khayChatContext = r;
-}
-
-// Render Nhật Cục inline trong panel calendar khi click ngày
-function renderNhatCucInline(r, y, m, d) {
-  const container = document.getElementById('cal-day-result');
-  if (!container) return;
-
-  const nhatCuc = r.cucs[2]; // index 2 = Nhật Cục
-  if (!nhatCuc) { container.style.display = 'none'; return; }
-
-  const nd = nhatCuc.data;
-  const donHeLabel = nd.tenDonHe || (r.meta.donHe === 'am' ? '🌙 Âm Độn' : '☀️ Dương Độn');
-  const pad = (n) => String(n).padStart(2,'0');
-  const ngayStr = `${pad(d)}/${pad(m)}/${y}`;
-
-  // Màu sắc trạng thái
-  const pillColor = (status) =>
-    status === 'cat' ? 'var(--green)' : status === 'hung' ? 'var(--red)' : 'var(--yellow)';
-  const bgColor = (status) =>
-    status === 'cat' ? 'rgba(34,221,136,.07)' : status === 'hung' ? 'rgba(255,68,85,.07)' : 'rgba(255,215,0,.07)';
-
-  // Row helper
-  const row = (icon, key, val, valColor) => `
-    <div style="display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px;">
-      <span style="font-size:13px;width:20px;text-align:center;flex-shrink:0;">${icon}</span>
-      <span style="color:var(--text-dim);min-width:110px;flex-shrink:0;font-size:11px;">${key}</span>
-      <span style="color:${valColor||'var(--text)'};font-weight:500;">${val}</span>
-    </div>`;
-
-  // Tướng block
-  const tuongBlock = (label, anData, side) => {
-    if (!anData) return '';
-    const col = pillColor(anData.status);
-    const bg  = bgColor(anData.status);
-    const anItems = (anData.anList||[]).map(a=>`<div style="font-size:10.5px;color:var(--text-dim);padding:1px 0;opacity:.85;">• ${a}</div>`).join('');
-    return `
-      <div style="padding:9px 11px;border-radius:10px;border:1px solid ${col}44;background:${bg};margin-bottom:8px;">
-        <div style="font-size:9.5px;letter-spacing:.06em;color:var(--text-dim);margin-bottom:4px;text-transform:uppercase;">${label} · ${side}</div>
-        <div style="font-weight:700;color:${col};font-size:12.5px;">${anData.label}</div>
-        <div style="font-size:11px;color:var(--text-dim);margin:3px 0 4px;">${anData.mota||''}</div>
-        ${anItems}
-      </div>`;
-  };
-
-  // Trạng thái tổng cho tiêu đề
-  const chuDaiStatus = nd.anChuDai ? nd.anChuDai.status : 'warn';
-  const headerBg = bgColor(chuDaiStatus);
-  const headerBorder = pillColor(chuDaiStatus);
-
-  container.style.display = 'block';
-  container.innerHTML = `
-    <!-- Tiêu đề ngày -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-      <div>
-        <div style="font-size:13px;font-weight:700;color:var(--cyan);">☀️ Nhật Cục · ${ngayStr}</div>
-        <div style="font-size:10px;color:var(--text-dim);margin-top:2px;">${donHeLabel} · Cục ${nhatCuc.cucSo} · Thái Ất Cung ${nd.thaiAt} (${CUNG_NAME[nd.thaiAt]||nd.thaiAt})</div>
-      </div>
-      <button onclick="document.getElementById('cal-day-result').style.display='none'"
-        style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;
-               color:var(--text-dim);font-size:11px;padding:4px 9px;cursor:pointer;">✕</button>
-    </div>
-
-    <!-- Thần Sát -->
-    <div style="font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid rgba(0,212,255,.12);">🌟 Thần Sát Tọa Độ</div>
-    ${row('🌟','Thái Ất (Vua)',`Cung ${nd.thaiAt} · ${CUNG_NAME[nd.thaiAt]||''} · ${getNguHanh(String(nd.thaiAt))}`)}
-    ${row('🔑','Kế Thần (Gián)',`${nd.keThan} · ${getNguHanh(nd.keThan)}`)}
-    ${row('👁','Văn Xương (Mưu)',`${nd.vanXuong} · Cung ${THAN_INFO[nd.vanXuong][0]} · ${getNguHanh(nd.vanXuong)}`)}
-    ${row('⚔️','Thủy Kích (Ám)',`${nd.thuyKich} · Cung ${THAN_INFO[nd.thuyKich][0]} · ${getNguHanh(nd.thuyKich)}`)}
-
-    <!-- Toán Số -->
-    <div style="font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);margin:12px 0 8px;padding-bottom:4px;border-bottom:1px solid rgba(0,212,255,.12);">📊 Toán Số · Nội Lực & Ngoại Lực</div>
-    <div style="font-size:10px;color:var(--text-dim);margin-bottom:3px;">⚖️ Nội Lực · Toán Chủ: <strong style="color:var(--text);">${nd.toanChu} quân</strong></div>
-    <div class="vol-row ${volClass(nd.labelToanChu)}" style="margin-bottom:8px;">${nd.labelToanChu}</div>
-    <div style="font-size:10px;color:var(--text-dim);margin-bottom:3px;">🌐 Ngoại Lực · Toán Khách: <strong style="color:var(--text);">${nd.toanKhach} quân</strong></div>
-    <div class="vol-row ${volClass(nd.labelToanKhach)}">${nd.labelToanKhach}</div>
-
-    <!-- Tướng Tinh -->
-    <div style="font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);margin:12px 0 8px;padding-bottom:4px;border-bottom:1px solid rgba(0,212,255,.12);">🎯 Tướng Tinh & Án Phạt</div>
-    <div style="font-size:10.5px;font-weight:700;color:var(--red);margin-bottom:6px;letter-spacing:.04em;">⚖️ TOÁN CHỦ · NỘI LỰC</div>
-    ${tuongBlock('Chủ Đại Tướng · Cung '+nd.chuDai, nd.anChuDai, 'Hành '+getNguHanh(String(nd.chuDai)))}
-    ${tuongBlock('Chủ Tham Tướng · Cung '+nd.chuTham, nd.anChuTham, 'Hành '+getNguHanh(String(nd.chuTham)))}
-    <div style="font-size:10.5px;font-weight:700;color:var(--green);margin:6px 0 6px;letter-spacing:.04em;">🌐 TOÁN KHÁCH · NGOẠI LỰC</div>
-    ${tuongBlock('Khách Đại Tướng · Cung '+nd.khachDai, nd.anKhachDai, 'Hành '+getNguHanh(String(nd.khachDai)))}
-    ${tuongBlock('Khách Tham Tướng · Cung '+nd.khachTham, nd.anKhachTham, 'Hành '+getNguHanh(String(nd.khachTham)))}
-
-    <!-- Nút hỏi Khầy -->
-    <button id="cal-ask-khay-btn" style="
-      width:100%;margin-top:12px;padding:10px;border-radius:10px;cursor:pointer;
-      background:linear-gradient(135deg,rgba(200,153,58,.12),rgba(200,153,58,.06));
-      border:1px solid rgba(200,153,58,.4);color:var(--gold-light);
-      font-size:11.5px;font-weight:700;letter-spacing:.06em;
-      display:flex;align-items:center;justify-content:center;gap:7px;
-    ">☯ Hỏi Khầy phân tích ngày này</button>`;
-
-  // Gán onclick sau khi DOM đã có nút
-  setTimeout(() => {
-    const btn = document.getElementById('cal-ask-khay-btn');
-    if (btn) btn.onclick = function() {
-      const inp = document.getElementById('khay-input');
-      if (inp) {
-        inp.value = 'Phân tích giao dịch ngày ${pad(d)}/${pad(m)}/${y}';
-        inp.style.height = 'auto';
-        inp.style.height = inp.scrollHeight + 'px';
-        khaySend();
-      }
-    };
-  }, 50);
-
-  // Cập nhật context cho Khầy
-  _khayChatContext = r;
-}
-
-(function(){
-
-  const CAL_DOW = ['T2','T3','T4','T5','T6','T7','CN'];
-
-  // Cache kết quả tính theo tháng/năm để không tính lại
-  const calCache = {};
-
-  // Trạng thái hiện tại
-  let calYear  = new Date().getFullYear();
-  let calMonth = new Date().getMonth() + 1; // 1-based
-  let calSelected = null; // {y,m,d}
-
-  // Tính điểm nhanh cho 1 ngày → trả về cls + label dựa theo NHẬT CỤC
-  function calDayStatus(y, m, d) {
-    try {
-      const r = compute(y, m, d, 12);
-      const nd = r.cucs[2] ? r.cucs[2].data : null; // cucs[2] = Nhật Cục
-
-      if (!nd) return { cls: 'binh', label: 'Không xác định', thaiAt: '?', chuDaiLabel: '—', chuDaiStatus: 'binh', anList: [] };
-
-      const thaiAt = nd.thaiAt || '?';
-      const chuDai = nd.anChuDai || null;
-      const chuDaiLabel  = chuDai ? chuDai.label  : '—';
-      const chuDaiStatus = chuDai ? chuDai.status : 'binh';
-      const anList = chuDai ? (chuDai.anList || []) : [];
-
-      // Phân loại màu: dựa vào trạng thái Chủ Đại Tướng (dụng thần ngày)
-      let cls, label;
-      if (chuDaiStatus === 'hung') {
-        cls = 'hung';
-        label = chuDaiLabel;
-      } else if (chuDaiStatus === 'cat') {
-        cls = 'cat';
-        label = chuDaiLabel;
-      } else {
-        // fallback: xét mùa vụ Nhật Cục
-        const trangThai = nd.trangThaiMua || '';
-        if (['Vượng','Tướng'].includes(trangThai)) { cls = 'cat';  label = trangThai; }
-        else if (['Tù','Tử','Phế'].includes(trangThai)) { cls = 'warn'; label = trangThai; }
-        else { cls = 'binh'; label = 'Bình'; }
-      }
-
-      return { cls, label, thaiAt, chuDaiLabel, chuDaiStatus, anList,
-               toanChu: nd.toanChu, toanKhach: nd.toanKhach,
-               chuDaiCung: nd.chuDai, khachDaiCung: nd.khachDai,
-               khachDaiLabel: nd.anKhachDai ? nd.anKhachDai.label : '—',
-               trangThaiMua: nd.trangThaiMua || '' };
-    } catch(e) {
-      return { cls: 'binh', label: '—', thaiAt: '?', chuDaiLabel: '—', chuDaiStatus: 'binh', anList: [] };
-    }
-  }
-
-  // Tính cả tháng (cache)
-  function calComputeMonth(y, m) {
-    const key = `${y}-${m}`;
-    if (calCache[key]) return calCache[key];
-
-    const daysInMonth = new Date(y, m, 0).getDate();
-    const result = [];
-    for (let d = 1; d <= daysInMonth; d++) {
-      result.push(calDayStatus(y, m, d));
-    }
-    calCache[key] = result;
-    return result;
-  }
-
-  // Vẽ lại calendar
-  function calRender() {
-    const grid = document.getElementById('cal-grid');
-    const label = document.getElementById('cal-month-label');
-    if (!grid || !label) return;
-
-    const monthNames = ['','Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6',
-                        'Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'];
-    label.textContent = `${monthNames[calMonth]} · ${calYear}`;
-
-    // Loading state
-    grid.innerHTML = `<div class="cal-loading" style="grid-column:1/-1"><div class="oracle-spinner" style="width:20px;height:20px;"></div><span>Đang tính...</span></div>`;
-
-    // Defer tính toán để không block UI
-    setTimeout(() => {
-      const today = new Date();
-      const todayY = today.getFullYear();
-      const todayM = today.getMonth() + 1;
-      const todayD = today.getDate();
-
-      const firstDOW = new Date(calYear, calMonth - 1, 1).getDay(); // 0=Sun
-      // Chuyển sang Monday-first: 0(Sun)→6, 1(Mon)→0, ...
-      const offset = firstDOW === 0 ? 6 : firstDOW - 1;
-      const daysInMonth = new Date(calYear, calMonth, 0).getDate();
-
-      const statuses = calComputeMonth(calYear, calMonth);
-
-      let html = '';
-      // Header ngày trong tuần
-      CAL_DOW.forEach(dow => {
-        html += `<div class="cal-dow">${dow}</div>`;
-      });
-
-      // Ô trống đầu tháng
-      for (let i = 0; i < offset; i++) {
-        html += `<div class="cal-day empty"></div>`;
-      }
-
-      // Các ngày
-      for (let d = 1; d <= daysInMonth; d++) {
-        const s = statuses[d - 1];
-        const isToday    = (calYear === todayY && calMonth === todayM && d === todayD);
-        const isSelected = calSelected && calSelected.y === calYear && calSelected.m === calMonth && calSelected.d === d;
-        const isSunday   = (new Date(calYear, calMonth - 1, d).getDay() === 0);
-
-        const extraCls = [
-          s.cls,
-          isToday    ? 'today'    : '',
-          isSelected ? 'selected' : '',
-          isSunday   ? 'sunday'   : '',
-        ].filter(Boolean).join(' ');
-
-        // Màu tooltip theo trạng thái
-        const tipAccent = s.cls === 'cat' ? 'var(--green)' : s.cls === 'hung' ? 'var(--red)' : s.cls === 'warn' ? 'var(--yellow)' : 'var(--text-dim)';
-        const anTags = (s.anList||[]).slice(0,3).map(a =>
-          `<span style="display:inline-block;padding:1px 5px;border-radius:4px;font-size:9px;background:${tipAccent}22;border:1px solid ${tipAccent}44;color:${tipAccent};margin:1px 2px 1px 0;">${a}</span>`
-        ).join('');
-
-        html += `
-          <div class="cal-day ${extraCls}" onclick="calSelectDay(${calYear},${calMonth},${d})" title="${d}/${calMonth}/${calYear}">
-            <span class="cal-day-num">${d}</span>
-            <span class="cal-day-dot"></span>
-            <div class="cal-tip">
-              <strong style="color:var(--cyan)">${d}/${calMonth}/${calYear}</strong>
-              <div style="margin:4px 0 3px;font-size:9.5px;color:var(--text-dim);">☯ Nhật Cục · Thái Ất Cung <strong style="color:var(--gold)">${s.thaiAt}</strong></div>
-              <div style="font-weight:700;color:${tipAccent};font-size:11px;margin-bottom:3px;">${s.label}</div>
-              ${s.trangThaiMua ? `<div style="font-size:9.5px;color:var(--text-dim);">Mùa vụ: <span style="color:${tipAccent}">${s.trangThaiMua}</span></div>` : ''}
-              ${s.chuDaiCung ? `<div style="font-size:9.5px;color:var(--text-dim);margin-top:2px;">Chủ Đại Tướng · Cung ${s.chuDaiCung}</div>` : ''}
-              ${anTags ? `<div style="margin-top:4px;">${anTags}</div>` : ''}
-              ${s.toanChu ? `<div style="font-size:9px;color:var(--text-dim);margin-top:3px;border-top:1px solid rgba(255,255,255,.08);padding-top:3px;">Chủ ${s.toanChu} · Khách ${s.toanKhach} quân</div>` : ''}
-            </div>
-          </div>`;
-      }
-
-      grid.innerHTML = html;
-    }, 30);
-  }
-
-  // Public API
-  window.calPrevMonth = function() {
-    calMonth--;
-    if (calMonth < 1) { calMonth = 12; calYear--; }
-    calRender();
-  };
-
-  window.calNextMonth = function() {
-    calMonth++;
-    if (calMonth > 12) { calMonth = 1; calYear++; }
-    calRender();
-  };
-
-  window.calSelectMonth = function() {
-    // Tính Nguyệt Cục cho ngày 1 của tháng đang xem
-    const r = compute(calYear, calMonth, 1, 12);
-    renderNguyetCucInline(r, calYear, calMonth);
-    const dayResult = document.getElementById('cal-day-result');
-    if (dayResult) {
-      setTimeout(() => dayResult.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
-    }
-  };
-
-  window.calSelectDay = function(y, m, d) {
-    calSelected = { y, m, d };
-    calRender(); // redraw để highlight
-
-    // Tính và hiển thị Nhật Cục ngay trong panel calendar
-    const r = compute(y, m, d, 12);
-    renderNhatCucInline(r, y, m, d);
-
-    // Cuộn xuống kết quả ngay trong panel
-    const dayResult = document.getElementById('cal-day-result');
-    if (dayResult) {
-      setTimeout(() => dayResult.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
-    }
-  };
-
-  // Khởi động sau khi page load
-  document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(calRender, 400);
-  });
-
-  // Nếu DOMContentLoaded đã qua
-  if (document.readyState !== 'loading') {
-    setTimeout(calRender, 400);
-  }
-
-})();
 </script>
-<!-- BÁO CÁO MODAL -->
-<div id="baocao-modal" onclick="if(event.target===this)closeBaoCao()">
-  <div id="baocao-box">
-    <div id="baocao-header">
-      <h3>📋 Báo Cáo Tọa Độ Vũ Trụ</h3>
-      <div id="baocao-actions">
-        <button class="baocao-act-btn" onclick="copyBaoCao()">📋 Sao chép</button>
-        <button class="baocao-act-btn close-btn" onclick="closeBaoCao()">✕ Đóng</button>
-      </div>
-    </div>
-    <div id="baocao-text"></div>
-  </div>
-</div>
-
-<script>
-// ── PWA SERVICE WORKER REGISTRATION ──
-// Chỉ đăng ký khi chạy trên GitHub Pages, bỏ qua môi trường preview (claudeusercontent.com, localhost)
-if ('serviceWorker' in navigator) {
-  const isGitHubPages = location.hostname.endsWith('github.io') || location.hostname.endsWith('github.com');
-  const isLocalDev    = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-  const isPreview     = location.hostname.includes('claudeusercontent') || location.hostname.includes('claude.ai');
-  if (isGitHubPages || (!isLocalDev && !isPreview)) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js')
-        .then(reg => console.log('[SW] Registered:', reg.scope))
-        .catch(err => console.warn('[SW] Failed:', err));
-    });
-  }
-}
-</script>
-
 </body>
 </html>
