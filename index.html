@@ -2425,6 +2425,13 @@ input[type=range]::-webkit-slider-thumb {
   border-radius: 50%;
   animation: spin .9s linear infinite;
 }
+@keyframes cuc-fadein {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+.cuc-board-anim {
+  animation: cuc-fadein .35s ease both;
+}
 .luan-giai-loading-text {
   font-size: 11px;
   color: rgba(200,153,58,.6);
@@ -11399,75 +11406,201 @@ function _troNguoiLabel(luan_giai) {
 function _render144CucHtml(cuc, donHe) {
   if (!cuc) return `<div style="font-size:11px;color:var(--text-dim);padding:12px;text-align:center;border:1px dashed rgba(255,255,255,.1);border-radius:8px;margin-top:8px;">⚠️ Không tìm thấy dữ liệu cục này trong 144 Cục.</div>`;
 
-  const donHeLabel = donHe === "am" ? "🌙 Âm Độn" : "☀️ Dương Độn";
-  const donHeColor = donHe === "am" ? "var(--cyan)" : "var(--gold)";
-  const donHeBg    = donHe === "am" ? "rgba(0,212,255,0.07)" : "rgba(200,153,58,0.07)";
-  const donHeBorder= donHe === "am" ? "rgba(0,212,255,0.25)" : "rgba(200,153,58,0.25)";
+  const isAm      = donHe === "am";
+  const donHeLabel= isAm ? "🌙 Âm Độn" : "☀️ Dương Độn";
+  const accentClr = isAm ? "var(--cyan)"  : "var(--gold)";
+  const accentBg  = isAm ? "rgba(0,212,255,0.07)" : "rgba(200,153,58,0.07)";
+  const accentBdr = isAm ? "rgba(0,212,255,0.28)" : "rgba(200,153,58,0.28)";
 
   const canChi = Array.isArray(cuc.can_chi) ? cuc.can_chi : (cuc.can_chi ? [cuc.can_chi] : []);
-  const tro = _troNguoiLabel(cuc.luan_giai);
+  const tro    = _troNguoiLabel(cuc.luan_giai);
 
-  function toanBadge(str) {
-    if (!str) return '<span style="color:var(--text-dim)">—</span>';
+  // ── Màu toán số ──────────────────────────────────
+  function toanColor(str) {
+    if (!str) return "var(--text-dim)";
     const s = str.toLowerCase();
-    let c = "var(--text)";
-    if (/dài.hòa|thượng.hòa|hạ.hòa|thứ.hòa/.test(s)) c = "var(--green)";
-    else if (/đóng|bế|không.cửa/.test(s)) c = "var(--red)";
-    else if (/không.hòa|cô.dương|cô.âm/.test(s)) c = "var(--yellow)";
-    return `<span style="font-weight:700;color:${c};">${str}</span>`;
+    if (/dài.hòa|thượng.hòa|hạ.hòa|thứ.hòa/.test(s)) return "var(--green)";
+    if (/đóng|bế|không.cửa/.test(s)) return "var(--red)";
+    if (/không.hòa|cô.dương|cô.âm/.test(s)) return "var(--yellow)";
+    return "var(--text)";
+  }
+
+  // ── Parse toa_do_sao_tuong → phân bổ vào 8 cung + trung cung ──
+  // Mỗi cung: { dir, label, lines[] }
+  // Thứ tự Lạc Thư: TN(7), N(2), ĐN(9), T(6), TT(5), Đ(4), TB(1), B(8), ĐB(3)
+  // Hiển thị grid 3×3: [TB B ĐB / T TT Đ / TN N ĐN] → [1 8 3 / 6 5 4 / 7 2 9]
+  // Ta dùng layout theo chiều kim đồng hồ từ PDF:
+  // Hàng 1: TỐN(ĐN) · LY(N) · KHÔN(TN)
+  // Hàng 2: CHẤN(Đ) · TRUNG(TT) · ĐOÀI(T)
+  // Hàng 3: CẤN(ĐB) · KHẢM(B) · CÀN(TB)
+
+  // Toa do thực tế trong data là 1 chuỗi văn bản, ta hiển thị nguyên
+  // Nhưng parse thông minh để tô màu tên thần quan trọng
+  function highlightThanSat(txt) {
+    if (!txt) return "—";
+    return txt
+      .replace(/(Thái Ất|Ất cả|Văn Xương|Thủy Kích|Kế Thần)/g, '<span style="color:var(--gold);font-weight:700;">$1</span>')
+      .replace(/(Đại [cC]hủ|Tham [cC]hủ)/g,  '<span style="color:var(--green);">$1</span>')
+      .replace(/(Đại [kK]hách|Tham [kK]hách)/g,'<span style="color:var(--red);">$1</span>')
+      .replace(/(Giam|Ếm|Bách|Kích|Cách|Cấp|Phát|Bay)/g,'<span style="color:var(--cyan);font-size:9px;font-weight:700;">$1</span>');
+  }
+
+  // ── Tên badge trợ Chủ/Khách ──
+  const troBgStyle = tro.troKhach && tro.troChu
+    ? "background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.3);"
+    : tro.troKhach
+      ? "background:rgba(255,68,85,.07);border:1px solid rgba(255,68,85,.28);"
+      : tro.troChu
+        ? "background:rgba(34,221,136,.07);border:1px solid rgba(34,221,136,.28);"
+        : "background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);";
+
+  // ── Phân tích toán số ──
+  const tc  = cuc.toan_chu    || "—";
+  const tk  = cuc.toan_khach  || "—";
+  const td  = cuc.toan_dinh   || "—";
+  const tcC = toanColor(tc);
+  const tkC = toanColor(tk);
+
+  // ── Cell helper cho 8 cung xung quanh ──
+  // Mỗi cung hiển thị: hướng + nội dung ngắn từ toa_do
+  // Vì data không tách sẵn theo cung, ta dùng ô placeholder đẹp
+  // thể hiện được cảm giác "bảng cổ thư"
+  function cungCell(huong, kyHieu, extraCls) {
+    return `<div style="
+      background:rgba(8,20,48,0.55);
+      border:0.5px solid rgba(200,153,58,0.2);
+      padding:7px 7px 6px 7px;
+      min-height:60px;
+      display:flex;flex-direction:column;gap:2px;
+      ${extraCls||''}
+    ">
+      <div style="font-size:8.5px;font-weight:700;color:${accentClr};letter-spacing:.08em;margin-bottom:1px;">${kyHieu}</div>
+      <div style="font-size:9px;color:rgba(200,153,58,0.7);">${huong}</div>
+    </div>`;
   }
 
   return `
-    <div style="margin-top:14px;border-top:2px solid ${donHeBorder};padding-top:14px;">
+  <div class="cuc-board-anim" style="margin-top:16px;border-top:2px solid ${accentBdr};padding-top:16px;">
 
-      <!-- HEADER: Độn hệ + số cục -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;padding:9px 13px;background:${donHeBg};border:1px solid ${donHeBorder};border-radius:10px;">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <span style="font-size:14px;font-weight:700;color:${donHeColor};">${donHeLabel}</span>
-          <span style="font-size:14px;font-weight:700;color:var(--gold-light);">· Cục ${cuc.so_cuc}</span>
-        </div>
-        <div style="display:flex;flex-wrap:wrap;gap:3px;justify-content:flex-end;">
-          ${canChi.map(cc => `<span style="padding:2px 6px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:4px;font-size:9.5px;color:var(--text-dim);">${cc}</span>`).join("")}
-        </div>
+    <!-- ═══ HEADER ═══ -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:8px 12px;background:${accentBg};border:1px solid ${accentBdr};border-radius:10px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:13px;font-weight:700;color:${accentClr};">${donHeLabel}</span>
+        <span style="font-size:13px;font-weight:700;color:var(--gold-light);">· Cục ${cuc.so_cuc}</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:3px;justify-content:flex-end;max-width:55%;">
+        ${canChi.map(cc => `<span style="padding:2px 5px;background:rgba(255,255,255,.05);border:0.5px solid rgba(255,255,255,.12);border-radius:3px;font-size:9px;color:var(--text-dim);">${cc}</span>`).join("")}
+      </div>
+    </div>
+
+    <!-- ═══ BẢNG 9 CUNG LẠC THƯ ═══ -->
+    <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;text-align:center;opacity:.7;">
+      ✦ Địa Bàn Cửu Cung · Lạc Thư Bố Cục ✦
+    </div>
+
+    <div style="
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      grid-template-rows:auto auto auto;
+      border:1.5px solid rgba(200,153,58,0.45);
+      border-radius:8px;
+      overflow:hidden;
+      gap:0.5px;
+      background:rgba(200,153,58,0.18);
+      margin-bottom:12px;
+    ">
+
+      <!-- Hàng 1: TỐN(ĐN=9) · LY(N=2) · KHÔN(TN=7) -->
+      <div style="background:rgba(5,14,35,0.8);padding:8px 7px 7px;min-height:58px;display:flex;flex-direction:column;gap:2px;">
+        <div style="font-size:8.5px;font-weight:700;color:var(--teal);letter-spacing:.06em;">Tốn · ĐN</div>
+        <div style="font-size:9px;color:var(--gold);opacity:.7;">Cung 9</div>
+      </div>
+      <div style="background:rgba(5,14,35,0.8);padding:8px 7px 7px;min-height:58px;display:flex;flex-direction:column;gap:2px;">
+        <div style="font-size:8.5px;font-weight:700;color:var(--teal);letter-spacing:.06em;">Ly · Nam</div>
+        <div style="font-size:9px;color:var(--gold);opacity:.7;">Cung 2</div>
+      </div>
+      <div style="background:rgba(5,14,35,0.8);padding:8px 7px 7px;min-height:58px;display:flex;flex-direction:column;gap:2px;">
+        <div style="font-size:8.5px;font-weight:700;color:var(--teal);letter-spacing:.06em;">Khôn · TN</div>
+        <div style="font-size:9px;color:var(--gold);opacity:.7;">Cung 7</div>
       </div>
 
-      <!-- TRỢ CHỦ / TRỢ KHÁCH badge nổi bật -->
-      <div style="padding:10px 13px;margin-bottom:11px;border-radius:10px;border:1px solid ${tro.color === 'var(--text-dim)' ? 'rgba(255,255,255,.1)' : tro.color.replace('var(--','rgba(').replace(')',',.3)')};background:${tro.color === 'var(--text-dim)' ? 'rgba(255,255,255,.03)' : tro.color.replace('var(--','rgba(').replace(')',',.06)')};display:flex;align-items:flex-start;gap:10px;">
-        <span style="font-size:18px;flex-shrink:0;margin-top:1px;">${tro.icon}</span>
+      <!-- Hàng 2: CHẤN(Đ=4) · TRUNG(5) · ĐOÀI(T=6) -->
+      <div style="background:rgba(5,14,35,0.8);padding:8px 7px 7px;min-height:58px;display:flex;flex-direction:column;gap:2px;">
+        <div style="font-size:8.5px;font-weight:700;color:var(--teal);letter-spacing:.06em;">Chấn · Đông</div>
+        <div style="font-size:9px;color:var(--gold);opacity:.7;">Cung 4</div>
+      </div>
+
+      <!-- TRUNG CUNG: Toán số -->
+      <div style="
+        background:rgba(200,153,58,0.08);
+        border:0 solid transparent;
+        padding:10px 8px;
+        min-height:80px;
+        display:flex;flex-direction:column;
+        align-items:center;justify-content:center;
+        text-align:center;gap:5px;
+      ">
         <div>
-          <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:4px;">☯ Ất Cả — Trợ Chủ / Trợ Khách</div>
-          <div style="font-size:12px;font-weight:700;color:${tro.color};line-height:1.5;">${tro.label}</div>
+          <div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:2px;">Toán chủ</div>
+          <div style="font-size:11px;font-weight:700;color:${tcC};line-height:1.3;">${tc}</div>
+        </div>
+        <div style="width:50%;height:0.5px;background:rgba(200,153,58,0.35);"></div>
+        <div>
+          <div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:2px;">Toán khách</div>
+          <div style="font-size:11px;font-weight:700;color:${tkC};line-height:1.3;">${tk}</div>
+        </div>
+        <div style="width:50%;height:0.5px;background:rgba(200,153,58,0.35);"></div>
+        <div>
+          <div style="font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:2px;">Toán đinh</div>
+          <div style="font-size:11px;font-weight:700;color:var(--teal);">${td}</div>
         </div>
       </div>
 
-      <!-- TOÁN SỐ -->
-      <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:7px;">📊 Toán Số Chủ · Khách · Đinh</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:12px;">
-        <div style="background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.18);border-radius:9px;padding:9px 11px;">
-          <div style="color:var(--text-dim);margin-bottom:4px;font-size:9px;letter-spacing:.06em;text-transform:uppercase;">Toán Chủ</div>
-          <div style="font-size:11px;line-height:1.5;">${toanBadge(cuc.toan_chu)}</div>
-        </div>
-        <div style="background:rgba(200,153,58,.05);border:1px solid rgba(200,153,58,.18);border-radius:9px;padding:9px 11px;">
-          <div style="color:var(--text-dim);margin-bottom:4px;font-size:9px;letter-spacing:.06em;text-transform:uppercase;">Toán Khách</div>
-          <div style="font-size:11px;line-height:1.5;">${toanBadge(cuc.toan_khach)}</div>
-        </div>
-        <div style="background:rgba(0,229,192,.05);border:1px solid rgba(0,229,192,.18);border-radius:9px;padding:9px 11px;">
-          <div style="color:var(--text-dim);margin-bottom:4px;font-size:9px;letter-spacing:.06em;text-transform:uppercase;">Toán Đinh</div>
-          <div style="font-size:11px;font-weight:700;color:var(--teal);">${cuc.toan_dinh || "—"}</div>
-        </div>
+      <div style="background:rgba(5,14,35,0.8);padding:8px 7px 7px;min-height:58px;display:flex;flex-direction:column;gap:2px;">
+        <div style="font-size:8.5px;font-weight:700;color:var(--teal);letter-spacing:.06em;">Đoài · Tây</div>
+        <div style="font-size:9px;color:var(--gold);opacity:.7;">Cung 6</div>
       </div>
 
-      <!-- TỌA ĐỘ SAO TƯỚNG -->
-      ${cuc.toa_do_sao_tuong ? `
-      <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:7px;">⭐ Tọa Độ Sao Tướng</div>
-      <div style="font-size:11px;margin-bottom:12px;background:rgba(200,153,58,0.05);border:1px solid rgba(200,153,58,0.2);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:10px 13px;color:var(--text);line-height:1.8;">${cuc.toa_do_sao_tuong}</div>` : ""}
-
-      <!-- LUẬN GIẢI ĐẦY ĐỦ CỔ THƯ -->
-      ${cuc.luan_giai ? `
-      <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan);margin-bottom:7px;">📜 Luận Giải Cổ Thư · Đầy Đủ</div>
-      <div style="font-size:11.5px;background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.18);border-left:3px solid var(--cyan);border-radius:0 10px 10px 0;padding:12px 14px;color:var(--text);line-height:1.9;">${cuc.luan_giai}</div>` : ""}
+      <!-- Hàng 3: CẤN(ĐB=3) · KHẢM(B=8) · CÀN(TB=1) -->
+      <div style="background:rgba(5,14,35,0.8);padding:8px 7px 7px;min-height:58px;display:flex;flex-direction:column;gap:2px;">
+        <div style="font-size:8.5px;font-weight:700;color:var(--teal);letter-spacing:.06em;">Cấn · ĐB</div>
+        <div style="font-size:9px;color:var(--gold);opacity:.7;">Cung 3</div>
+      </div>
+      <div style="background:rgba(5,14,35,0.8);padding:8px 7px 7px;min-height:58px;display:flex;flex-direction:column;gap:2px;">
+        <div style="font-size:8.5px;font-weight:700;color:var(--teal);letter-spacing:.06em;">Khảm · Bắc</div>
+        <div style="font-size:9px;color:var(--gold);opacity:.7;">Cung 8</div>
+      </div>
+      <div style="background:rgba(5,14,35,0.8);padding:8px 7px 7px;min-height:58px;display:flex;flex-direction:column;gap:2px;">
+        <div style="font-size:8.5px;font-weight:700;color:var(--teal);letter-spacing:.06em;">Càn · TB</div>
+        <div style="font-size:9px;color:var(--gold);opacity:.7;">Cung 1</div>
+      </div>
 
     </div>
+
+    <!-- ═══ TRỢ CHỦ / KHÁCH BADGE ═══ -->
+    <div style="padding:9px 12px;margin-bottom:11px;border-radius:9px;${troBgStyle}display:flex;align-items:flex-start;gap:10px;">
+      <span style="font-size:17px;flex-shrink:0;">${tro.icon}</span>
+      <div>
+        <div style="font-size:8.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:3px;">☯ Ất Cả — Trợ Chủ / Trợ Khách</div>
+        <div style="font-size:12px;font-weight:700;color:${tro.color};line-height:1.5;">${tro.label}</div>
+      </div>
+    </div>
+
+    <!-- ═══ TỌA ĐỘ SAO TƯỚNG ═══ -->
+    ${cuc.toa_do_sao_tuong ? `
+    <div style="font-size:8.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;">⭐ Tọa Độ Sao Tướng</div>
+    <div style="font-size:11px;margin-bottom:12px;background:rgba(200,153,58,0.05);border:0.5px solid rgba(200,153,58,0.22);border-left:2.5px solid var(--gold);border-radius:0 9px 9px 0;padding:10px 13px;color:var(--text);line-height:1.85;">
+      ${highlightThanSat(cuc.toa_do_sao_tuong)}
+    </div>` : ""}
+
+    <!-- ═══ LUẬN GIẢI CỔ THƯ ═══ -->
+    ${cuc.luan_giai ? `
+    <div style="font-size:8.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);margin-bottom:6px;">📜 Luận Giải Cổ Thư</div>
+    <div style="font-size:11.5px;background:rgba(0,212,255,0.04);border:0.5px solid rgba(0,212,255,0.18);border-left:2.5px solid var(--cyan);border-radius:0 9px 9px 0;padding:11px 14px;color:var(--text);line-height:1.95;">
+      ${highlightThanSat(cuc.luan_giai)}
+    </div>` : ""}
+
+  </div>
   `;
 }
 
