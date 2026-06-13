@@ -6,11 +6,24 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>☯ Thái Ất Thần Kinh</title>
+<meta name="description" content="Thái Ất Thần Kinh — Hệ thống số hóa Cổ Thư Bách Việt. Tính Nhật Cục, Nguyệt Cục, Tuế Cục, Bát Môn theo chu kỳ vũ trụ cổ đại. Thiên Thời · Địa Lợi · Nhân Hòa.">
+
+<!-- Open Graph / Social sharing -->
+<meta property="og:title" content="☯ Thái Ất Thần Kinh">
+<meta property="og:description" content="Hệ thống số hóa Cổ Thư Bách Việt — Tính Nhật Cục · Nguyệt Cục · Tuế Cục · Bát Môn · Black Swan Radar. Thiên Thời · Địa Lợi · Nhân Hòa.">
+<meta property="og:image" content="icon-192.png">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="vi_VN">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="☯ Thái Ất Thần Kinh">
+<meta name="twitter:description" content="Hệ thống số hóa Cổ Thư Bách Việt — Thiên Thời · Địa Lợi · Nhân Hòa.">
 
 <!-- PWA — manifest only injected over HTTP/HTTPS to avoid file:// CORS error -->
 <meta name="theme-color" content="#030810">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="shortcut icon" href="icon-192.png">
 <script>
   if (location.protocol === 'http:' || location.protocol === 'https:') {
     var ml = document.createElement('link');
@@ -749,6 +762,89 @@ table.bsr-table {
 .bsr-scan-add-btn.added { border-color: var(--green); color: var(--green); background: rgba(34,221,136,.06); pointer-events: none; }
 .bsr-scan-empty { text-align: center; padding: 14px; color: var(--text-dim); font-size: 10px; }
 
+/* ── THỜI CỤC INPUT ── */
+.thoicuc-toggle {
+  padding: 3px 7px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,229,192,.25);
+  background: rgba(0,229,192,.05);
+  color: var(--teal);
+  font-size: 9px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.thoicuc-toggle:hover { background: rgba(0,229,192,.12); border-color: var(--teal); }
+.thoicuc-toggle.open { background: rgba(0,229,192,.12); border-color: var(--teal); color: #fff; }
+.thoicuc-row {
+  display: none;
+  align-items: center;
+  gap: 5px;
+  margin-top: 7px;
+  padding: 7px 10px;
+  background: rgba(0,229,192,.04);
+  border-radius: 10px;
+  border: 1px solid rgba(0,229,192,.12);
+  flex-wrap: wrap;
+}
+.thoicuc-row.open { display: flex; }
+.thoicuc-label {
+  font-size: 8.5px;
+  color: var(--teal);
+  letter-spacing: .08em;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.thoicuc-inp {
+  background: rgba(0,229,192,.06);
+  border: 1px solid rgba(0,229,192,.2);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 11px;
+  font-family: inherit;
+  text-align: center;
+  outline: none;
+  padding: 3px 5px;
+  transition: border-color .15s;
+  -webkit-appearance: none;
+}
+.thoicuc-inp:focus { border-color: var(--teal); }
+.thoicuc-inp::placeholder { color: var(--text-dim); font-size: 10px; }
+.thoicuc-inp-ngay  { width: 32px; }
+.thoicuc-inp-thang { width: 32px; }
+.thoicuc-inp-nam   { width: 44px; }
+.thoicuc-inp-gio   { width: 32px; }
+.thoicuc-sep { color: var(--text-dim); font-size: 11px; }
+.thoicuc-calc-btn {
+  padding: 3px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,229,192,.35);
+  background: rgba(0,229,192,.1);
+  color: var(--teal);
+  font-size: 9.5px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .2s;
+  white-space: nowrap;
+  margin-left: 2px;
+}
+.thoicuc-calc-btn:hover { background: rgba(0,229,192,.22); border-color: var(--teal); color: #fff; }
+.thoicuc-result-badge {
+  display: none;
+  font-size: 9px;
+  color: var(--teal);
+  background: rgba(0,229,192,.08);
+  border-radius: 6px;
+  padding: 2px 8px;
+  margin-top: 5px;
+  width: 100%;
+  line-height: 1.5;
+}
+.thoicuc-result-badge.show { display: block; }
+
 /* ═══════════════════════════════
    HEADER — Premium Redesign
    ═══════════════════════════════ */
@@ -1360,26 +1456,72 @@ input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
 .vol-row.warn   { background: rgba(255,215,0,.07);   border-color: var(--yellow);   color: var(--yellow); }
 .vol-row.normal { background: rgba(255,255,255,.03); border-color: var(--text-dim); color: var(--text); }
 
+/* ── CHỦ / KHÁCH — BADGE PHÂN VÙNG RÕ RÀNG ──
+   CHỦ  = phe nội lực, thị trường nội tại  → tông XANH DƯƠNG (cyan)
+   KHÁCH = phe ngoại lực, tác động từ ngoài → tông CAM (orange)
+   Hai tông màu này được dùng NHẤT QUÁN cho mọi khối Chủ/Khách
+   (Toán Số, Tướng Tinh, Vol bars...) để người đọc luôn nhận diện
+   ngay "đây là CHỦ" hay "đây là KHÁCH" chỉ qua màu sắc + icon. */
+:root {
+  --chu-color:   var(--cyan);
+  --chu-bg:      rgba(0,212,255,.08);
+  --chu-border:  rgba(0,212,255,.35);
+  --khach-color: #ff9d42;
+  --khach-bg:    rgba(255,157,66,.08);
+  --khach-border:rgba(255,157,66,.35);
+}
+
+.vol-row.side-chu   { border-color: var(--chu-color);   background: var(--chu-bg); }
+.vol-row.side-khach { border-color: var(--khach-color); background: var(--khach-bg); }
+
 /* ── TƯỚNG CARDS ── */
 .tuong-side {
   margin-top: 10px;
-  padding: 11px 13px;
+  padding: 0;
   border-radius: 12px;
-  border: 1px solid;
+  border: 1.5px solid;
+  overflow: hidden;
 }
 
-.tuong-side.ban  { border-color: rgba(255,68,85,.28);   background: rgba(255,68,85,.04); }
-.tuong-side.mua  { border-color: rgba(34,221,136,.28);  background: rgba(34,221,136,.04); }
+.tuong-side.chu   { border-color: var(--chu-border);   background: var(--chu-bg); }
+.tuong-side.khach { border-color: var(--khach-border); background: var(--khach-bg); }
 
 .tuong-side-title {
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: .08em;
-  margin-bottom: 10px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  margin: 0;
+  padding: 9px 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.ban .tuong-side-title  { color: var(--red); }
-.mua .tuong-side-title  { color: var(--green); }
+.tuong-side-title .side-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px; height: 24px;
+  border-radius: 8px;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.tuong-side-body { padding: 4px 13px 11px; }
+
+.chu .tuong-side-title  {
+  color: var(--chu-color);
+  background: rgba(0,212,255,.14);
+  border-bottom: 1px solid var(--chu-border);
+}
+.chu .tuong-side-title .side-badge { background: rgba(0,212,255,.22); }
+
+.khach .tuong-side-title {
+  color: var(--khach-color);
+  background: rgba(255,157,66,.14);
+  border-bottom: 1px solid var(--khach-border);
+}
+.khach .tuong-side-title .side-badge { background: rgba(255,157,66,.22); }
 
 .tuong-item {
   padding: 8px 0;
@@ -3367,7 +3509,7 @@ input[type=range]::-webkit-slider-thumb {
   
 <div id="api-settings-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.78);align-items:center;justify-content:center;">
   <div style="background:#0e0e0e;border:1px solid #2a2a2a;border-radius:14px;padding:22px 20px 18px;width:min(420px,95vw);position:relative;max-height:90vh;overflow-y:auto;">
-    <span onclick="document.getElementById('api-settings-modal').classList.remove('open')" style="position:absolute;top:12px;right:14px;cursor:pointer;font-size:18px;color:#666;">✕</span>
+    <span onclick="document.getElementById('api-settings-modal').style.display='none'" style="position:absolute;top:12px;right:14px;cursor:pointer;font-size:18px;color:#666;">✕</span>
     <div style="font-size:15px;font-weight:700;color:#d4af37;margin-bottom:2px;">⚙️ Cài Đặt API Oracle</div>
     <div style="font-size:10px;color:#555;margin-bottom:18px;">Bật/tắt từng endpoint · Fallback tự động theo thứ tự</div>
 
@@ -3463,6 +3605,76 @@ input[type=range]::-webkit-slider-thumb {
     <!-- CỘT TRÁI: Input + Disclaimer -->
     <div id="left-panel">
 
+      <!-- ══════════════════════════════════════════════════════
+           CARD NHẬP TỌA ĐỘ THỜI GIAN (CHÍNH)
+           ══════════════════════════════════════════════════════ -->
+      <div class="card" id="panel-input-main" style="border-color: rgba(0,212,255,0.28); box-shadow: 0 0 24px rgba(0,212,255,0.06);">
+        <div class="card-title" style="color: var(--cyan);">⏳ Nhập Tọa Độ Thời Gian
+          <div class="pc-bar">
+            <button class="pc-btn cyan pc-collapse-icon" onclick="pcToggle('panel-input-main')" title="Thu/Mở">⌃</button>
+          </div>
+        </div>
+        <div class="pc-body" style="max-height:600px;">
+
+          <!-- ── NHẬT CỤC: Ngày / Tháng / Năm / Giờ ── -->
+          <div style="margin-bottom:10px;">
+            <div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan);opacity:.7;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+              <span>☀️</span><span>Nhật Cục & Thời Cục — Nhập ngày giờ cụ thể</span>
+            </div>
+            <div class="date-grid" style="grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;">
+              <div class="field">
+                <label>Ngày</label>
+                <input type="number" id="inp-ngay" placeholder="DD" min="1" max="31" inputmode="numeric">
+              </div>
+              <div class="field">
+                <label>Tháng</label>
+                <input type="number" id="inp-thang" placeholder="MM" min="1" max="12" inputmode="numeric">
+              </div>
+              <div class="field">
+                <label>Năm</label>
+                <input type="number" id="inp-nam-main" placeholder="YYYY" min="1" max="9999" inputmode="numeric" oninput="syncNamMain(this.value)">
+              </div>
+              <div class="field">
+                <label>Giờ</label>
+                <input type="number" id="inp-gio" placeholder="HH" min="0" max="23" inputmode="numeric">
+              </div>
+            </div>
+            <button class="today-btn" onclick="fillToday()" style="margin-top:8px;font-size:11px;">
+              📍 Điền Hôm Nay
+            </button>
+          </div>
+
+          <!-- ── NGUYỆT CỤC: Tháng / Năm ── -->
+          <div style="padding-top:10px;border-top:1px dashed rgba(0,212,255,0.12);margin-bottom:10px;">
+            <div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);opacity:.8;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+              <span>🌙</span><span>Nguyệt Cục — Chọn tháng để luận trung hạn</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end;">
+              <div class="field">
+                <label style="color:var(--teal);">Tháng</label>
+                <input type="number" id="inp-nc-thang" placeholder="MM" min="1" max="12" inputmode="numeric"
+                  style="border-color:rgba(0,229,192,.25);background:rgba(0,229,192,.04);">
+              </div>
+              <div class="field">
+                <label style="color:var(--teal);">Năm</label>
+                <input type="number" id="inp-nc-nam" placeholder="YYYY" min="1" max="9999" inputmode="numeric"
+                  style="border-color:rgba(0,229,192,.25);background:rgba(0,229,192,.04);">
+              </div>
+              <button onclick="tinhNguyetCucMain()" style="padding:11px 14px;border-radius:12px;border:1px solid rgba(0,229,192,.35);background:rgba(0,229,192,.08);color:var(--teal);font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap;font-weight:700;transition:all .2s;"
+                onmouseover="this.style.background='rgba(0,229,192,.18)'" onmouseout="this.style.background='rgba(0,229,192,.08)'">
+                🌙 Tính
+              </button>
+            </div>
+          </div>
+
+          <!-- ── GỢI Ý ── -->
+          <div style="margin-top:6px;padding:8px 12px;border-radius:10px;background:rgba(0,212,255,.04);border:1px dashed rgba(0,212,255,.12);font-size:10px;color:var(--text-dim);text-align:center;line-height:1.6;">
+            💡 Sau khi nhập, dùng <strong style="color:var(--gold-light)">⚡ Quét Chu Kỳ Năm</strong> bên dưới · hoặc nhập vào chat Khầy
+          </div>
+
+        </div><!-- /pc-body -->
+      </div>
+
       <!-- ========================================================
            NÂNG CẤP: TRẠM ĐIỀU KHIỂN CHU KỲ VĨ MÔ 24 TIẾT KHÍ
            ======================================================== -->
@@ -3475,16 +3687,20 @@ input[type=range]::-webkit-slider-thumb {
         </div>
         <div class="pc-body" style="max-height:600px">
         <p style="font-size: 11px; color: var(--text-dim); margin-bottom: 12px; line-height: 1.5;">
-          Nhập năm để Engine tự động quét ma trận rủi ro và định vị các điểm nút đảo chiều vĩ mô xuyên suốt 24 Tiết Khí.
+          Dùng trường <strong style="color:var(--gold-light)">Năm</strong> từ ô nhập bên trên, hoặc nhập năm riêng để quét ma trận 24 Tiết Khí.
         </p>
 
         <div style="display: flex; gap: 12px; align-items: flex-end;">
           <div class="field" style="flex: 1;">
-            <label style="color: var(--gold);">Năm Khảo Sát Chu Kỳ</label>
-            <input type="number" id="inp-nam" placeholder="2026" value="2026" min="1000" max="9999" inputmode="numeric" style="border-color: rgba(200,153,58,0.3); background: rgba(200,153,58,0.03); color: var(--gold-light);">
+            <label style="color: var(--gold);">Năm Khảo Sát</label>
+            <input type="number" id="inp-nam" placeholder="2026" value="2026" min="1000" max="9999" inputmode="numeric"
+              style="border-color: rgba(200,153,58,0.3); background: rgba(200,153,58,0.03); color: var(--gold-light);"
+              oninput="syncNamMain(this.value)">
           </div>
-          <button class="calc-btn" id="calc-btn" onclick="quetChuKyNam()" style="margin: 0; width: auto; padding: 12px 24px; white-space: nowrap; background: linear-gradient(135deg, #1a3a6e 0%, #0d2448 100%);">
-            ⚡ Quét Chu Kỳ Năm
+          <button id="calc-btn" onclick="quetChuKyNam()"
+            style="margin:0;padding:12px 20px;white-space:nowrap;border-radius:12px;border:1px solid rgba(200,153,58,.4);background:linear-gradient(135deg,#1a3a6e,#0d2448);color:var(--gold-light);font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.06em;transition:all .2s;"
+            onmouseover="this.style.boxShadow='0 0 16px rgba(200,153,58,.3)'" onmouseout="this.style.boxShadow='none'">
+            <span id="btn-text">⚡ Quét Chu Kỳ Năm</span>
           </button>
         </div>
 
@@ -3756,9 +3972,23 @@ input[type=range]::-webkit-slider-thumb {
             <div class="bsr-scan-title">REALTIME BLACK SWAN SCANNER</div>
             <div class="bsr-scan-spinner" id="bsr-scan-spinner"></div>
             <span class="bsr-scan-status" id="bsr-scan-status">Chưa quét</span>
+            <button class="thoicuc-toggle" id="thoicuc-toggle-btn" onclick="toggleThoiCuc()" title="Tính thời cục">☯ Thời cục</button>
             <button class="bsr-scan-btn" id="bsr-scan-btn" onclick="bsrRunScan()">
               ⚡ Quét ngay
             </button>
+          </div>
+          <!-- THỜI CỤC ROW — ẩn mặc định -->
+          <div class="thoicuc-row" id="thoicuc-row">
+            <span class="thoicuc-label">⏱ THỜI CỤC</span>
+            <input class="thoicuc-inp thoicuc-inp-ngay"  id="tc-ngay"  type="number" min="1" max="31"   placeholder="Ngày" inputmode="numeric">
+            <span class="thoicuc-sep">/</span>
+            <input class="thoicuc-inp thoicuc-inp-thang" id="tc-thang" type="number" min="1" max="12"   placeholder="Tháng" inputmode="numeric">
+            <span class="thoicuc-sep">/</span>
+            <input class="thoicuc-inp thoicuc-inp-nam"   id="tc-nam"   type="number" min="1" max="9999" placeholder="Năm" inputmode="numeric">
+            <span class="thoicuc-sep" style="margin-left:4px">⏰</span>
+            <input class="thoicuc-inp thoicuc-inp-gio"   id="tc-gio"   type="number" min="0" max="23"   placeholder="Giờ" inputmode="numeric">
+            <button class="thoicuc-calc-btn" onclick="tinhThoiCuc()">Tính</button>
+            <div class="thoicuc-result-badge" id="thoicuc-result"></div>
           </div>
           <div id="bsr-scan-results" class="bsr-scan-results">
             <div class="bsr-scan-empty">
@@ -3887,7 +4117,7 @@ async function testAPIConnection(epKey) {
   if (!ep) return;
   if (res) { res.style.color = "#aaa"; res.textContent = "⏳ Testing " + ep.name + "..."; }
   try {
-    const payload = { model:"claude-sonnet-4-20250514", max_tokens:10, system:"", messages:[{role:"user",content:"hi"}] };
+    const payload = { model:"claude-sonnet-4-6", max_tokens:10, system:"", messages:[{role:"user",content:"hi"}] };
     const headers = { "Content-Type":"application/json", ...(ep.extraHeaders ? ep.extraHeaders() : {}) };
     const resp = await fetch(ep.url, { method:"POST", headers, body: JSON.stringify(ep.toBody(payload)) });
     const data = await resp.json();
@@ -6089,7 +6319,7 @@ QUAN TRỌNG: Mày PHẢI dùng ĐÚNG số liệu được cung cấp trong pro
 
   try {
   const data = await callAPI({
-      model: "claude-sonnet-4-20250514",
+      model: "claude-sonnet-4-6",
       max_tokens: cucTen === "Tuế Cục" ? 1400 : cucTen === "Nguyệt Cục" ? 1200 : cucTen === "Nhật Cục" ? 1000 : 800,
       system: systemPrompt,
       messages: [{ role: "user", content: prompt }]
@@ -6148,7 +6378,7 @@ Cuối: {"verdict":"cat|hung|warn","tags":["tag1","tag2","tag3"]}`;
 
   try {
     const data = await callAPI({
-      model: "claude-sonnet-4-20250514",
+      model: "claude-sonnet-4-6",
       max_tokens: 1000,
       system: `Mày là Khầy — vị Quân Sư Vĩ Mô, tinh thông Thái Ất Thần Kinh. Mày tự xưng "Khầy", gọi người đọc là "các em" hoặc "em". Mở đầu luận giải bao giờ cũng chào kiểu 'Khầy đây.' hoặc 'Các em ơi, Khầy nói thật nhé.' rồi mới vào luận giải. Giọng văn pha trộn cổ phong huyền bí với sự thẳng thắn thực chiến, đôi khi dí dỏm. TUYỆT ĐỐI không dùng markdown bold/italic — chỉ viết đoạn văn xuôi tự nhiên.
 
@@ -6200,7 +6430,7 @@ Phần 4 — Lời khuyên chiến lược: nên khai thác cửa nào, tránh c
 Cuối, trên một dòng riêng: {"verdict":"cat|hung|warn","tags":["tag1","tag2","tag3"]}`;
 
   const data = await callAPI({
-    model:"claude-sonnet-4-20250514",
+    model:"claude-sonnet-4-6",
     max_tokens:900,
     system:`Mày là Khầy — vị Quân Sư Vĩ Mô, tinh thông Thái Ất Thần Kinh. Mày tự xưng "Khầy", gọi người đọc là "các em" hoặc "em". Mở đầu luận giải bao giờ cũng chào kiểu 'Khầy đây.' rồi mới vào luận giải. Giọng văn cổ phong huyền bí, thực chiến. TUYỆT ĐỐI không dùng markdown bold/italic — chỉ viết đoạn văn xuôi tự nhiên.`,
       messages:[{role:"user",content:prompt}]
@@ -6829,7 +7059,7 @@ Khi trả lời: (1) Xác định rõ người dùng hỏi ở tầng nào (Năm
   }
 
   const data = await callAPI({
-    model: "claude-sonnet-4-20250514",
+    model: "claude-sonnet-4-6",
     max_tokens: 1200,
     system: systemContext,
     messages: _khayChatHistory
@@ -7205,23 +7435,27 @@ function renderCuc(c,idx,hungTinh){
       <div class="section-label" style="color:var(--gold)">⚔️ Bộ Ba Tam Cơ · Dòng tiền & Tâm lý</div>
       ${tamCoGrid(c.tamCo, d.thaiAt)}` : ""}
       <div class="section-label">📊 Toán Số · Nội Lực & Ngoại Lực (Volume)</div>
-      <div class="vol-label">⚖️ Nội Lực · Toán Chủ: <strong>${d.toanChu} quân</strong></div>
-      <div class="vol-row ${volClass(d.labelToanChu)}">${d.labelToanChu}</div>
-      <div class="vol-label" style="margin-top:8px">🌐 Ngoại Lực · Toán Khách: <strong>${d.toanKhach} quân</strong></div>
-      <div class="vol-row ${volClass(d.labelToanKhach)}">${d.labelToanKhach}</div>
+      <div class="vol-label">🏠 CHỦ · Nội Lực <strong>(${d.toanChu} quân)</strong></div>
+      <div class="vol-row side-chu ${volClass(d.labelToanChu)}">${d.labelToanChu}</div>
+      <div class="vol-label" style="margin-top:8px">🌍 KHÁCH · Ngoại Lực <strong>(${d.toanKhach} quân)</strong></div>
+      <div class="vol-row side-khach ${volClass(d.labelToanKhach)}">${d.labelToanKhach}</div>
 
       <div class="section-label">🎯 Tướng Tinh & Án Phạt</div>
       ${d.doToanTapChu?`<div style="color:var(--red);font-size:12px;padding:6px 0;font-weight:600">☠️ NỘI LỰC ĐỖ TOÀN TẬP — Toán Chủ tê liệt hoàn toàn, cả Đại lẫn Tham đều lọt Lỗ Đen!</div>`:""}
-      <div class="tuong-side ban">
-        <div class="tuong-side-title">⚖️ TOÁN CHỦ · NỘI LỰC (Chủ trận · Nội sinh)</div>
+      <div class="tuong-side chu">
+        <div class="tuong-side-title"><span class="side-badge">🏠</span>CHỦ · NỘI LỰC (Chủ trận · Nội sinh)</div>
+        <div class="tuong-side-body">
         ${renderTuong("Đại Tướng",d.anChuDai)}
         ${renderTuong("Tham Tướng",d.anChuTham)}
+        </div>
       </div>
       ${d.doToanTapKhach?`<div style="color:var(--red);font-size:12px;padding:6px 0;font-weight:600">☠️ NGOẠI LỰC ĐỖ TOÀN TẬP — Toán Khách tê liệt hoàn toàn, cả Đại lẫn Tham đều lọt Lỗ Đen!</div>`:""}
-      <div class="tuong-side mua" style="margin-top:10px">
-        <div class="tuong-side-title">🌐 TOÁN KHÁCH · NGOẠI LỰC (Khách trận · Ngoại lai)</div>
+      <div class="tuong-side khach" style="margin-top:10px">
+        <div class="tuong-side-title"><span class="side-badge">🌍</span>KHÁCH · NGOẠI LỰC (Khách trận · Ngoại lai)</div>
+        <div class="tuong-side-body">
         ${renderTuong("Đại Tướng",d.anKhachDai)}
         ${renderTuong("Tham Tướng",d.anKhachTham)}
+        </div>
       </div>
       ${idx===0?`<div class="vang-badge">
         <div class="vang-badge-title">🟡 VÀNG (Khách Đại Tướng · Ngoại Lực)</div>
@@ -7419,28 +7653,68 @@ function toggleThamHoa(){
 
 function fillToday(){
   const now=new Date();
-  const elNam=document.getElementById("inp-nam");
-  const elThang=document.getElementById("inp-thang");
-  const elNgay=document.getElementById("inp-ngay");
-  const elGio=document.getElementById("inp-gio");
-  if(elNam) elNam.value=now.getFullYear();
-  if(elThang) elThang.value=now.getMonth()+1;
-  if(elNgay) elNgay.value=now.getDate();
-  if(elGio) elGio.value=now.getHours();
+  const setVal=(id,v)=>{ const el=document.getElementById(id); if(el) el.value=v; };
+  setVal("inp-nam",     now.getFullYear());
+  setVal("inp-nam-main",now.getFullYear());
+  setVal("inp-thang",   now.getMonth()+1);
+  setVal("inp-ngay",    now.getDate());
+  setVal("inp-gio",     now.getHours());
+  setVal("inp-nc-thang", now.getMonth()+1);
+  setVal("inp-nc-nam",   now.getFullYear());
+}
+
+function calculateMain(){
+  const namMain = document.getElementById("inp-nam-main");
+  const namOld  = document.getElementById("inp-nam");
+  if(namMain && namOld) namOld.value = namMain.value;
+  const nam  = parseInt(namMain?.value || namOld?.value);
+  const thang= parseInt(document.getElementById("inp-thang")?.value);
+  const ngay = parseInt(document.getElementById("inp-ngay")?.value);
+  const gio  = parseInt(document.getElementById("inp-gio")?.value);
+  if(!nam||!thang||!ngay||isNaN(gio)){alert("Vui long nhap day du: Ngay, Thang, Nam, Gio");return;}
+  if(thang<1||thang>12){alert("Thang phai tu 1-12");return;}
+  if(ngay<1||ngay>31){alert("Ngay phai tu 1-31");return;}
+  if(gio<0||gio>23){alert("Gio phai tu 0-23");return;}
+  const btn = document.getElementById("main-calc-btn");
+  const txt = document.getElementById("main-btn-text");
+  if(btn) btn.disabled = true;
+  if(txt) txt.innerHTML = '<span class="spinner"></span> Dang quet...';
+  setTimeout(()=>{
+    try{ const result=compute(nam,thang,ngay,gio); renderResults(result); }
+    catch(e){ alert("Loi: "+e.message); console.error(e); }
+    finally{ if(btn) btn.disabled=false; if(txt) txt.textContent="Quet Toa Do Vu Tru"; }
+    setTimeout(enterFocusMode,600);
+  },60);
+}
+
+function syncNamMain(v){
+  // Sync năm giữa inp-nam và inp-nam-main
+  const a=document.getElementById('inp-nam');
+  const b=document.getElementById('inp-nam-main');
+  if(a && a.value!==v) a.value=v;
+  if(b && b.value!==v) b.value=v;
+}
+
+function tinhNguyetCucMain(){
+  const thang=parseInt(document.getElementById("inp-nc-thang")?.value);
+  const nam=parseInt(document.getElementById("inp-nc-nam")?.value);
+  if(!thang||thang<1||thang>12){alert("Vui long nhap Thang hop le (1-12)");return;}
+  if(!nam||nam<1000||nam>9999){alert("Vui long nhap Nam hop le");return;}
+  _kichHoatTinhToan(nam,thang,15,12);
 }
 
 function calculate(){
-  const nam=parseInt(document.getElementById("inp-nam").value);
-  const thang=parseInt(document.getElementById("inp-thang").value);
-  const ngay=parseInt(document.getElementById("inp-ngay").value);
-  const gio=parseInt(document.getElementById("inp-gio").value);
+  const nam=parseInt(document.getElementById("inp-nam")?.value||document.getElementById("inp-nam-main")?.value);
+  const thang=parseInt(document.getElementById("inp-thang")?.value);
+  const ngay=parseInt(document.getElementById("inp-ngay")?.value);
+  const gio=parseInt(document.getElementById("inp-gio")?.value);
   if(!nam||!thang||!ngay||isNaN(gio)){alert("⚠️ Vui lòng nhập đầy đủ: Năm, Tháng, Ngày, Giờ");return;}
   if(thang<1||thang>12){alert("Tháng phải từ 1–12");return;}
   if(ngay<1||ngay>31){alert("Ngày phải từ 1–31");return;}
   if(gio<0||gio>23){alert("Giờ phải từ 0–23");return;}
   const btn=document.getElementById("calc-btn");
   btn.classList.add("loading");
-  document.getElementById("btn-text").innerHTML='<span class="spinner"></span> Đang tính...';
+  const _btxt=document.getElementById("btn-text"); if(_btxt) _btxt.innerHTML='<span class="spinner"></span> Đang tính...';
   setTimeout(()=>{
     try{
       const result=compute(nam,thang,ngay,gio);
@@ -7450,7 +7724,7 @@ function calculate(){
       console.error(e);
     }
     btn.classList.remove("loading");
-    document.getElementById("btn-text").textContent="⚡ Quét Tọa Độ Vũ Trụ";
+    const _btxt2=document.getElementById("btn-text"); if(_btxt2) _btxt2.textContent="⚡ Quét Tọa Độ Vũ Trụ";
   }, 60);
 }
 
@@ -8438,6 +8712,83 @@ function bsrScanAddEvent(ev) {
   }
 }
 
+// ═══════════════════════════════════════════════════════
+//  THỜI CỤC — Input nhỏ gọn bên cạnh Scan Strip
+// ═══════════════════════════════════════════════════════
+function toggleThoiCuc() {
+  const row = document.getElementById("thoicuc-row");
+  const btn = document.getElementById("thoicuc-toggle-btn");
+  if (!row || !btn) return;
+  const isOpen = row.classList.toggle("open");
+  btn.classList.toggle("open", isOpen);
+  if (isOpen) {
+    // Prefill với ngày/giờ hiện tại nếu chưa có gì
+    const now = new Date();
+    const ngayEl   = document.getElementById("tc-ngay");
+    const thangEl  = document.getElementById("tc-thang");
+    const namEl    = document.getElementById("tc-nam");
+    const gioEl    = document.getElementById("tc-gio");
+    if (ngayEl  && !ngayEl.value)  ngayEl.value  = now.getDate();
+    if (thangEl && !thangEl.value) thangEl.value = now.getMonth() + 1;
+    if (namEl   && !namEl.value)   namEl.value   = now.getFullYear();
+    if (gioEl   && !gioEl.value)   gioEl.value   = now.getHours();
+    setTimeout(() => ngayEl && ngayEl.focus(), 80);
+  }
+}
+
+function tinhThoiCuc() {
+  const ngay  = parseInt(document.getElementById("tc-ngay")?.value)  || 0;
+  const thang = parseInt(document.getElementById("tc-thang")?.value) || 0;
+  const nam   = parseInt(document.getElementById("tc-nam")?.value)   || 0;
+  const gio   = parseInt(document.getElementById("tc-gio")?.value)   ?? -1;
+  const badge = document.getElementById("thoicuc-result");
+
+  if (!ngay || !thang || !nam || gio < 0) {
+    if (badge) { badge.textContent = "⚠️ Vui lòng nhập đủ ngày / tháng / năm / giờ"; badge.classList.add("show"); }
+    return;
+  }
+  if (ngay < 1 || ngay > 31 || thang < 1 || thang > 12 || nam < 1 || gio < 0 || gio > 23) {
+    if (badge) { badge.textContent = "⚠️ Giá trị không hợp lệ"; badge.classList.add("show"); }
+    return;
+  }
+
+  try {
+    const result = compute(nam, thang, ngay, gio);
+    const tc = result.cucs[3]; // Thời Cục là phần tử [3]
+    if (!tc) throw new Error("no thoicuc");
+
+    const d   = tc.data;
+    const cucSo = tc.cucSo;
+    const taiChu = d.taiChu ?? "—";
+    const anChu  = d.anChuDai ?? d.anChu ?? "—";
+    const anKhach= d.anKhachDai ?? d.anKhach ?? "—";
+    const thaiAt = d.viThaiAt ?? d.thaiAt ?? "—";
+
+    // Lấy nhận xét nhanh Chủ/Khách
+    let nhanXet = "";
+    if (d.chuKhachNhanXet) nhanXet = d.chuKhachNhanXet;
+    else if (d.nhanXet) nhanXet = d.nhanXet;
+
+    const dongLuc = d.dongLucChuKhach ?? "";
+
+    if (badge) {
+      badge.innerHTML =
+        `<strong style="color:var(--teal)">⚡ Thời Cục ${cucSo}</strong> &nbsp;·&nbsp; ${ngay}/${thang}/${nam} ${gio}h<br>` +
+        `Thái Ất: <strong style="color:var(--gold)">${thaiAt}</strong> &nbsp;|&nbsp; ` +
+        `Tài Chủ: <strong>${taiChu}</strong> &nbsp;|&nbsp; ` +
+        `Chủ: <span style="color:var(--cyan)">${anChu}</span> &nbsp;Khách: <span style="color:#ff9aaa">${anKhach}</span>` +
+        (nhanXet ? `<br><span style="opacity:.8">${nhanXet}</span>` : "") +
+        (dongLuc ? `<br><span style="color:var(--yellow);font-size:8.5px">${dongLuc}</span>` : "");
+      badge.classList.add("show");
+    }
+
+    // Đồng thời set input chính và trigger tính toàn bộ nếu muốn
+    // (tuỳ chọn — hiện tại chỉ hiển thị badge tóm tắt)
+  } catch(e) {
+    if (badge) { badge.textContent = "Lỗi tính toán: " + e.message; badge.classList.add("show"); }
+  }
+}
+
 async function bsrRunScan() {
   const btn = document.getElementById("bsr-scan-btn");
   const spinner = document.getElementById("bsr-scan-spinner");
@@ -8446,14 +8797,14 @@ async function bsrRunScan() {
 
   if (!btn) return;
 
-  // Kiểm tra cache
+  // Kiểm tra cache (15 phút)
   try {
     const cached = sessionStorage.getItem(BSR_SCAN_CACHE_KEY);
     if (cached) {
       const { events, ts, meta } = JSON.parse(cached);
       if (Date.now() - ts < BSR_SCAN_CACHE_TTL) {
         const age = Math.round((Date.now() - ts) / 60000);
-        if (status) status.textContent = `Cache ${age}m · ${meta?.articlesScanned||"?"}  bài`;
+        if (status) status.textContent = `Cache ${age}m · ${events.length} sự kiện`;
         bsrRenderScanResults(events);
         return;
       }
@@ -8463,29 +8814,66 @@ async function bsrRunScan() {
   // Start loading UI
   btn.disabled = true;
   if (spinner) spinner.style.display = "block";
-  if (status) { status.style.color = "var(--cyan)"; status.textContent = "Đang quét..."; }
-  if (results) results.innerHTML = `<div class="bsr-scan-empty" style="color:var(--cyan)">⚡ AI đang phân tích tin tức toàn cầu...</div>`;
+  if (status) { status.style.color = "var(--cyan)"; status.textContent = "AI đang quét..."; }
+  if (results) results.innerHTML = `<div class="bsr-scan-empty" style="color:var(--cyan)">⚡ AI đang phân tích rủi ro vĩ mô toàn cầu hiện tại...</div>`;
+
+  const today = new Date();
+  const dateStr = today.toLocaleDateString("vi-VN", { day:"2-digit", month:"2-digit", year:"numeric" });
+
+  const BSR_SCAN_PROMPT = `Hôm nay là ${dateStr}. Nhiệm vụ: liệt kê các sự kiện "Thiên Nga Đen" (Black Swan) và rủi ro vĩ mô đang diễn ra hoặc vừa xảy ra trên toàn cầu, ảnh hưởng đến thị trường tài chính, địa chính trị, kinh tế.
+
+Trả lời CHỈ dưới dạng JSON hợp lệ, không thêm gì khác, không markdown, không giải thích:
+{
+  "events": [
+    {
+      "name": "Tên ngắn gọn sự kiện (tiếng Việt)",
+      "desc": "Mô tả 1-2 câu về tác động (tiếng Việt)",
+      "date": "YYYY-MM-DD (ngày xảy ra hoặc ước tính)",
+      "year": <năm số nguyên>,
+      "impact": <điểm 1-10, 10=cực kỳ nguy hiểm>,
+      "type": <một trong: "geopolitical"|"financial"|"natural"|"pandemic"|"tech"|"energy">,
+      "markets": ["danh sách thị trường bị ảnh hưởng, vd: VN-Index, USD, Gold, Oil, BTC"]
+    }
+  ]
+}
+
+Yêu cầu:
+- Chỉ liệt kê sự kiện có impact >= 5
+- Tối đa 8 sự kiện, ưu tiên sự kiện đang diễn ra hoặc mới nhất
+- Tập trung vào: xung đột địa chính trị, khủng hoảng tài chính, thiên tai lớn, suy thoái kinh tế, biến động năng lượng
+- Bao gồm cả sự kiện liên quan Việt Nam/Đông Nam Á nếu có`;
 
   try {
-    const resp = await fetch(`${BSR_WORKER_URL}/scan`, { signal: AbortSignal.timeout(30000) });
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const data = await resp.json();
+    const data = await callAPI({
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 1200,
+      system: "Bạn là hệ thống phân tích rủi ro vĩ mô. Chỉ trả lời bằng JSON thuần túy, không markdown, không giải thích thêm.",
+      messages: [{ role: "user", content: BSR_SCAN_PROMPT }]
+    });
 
-    const events = data.events || [];
-    const meta = data._meta || {};
+    const raw = (data.content||[]).map(b=>b.text||"").join("").trim()
+      .replace(/^```json\s*/,"").replace(/^```\s*/,"").replace(/\s*```$/,"").trim();
 
-    // Sort by impact desc
-    events.sort((a, b) => (b.impact || 0) - (a.impact || 0));
+    let parsed;
+    try { parsed = JSON.parse(raw); }
+    catch(e) {
+      // Thử extract JSON từ response
+      const m = raw.match(/\{[\s\S]*\}/);
+      if (m) parsed = JSON.parse(m[0]);
+      else throw new Error("Không parse được JSON từ AI");
+    }
+
+    const events = (parsed.events || []).sort((a,b) => (b.impact||0) - (a.impact||0));
 
     // Cache
     try {
-      sessionStorage.setItem(BSR_SCAN_CACHE_KEY, JSON.stringify({ events, ts: Date.now(), meta }));
+      sessionStorage.setItem(BSR_SCAN_CACHE_KEY, JSON.stringify({ events, ts: Date.now(), meta: { articlesScanned: "AI" } }));
     } catch(e) {}
 
     if (status) {
       status.style.color = events.length > 0 ? "var(--red)" : "var(--green)";
       const t = new Date().toLocaleTimeString("vi-VN", { hour:"2-digit", minute:"2-digit" });
-      status.textContent = `${events.length} sự kiện · ${meta.articlesScanned||"?"} bài · ${t}`;
+      status.textContent = `${events.length} sự kiện · AI · ${t}`;
     }
 
     bsrRenderScanResults(events);
@@ -8493,7 +8881,7 @@ async function bsrRunScan() {
   } catch(err) {
     if (status) { status.style.color = "var(--red)"; status.textContent = "Lỗi: " + err.message; }
     if (results) results.innerHTML = `<div class="bsr-scan-empty" style="color:var(--red)">
-      ❌ Không thể kết nối scanner. Kiểm tra Worker URL và API keys.<br>
+      ❌ Không thể quét. Kiểm tra kết nối API (Cloudflare Worker / OpenRouter / Ollama).<br>
       <span style="font-size:9px;opacity:.7">${err.message}</span>
     </div>`;
   } finally {
@@ -11955,7 +12343,7 @@ Use the most recent available data. Return only the JSON, nothing else.`;
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 1000,
       tools: [{ type: 'web_search_20250305', name: 'web_search' }],
       messages: [{ role: 'user', content: prompt }]
